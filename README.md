@@ -1,0 +1,5 @@
+# Brave
+
+## License
+
+MIT
