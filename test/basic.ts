@@ -109,7 +109,7 @@ describe('Basic', () => {
     class BarMutations extends Mutations() {
       test: (n: number) => void = spy2
     }
-    class  BazMutations extends Mutations() {
+    class BazMutations extends Mutations() {
       test: (n: number) => void = spy3
     }
 
