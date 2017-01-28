@@ -88,10 +88,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     Object.keys(module.children).forEach(name => {
       this.initModuleAssets(
         path.concat(name),
-        state[name] = {},
-        getters[name] = {},
-        mutations[name] = {},
-        actions[name] = {},
+        state[key],
+        getters[key],
+        mutations[key],
+        actions[key],
         module.children[name]
       )
     })
