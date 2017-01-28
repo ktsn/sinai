@@ -161,7 +161,6 @@ describe('Inject', () => {
       .module('foo', foo)
     const s = store(root)
 
-    console.log(s.getters.foo)
     assert(s.getters.foo.aTest === 2)
     assert(s.getters.foo.bTest === 2)
     s.actions.foo.aTest()
