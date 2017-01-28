@@ -1,5 +1,5 @@
 import { Dictionary, BG0, BM0, BA0 } from './interface'
-import { Module, ModuleImpl, ModuleProxyImpl } from './module'
+import { ModuleImpl, ModuleProxyImpl } from './module'
 import { assert } from '../utils'
 
 interface ModuleMap {
@@ -101,11 +101,5 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
       )
     })
   }
-}
-
-export function store<S, G extends BG0, M extends BM0, A extends BA0> (
-  module: Module<S, G, M, A>
-): Store<S, G, M, A> {
-  return new StoreImpl(module as ModuleImpl) as any
 }
 

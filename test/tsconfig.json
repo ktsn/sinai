@@ -2,6 +2,10 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "module": "commonjs",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
     "sourceMap": true
   },
   "include": [
