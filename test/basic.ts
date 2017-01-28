@@ -239,4 +239,13 @@ describe('Basic', () => {
     assert(spy1.called)
     assert(spy2.called)
   })
+
+  it('throws if trying to register a module that the name is already exists', () => {
+    const foo = create()
+    const bar = create()
+
+    assert.throws(() => {
+      create().module('foo', foo).module('foo', foo)
+    })
+  })
 })

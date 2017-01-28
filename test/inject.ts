@@ -167,4 +167,16 @@ describe('Inject', () => {
     s.actions.foo.bTest()
     assert(spy.callCount === 2)
   })
+
+  it('throws if the injected module is not found in the store', () => {
+    const { Getters } = inject('counter', counter)
+
+    class FooGetters extends Getters() {}
+
+    const foo = create({ getters: FooGetters })
+
+    assert.throws(() => {
+      store(foo)
+    })
+  })
 })
