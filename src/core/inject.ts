@@ -8,7 +8,7 @@ import {
 
 import { Module, ModuleImpl, ModuleProxyImpl } from './module'
 import { StoreImpl } from './store'
-import { assert } from './utils'
+import { assert } from '../utils'
 
 export interface Injected<SG, SGMA> {
   Getters<S> (): Class<BG<S, SG>>

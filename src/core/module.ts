@@ -9,10 +9,10 @@ import {
   BaseGettersImpl,
   BaseMutationsImpl,
   BaseActionsImpl
-} from './base'
+} from './inject'
 
 import { StoreImpl } from './store'
-import { assert, getByPath } from './utils'
+import { assert, getByPath } from '../utils'
 
 export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>

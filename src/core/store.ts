@@ -1,6 +1,6 @@
 import { Dictionary, BG0, BM0, BA0 } from './interface'
 import { Module, ModuleImpl, ModuleProxyImpl } from './module'
-import { assert } from './utils'
+import { assert } from '../utils'
 
 interface ModuleMap {
   [key: string]: {
