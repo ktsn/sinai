@@ -52,20 +52,20 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     this.Actions = actions as BaseClass<BaseActionsImpl>
   }
 
-  initState (key: string, state: {}): void {
-    state[key] = this.State ? new this.State() : {}
+  initState (): {} {
+    return this.State ? new this.State() : {}
   }
 
-  initGetters (key: string, getters: {}, store: StoreImpl): void {
-    getters[key] = this.Getters ? new this.Getters(this, store) : {}
+  initGetters (store: StoreImpl): BG0 {
+    return this.Getters ? new this.Getters(this, store) : {} as BG0
   }
 
-  initMutations (key: string, mutations: {}, store: StoreImpl): void {
-    mutations[key] = this.Mutations ? new this.Mutations(this, store) : {}
+  initMutations (store: StoreImpl): BM0 {
+    return this.Mutations ? new this.Mutations(this, store) : {} as BM0
   }
 
-  initActions (key: string, actions: {}, store: StoreImpl): void {
-    actions[key] = this.Actions ? new this.Actions(this, store) : {}
+  initActions (store: StoreImpl): BA0 {
+    return this.Actions ? new this.Actions(this, store) : {} as BA0
   }
 
   module (key: string, module: ModuleImpl): ModuleImpl {

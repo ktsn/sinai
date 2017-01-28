@@ -33,10 +33,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     this.registerModuleLoop([], module)
 
     // Root module
-    module.initState('state', this)
-    module.initGetters('getters', this, this)
-    module.initMutations('mutations', this, this)
-    module.initActions('actions', this, this)
+    this.state = module.initState()
+    this.getters = module.initGetters(this)
+    this.mutations = module.initMutations(this)
+    this.actions = module.initActions(this)
 
     Object.keys(module.children).forEach(name => {
       this.initModuleAssets(
@@ -85,10 +85,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     module: ModuleImpl
   ): void {
     const key = path[path.length - 1]
-    module.initState(key, state)
-    module.initGetters(key, getters, this)
-    module.initMutations(key, mutations, this)
-    module.initActions(key, actions, this)
+    state[key] = module.initState()
+    getters[key] = module.initGetters(this)
+    mutations[key] = module.initMutations(this)
+    actions[key] = module.initActions(this)
 
     Object.keys(module.children).forEach(name => {
       this.initModuleAssets(
