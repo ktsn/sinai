@@ -11,7 +11,7 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
   private watcher = new Vue()
 
   constructor (private store: Store<S, G, M, A>) {
-    assert(_Vue, 'Must install Brave by Vue.use before instanciate a store')
+    assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
     this.vm = new _Vue!({
       data: {
         state: store.state
