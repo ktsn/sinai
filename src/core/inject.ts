@@ -118,8 +118,8 @@ export function Mutations (): Class<BM0> {
 }
 
 export function Actions<S> (): Class<BA1<S, BG0, BM0>>
-export function Actions<S, G extends BG0> (): Class<BA1<S, G, BM0>>
-export function Actions<S, M extends BM0> (): Class<BA1<S, BG0, M>>
+export function Actions<S, G extends BG0> (): Class<BA1<S, G, BM<S>>>
+export function Actions<S, M extends BM0> (): Class<BA1<S, BG1<S>, M>>
 export function Actions<S, G extends BG0, M extends BM0> (): Class<BA1<S, G, M>>
 export function Actions (): Class<BA0> {
   return BaseActionsImpl
@@ -133,5 +133,5 @@ export function inject<K extends string, S, G extends BG0, M extends BM0, A exte
     BaseGettersImpl,
     BaseMutationsImpl,
     BaseActionsImpl
-  ).and(key, module as ModuleImpl) as any
+  ).and(key, module as ModuleImpl) as Injected<CHD<K, GI<S, G>>, CHD<K, AI<S, G, M, A>>>
 }

@@ -98,6 +98,25 @@ describe('Basic', () => {
     assert(s.getters.doubleUpper === 'FOOFOO')
   })
 
+  it('should bind this object for getters', () => {
+    class FooState {
+      value = 1
+    }
+    class FooGetters extends Getters<FooState>() {
+      one () { return this.state.value }
+      two () {
+        const { one } = this
+        return one() + 1
+      }
+    }
+    const s = store(create({
+      state: FooState,
+      getters: FooGetters
+    }))
+
+    assert(s.getters.two() === 2)
+  })
+
   it('provides mutations', () => {
     const spy1 = sinon.spy()
     const spy2 = sinon.spy()
@@ -130,6 +149,31 @@ describe('Basic', () => {
     assert(spy1.calledWith(5))
     assert(spy2.calledWith(10))
     assert(spy3.calledWith(15))
+  })
+
+  it('should bind this object for mutations', () => {
+    class FooState {
+      value = 1
+    }
+    class FooMutations extends Mutations<FooState>() {
+      plus1 () {
+        this.state.value += 1
+      }
+      plus2 () {
+        const { plus1 } = this
+        plus1()
+        plus1()
+      }
+    }
+
+    const s = store(create({
+      state: FooState,
+      mutations: FooMutations
+    }))
+
+    assert(s.state.value === 1)
+    s.mutations.plus2()
+    assert(s.state.value === 3)
   })
 
   it('update state in each mutation', () => {
@@ -185,6 +229,40 @@ describe('Basic', () => {
     assert(spy1.calledWith(10))
     assert(spy2.calledWith(11))
     assert(spy3.calledWith(12))
+  })
+
+  it('should bind this object for actions', () => {
+    const spy = sinon.spy()
+
+    class FooState {
+      value = 1
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc () {
+        this.state.value += 1
+      }
+    }
+    class FooActions extends Actions<FooState, FooMutations>() {
+      inc () {
+        this.mutations.inc()
+      }
+      test () {
+        const { inc } = this
+        assert(this.state.value === 1)
+        inc()
+        assert(this.state.value === 2)
+        spy()
+      }
+    }
+
+    const s = store(create({
+      state: FooState,
+      mutations: FooMutations,
+      actions: FooActions
+    }))
+
+    s.actions.test()
+    assert(spy.called)
   })
 
   it('refers state/getters/actions in each action', () => {

@@ -12,7 +12,7 @@ import {
 } from './inject'
 
 import { StoreImpl } from './store'
-import { assert, getByPath } from '../utils'
+import { assert, getByPath, bind, isPromise } from '../utils'
 
 export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>
@@ -57,15 +57,75 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
   }
 
   initGetters (store: StoreImpl): BG0 {
-    return this.Getters ? new this.Getters(this, store) : {} as BG0
+    if (!this.Getters) return {} as BG0
+
+    const getters = new this.Getters(this, store)
+
+    forEachDescriptor(this.Getters, (key, desc) => {
+      assert(desc.set === undefined, 'Getters should not have any setters')
+
+      if (typeof desc.get === 'function') {
+        const original = desc.get
+        desc.get = function boundGetterFn () {
+          return original.call(getters)
+        }
+        Object.defineProperty(getters, key, desc)
+        return
+      }
+
+      if (typeof desc.value === 'function') {
+        const original = desc.value
+        desc.value = function boundGetterFn (...args: any[]) {
+          return original.call(getters, ...args)
+        }
+        Object.defineProperty(getters, key, desc)
+        return
+      }
+
+      assert(false, 'Getters should not have other than getter properties or methods')
+    })
+
+    return getters
   }
 
   initMutations (store: StoreImpl): BM0 {
-    return this.Mutations ? new this.Mutations(this, store) : {} as BM0
+    if (!this.Mutations) return {} as BM0
+
+    const mutations = new this.Mutations(this, store)
+
+    forEachDescriptor(this.Mutations, (key, desc) => {
+      assert(typeof desc.value === 'function', 'Mutations should only have functions')
+
+      const original = desc.value
+      desc.value = function boundMutationFn (...args: any[]) {
+        const r = original.call(mutations, ...args)
+        assert(r === undefined, 'Mutations should not return anything')
+      }
+
+      Object.defineProperty(mutations, key, desc)
+    })
+
+    return mutations
   }
 
   initActions (store: StoreImpl): BA0 {
-    return this.Actions ? new this.Actions(this, store) : {} as BA0
+    if (!this.Actions) return {} as BA0
+
+    const actions = new this.Actions(this, store)
+
+    forEachDescriptor(this.Actions, (key, desc) => {
+      assert(typeof desc.value === 'function', 'Mutations should only have functions')
+
+      const original = desc.value
+      desc.value = function boundMutationFn (...args: any[]) {
+        const r = original.call(actions, ...args)
+        assert(r === undefined, 'Mutations should not return anything')
+      }
+
+      Object.defineProperty(actions, key, desc)
+    })
+
+    return actions
   }
 
   module (key: string, module: ModuleImpl): ModuleImpl {
@@ -104,4 +164,16 @@ export function create<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G,
   options: ModuleOptions<S, G, M, A> = {}
 ): Module<S, G, M, A> {
   return new ModuleImpl(++uid, options)
+}
+
+function forEachDescriptor<T extends Class<{}>> (
+  Class: T,
+  fn: (key: string, desc: PropertyDescriptor) => void
+): void {
+  Object.getOwnPropertyNames(Class.prototype).forEach(key => {
+    if (key === 'constructor') return
+
+    const desc = Object.getOwnPropertyDescriptor(Class.prototype, key)
+    fn(key, desc)
+  })
 }
