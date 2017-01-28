@@ -9,13 +9,17 @@ const config = {
   plugins: [
     nodeResolve({
       jsnext: true,
-      main: true
+      main: true,
+      skip: ['vue']
     }),
-
     commonjs({
       sourceMap: false
     })
   ],
+  external: ['vue'],
+  globals: {
+    vue: 'Vue'
+  },
   banner: `/*!
  * ${meta.name} v${meta.version}
  * ${meta.homepage}
