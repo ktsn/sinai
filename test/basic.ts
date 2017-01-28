@@ -80,32 +80,72 @@ describe('Brave', () => {
   })
 
   it('provides mutations', () => {
-    const spy = sinon.spy()
+    const spy1 = sinon.spy()
+    const spy2 = sinon.spy()
 
     class FooMutations extends Mutations() {
-      test: (n: number) => void = spy
+      test: (n: number) => void = spy1
+    }
+    class BarMutations extends Mutations() {
+      test: (n: number) => void = spy2
+    }
+
+    const bar = create({
+      mutations: BarMutations
+    })
+    const foo = create({
+      mutations: FooMutations
+    }).module('bar', bar)
+
+    const s = store(foo)
+    s.mutations.test(5)
+    s.mutations.bar.test(10)
+    assert(spy1.calledWith(5))
+    assert(spy2.calledWith(10))
+  })
+
+  it('update state in each mutation', () => {
+    class FooState {
+      value = 1
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc () {
+        this.state.value += 1
+      }
     }
 
     const s = store(create({
+      state: FooState,
       mutations: FooMutations
     }))
-    s.mutations.test(5)
-    assert(spy.calledWith(5))
+
+    assert(s.state.value === 1)
+    s.mutations.inc()
+    assert(s.state.value === 2)
   })
 
   it('provides actions', () => {
-    const spy = sinon.spy()
+    const spy1 = sinon.spy()
+    const spy2 = sinon.spy()
 
     class FooActions extends Actions() {
-      test: (n: number) => void = spy
+      test: (n: number) => void = spy1
+    }
+    class BarActions extends Actions() {
+      test: (n: number) => void = spy2
     }
 
-    const s = store(create({
+    const bar = create({
+      actions: BarActions
+    })
+    const foo = create({
       actions: FooActions
-    }))
+    }).module('bar', bar)
+
+    const s = store(foo)
 
     s.actions.test(10)
-    assert(spy.calledWith(10))
+    assert(spy1.calledWith(10))
   })
 
   it('refers state/getters/actions in each action', () => {
