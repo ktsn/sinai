@@ -1,6 +1,7 @@
 import {
-  Class, Dictionary,
-  CHD, BG0, BM0, BA0
+  Class, Dictionary, CHD,
+  BG0, BM0, BA0,
+  BG1, BM, BA1
 } from './interface'
 
 import {
@@ -99,7 +100,7 @@ export class ModuleProxyImpl implements ModuleProxy<{}, {}, {}, {}> {
 
 let uid = 0
 
-export function create<S extends {}, G extends BG0, M extends BM0, A extends BA0> (
+export function create<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G, M>> (
   options: ModuleOptions<S, G, M, A> = {}
 ): Module<S, G, M, A> {
   return new ModuleImpl(++uid, options)
