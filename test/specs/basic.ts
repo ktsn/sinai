@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import { create, store, Getters, Mutations, Actions } from '../src'
+import { create, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Basic', () => {
   it('compose state tree', () => {

@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import { inject, create, store, Getters, Mutations, Actions } from '../src'
+import { inject, create, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Inject', () => {
   class AState {
