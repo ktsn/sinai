@@ -4,19 +4,22 @@ import { Module, ModuleImpl } from './core/module'
 import { Store, StoreImpl } from './core/store'
 import { assert } from './utils'
 
-let _Vue: typeof Vue | undefined
+let _Vue: typeof Vue
 
 export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
   private vm: Vue & { state: S }
-  private watcher = new Vue()
+  private watcher: Vue
 
   constructor (private store: Store<S, G, M, A>) {
     assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
-    this.vm = new _Vue!({
+
+    this.vm = new _Vue({
       data: {
         state: store.state
       }
     }) as Vue & { state: S }
+
+    this.watcher = new _Vue()
   }
 
   get state (): S {
