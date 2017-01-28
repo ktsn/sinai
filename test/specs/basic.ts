@@ -339,4 +339,71 @@ describe('Basic', () => {
       store(baz)
     })
   })
+
+  it('throws if there is setter in getters', () => {
+    class FooGetters extends Getters() {
+      set foo (value: number) { /* nothing */ }
+    }
+    const foo = create({
+      getters: FooGetters
+    })
+
+    assert.throws(() => {
+      store(foo)
+    }, /Getters should not have any setters/)
+  })
+
+  it('throws if mutations have setter/getter', () => {
+    class FooMutations extends Mutations() {
+      get foo () { return 1 }
+    }
+    const foo = create({
+      mutations: FooMutations
+    })
+
+    assert.throws(() => {
+      store(foo)
+    }, /Mutations should only have functions/)
+  })
+
+  it('throws if a mutation returns something', () => {
+    class FooMutations extends Mutations() {
+      foo () { return null }
+    }
+    const s = store(create({
+      mutations: FooMutations
+    }))
+
+    assert.throws(() => {
+      s.mutations.foo()
+    }, /Mutations should not return anything/)
+  })
+
+  it('throws if actions have setter/getter', () => {
+    class FooActions extends Actions() {
+      get foo () { return 1 }
+    }
+    const foo = create({
+      actions: FooActions
+    })
+
+    assert.throws(() => {
+      store(foo)
+    }, /Actions should only have functions/)
+  })
+
+  it('throws if an action returns other than Promise', () => {
+    class FooActions extends Actions() {
+      foo () {
+        return 1
+      }
+    }
+    const s = store(create({
+      actions: FooActions
+    }))
+
+    assert.throws(() => {
+      s.actions.foo()
+    }, /Actions should not return other than Promise/)
+  })
 })

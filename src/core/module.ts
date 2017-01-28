@@ -114,12 +114,12 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     const actions = new this.Actions(this, store)
 
     forEachDescriptor(this.Actions, (key, desc) => {
-      assert(typeof desc.value === 'function', 'Mutations should only have functions')
+      assert(typeof desc.value === 'function', 'Actions should only have functions')
 
       const original = desc.value
       desc.value = function boundMutationFn (...args: any[]) {
         const r = original.call(actions, ...args)
-        assert(r === undefined, 'Mutations should not return anything')
+        assert(r === undefined, 'Actions should not return other than Promise')
       }
 
       Object.defineProperty(actions, key, desc)
