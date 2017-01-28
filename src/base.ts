@@ -11,11 +11,14 @@ import { StoreImpl } from './store'
 import { assert } from './utils'
 
 export interface Injected<SG, SGMA> {
-  Getters: <S>() => Class<BG<S, SG>>
-  Mutations: <S>() => Class<BM<S>>
-  Actions: <S, G, M>() => Class<BA<S, G, M, SGMA>>
+  Getters<S> (): Class<BG<S, SG>>
+  Mutations<S> (): Class<BM<S>>
+  Actions<S> (): Class<BA<S, BG0, BM0, SGMA>>
+  Actions<S, G extends BG0> (): Class<BA<S, G, BM0, SGMA>>
+  Actions<S, M extends BM0> (): Class<BA<S, BG0, M, SGMA>>
+  Actions<S, G extends BG0, M extends BM0> (): Class<BA<S, G, M, SGMA>>
 
-  and<K extends string, S, G, M, A> (
+  and<K extends string, S, G extends BG0, M extends BM0, A extends BA0> (
     key: K,
     module: Module<S, G, M, A>
   ): Injected<SG & CHD<K, GI<S, G>>, SGMA & CHD<K, AI<S, G, M, A>>>
@@ -104,19 +107,25 @@ export class BaseActionsImpl extends Base implements BA0 {
   }
 }
 
-export function Getters<S> (): Class<BG1<S>> {
-  return BaseGettersImpl as any
+export function Getters<S> (): Class<BG1<S>>
+export function Getters (): Class<BG0> {
+  return BaseGettersImpl
 }
 
-export function Mutations<S> (): Class<BM<S>> {
-  return BaseMutationsImpl as any
+export function Mutations<S> (): Class<BM<S>>
+export function Mutations (): Class<BM0> {
+  return BaseMutationsImpl
 }
 
-export function Actions<S, G, M> (): Class<BA1<S, G, M>> {
-  return BaseActionsImpl as any
+export function Actions<S> (): Class<BA1<S, BG0, BM0>>
+export function Actions<S, G extends BG0> (): Class<BA1<S, G, BM0>>
+export function Actions<S, M extends BM0> (): Class<BA1<S, BG0, M>>
+export function Actions<S, G extends BG0, M extends BM0> (): Class<BA1<S, G, M>>
+export function Actions (): Class<BA0> {
+  return BaseActionsImpl
 }
 
-export function inject<K extends string, S, G, M, A> (
+export function inject<K extends string, S, G extends BG0, M extends BM0, A extends BA0> (
   key: K,
   module: Module<S, G, M, A>
 ): Injected<CHD<K, GI<S, G>>, CHD<K, AI<S, G, M, A>>> {

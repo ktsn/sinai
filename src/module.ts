@@ -14,21 +14,21 @@ import {
 import { StoreImpl } from './store'
 import { assert, getByPath } from './utils'
 
-export interface ModuleOptions<S, G, M, A> {
+export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>
   getters?: Class<G>
   mutations?: Class<M>
   actions?: Class<A>
 }
 
-export interface Module<S, G, M, A> {
-  module<K extends string, S1, G1, M1, A1> (
+export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
+  module<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0> (
     key: K,
     module: Module<S1, G1, M1, A1>
   ): Module<S & CHD<K, S1>, G & CHD<K, G1>, M & CHD<K, M1>, A & CHD<K, A1>>
 }
 
-export interface ModuleProxy<S, G, M, A> {
+export interface ModuleProxy<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly state: S
   readonly getters: G
   readonly mutations: M
@@ -75,7 +75,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
   }
 }
 
-export class ModuleProxyImpl implements ModuleProxy<{}, {}, {}, {}> {
+export class ModuleProxyImpl implements ModuleProxy<{}, BG0, BM0, BA0> {
   constructor (
     private path: string[],
     private store: StoreImpl
@@ -86,15 +86,15 @@ export class ModuleProxyImpl implements ModuleProxy<{}, {}, {}, {}> {
   }
 
   get getters () {
-    return getByPath(this.path, this.store.getters)
+    return getByPath<BG0>(this.path, this.store.getters)
   }
 
   get mutations () {
-    return getByPath(this.path, this.store.mutations)
+    return getByPath<BM0>(this.path, this.store.mutations)
   }
 
   get actions () {
-    return getByPath(this.path, this.store.actions)
+    return getByPath<BA0>(this.path, this.store.actions)
   }
 }
 

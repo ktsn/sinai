@@ -41,6 +41,6 @@ export declare class BA<S, G, M, MD> {
 export interface BG0 extends BG<{}, {}> {}
 export interface BG1<S> extends BG<S, {}> {}
 export interface BM0 extends BM<{}> {}
-export interface BA0 extends BA<{}, {}, {}, {}> {}
-export interface BA1<S, G, M> extends BA<S, G, M, {}> {}
+export interface BA0 extends BA<{}, BG0, BM0, {}> {}
+export interface BA1<S, G extends BG0, M extends BM0> extends BA<S, G, M, {}> {}
 

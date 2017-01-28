@@ -1,4 +1,4 @@
-import { Dictionary } from './interface'
+import { Dictionary, BG0, BM0, BA0 } from './interface'
 import { Module, ModuleImpl, ModuleProxyImpl } from './module'
 import { assert } from './utils'
 
@@ -17,13 +17,13 @@ export interface Store<S, G, M, A> {
   readonly actions: A
 }
 
-export class StoreImpl implements Store<{}, {}, {}, {}> {
+export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
 
   state: {}
-  getters: {}
-  mutations: {}
-  actions: {}
+  getters: BG0
+  mutations: BM0
+  actions: BA0
 
   constructor (module: ModuleImpl) {
     this.registerModule(module)
@@ -98,7 +98,7 @@ export class StoreImpl implements Store<{}, {}, {}, {}> {
   }
 }
 
-export function store<S, G, M, A> (
+export function store<S, G extends BG0, M extends BM0, A extends BA0> (
   module: Module<S, G, M, A>
 ): Store<S, G, M, A> {
   return new StoreImpl(module as ModuleImpl) as any
