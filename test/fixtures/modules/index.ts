@@ -1,4 +1,4 @@
-import { create } from '../../../src/interface'
+import { create } from '../../../src'
 import Counter from './counter'
 import Todos from './todos'
 

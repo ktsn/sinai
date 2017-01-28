@@ -1,4 +1,4 @@
-import { Getters, Mutations, Actions, create } from '../../../src/interface'
+import { Getters, Mutations, Actions, create } from '../../../src'
 
 class CounterState {
   count = 0

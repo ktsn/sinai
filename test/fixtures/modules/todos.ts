@@ -1,4 +1,4 @@
-import { inject, create } from '../../../src/interface'
+import { inject, create } from '../../../src'
 import Counter from './counter'
 
 const { Getters, Mutations, Actions } = inject('counter', Counter)
@@ -10,7 +10,11 @@ interface Todo {
 }
 
 class TodosState {
-  todos: Todo[] = []
+  todos: Todo[] = [{
+    id: 1,
+    isCompleted: false,
+    title: 'Test'
+  }]
   filter: 'all' | 'active' | 'completed' = 'all'
 }
 
