@@ -22,16 +22,16 @@ export interface AI<S, G, M, A> {
   readonly actions: A
 }
 
-export declare class BG<S, MD> {
+export interface BG<S, MD> {
   readonly state: S
   readonly modules: MD
 }
 
-export declare class BM<S> {
+export interface BM<S> {
   readonly state: S
 }
 
-export declare class BA<S, G, M, MD> {
+export interface BA<S, G, M, MD> {
   readonly state: S
   readonly getters: G
   readonly mutations: M
