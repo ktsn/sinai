@@ -248,4 +248,17 @@ describe('Basic', () => {
       create().module('foo', foo).module('foo', foo)
     })
   })
+
+  it('throws if a module is registered in twice or more', () => {
+    const foo = create()
+    const bar = create()
+      .module('foo', foo)
+    const baz = create()
+      .module('bar', bar)
+      .module('test', foo)
+
+    assert.throws(() => {
+      store(baz)
+    })
+  })
 })
