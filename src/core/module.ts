@@ -69,20 +69,16 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         desc.get = function boundGetterFn () {
           return original.call(getters)
         }
-        Object.defineProperty(getters, key, desc)
-        return
-      }
-
-      if (typeof desc.value === 'function') {
+      } else if (typeof desc.value === 'function') {
         const original = desc.value
         desc.value = function boundGetterFn (...args: any[]) {
           return original.call(getters, ...args)
         }
-        Object.defineProperty(getters, key, desc)
-        return
+      } else {
+        assert(false, 'Getters should not have other than getter properties or methods')
       }
 
-      assert(false, 'Getters should not have other than getter properties or methods')
+      Object.defineProperty(getters, key, desc)
     })
 
     return getters
