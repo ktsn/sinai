@@ -1,10 +1,21 @@
 const replace = require('rollup-plugin-replace')
+const nodeResolve = require('rollup-plugin-node-resolve')
+const commonjs = require('rollup-plugin-commonjs')
 const meta = require('../package.json')
 
 const config = {
   entry: 'lib/index.js',
   moduleName: 'Brave',
-  plugins: [],
+  plugins: [
+    nodeResolve({
+      jsnext: true,
+      main: true
+    }),
+
+    commonjs({
+      sourceMap: false
+    })
+  ],
   banner: `/*!
  * ${meta.name} v${meta.version}
  * ${meta.homepage}
