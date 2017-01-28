@@ -8,6 +8,7 @@ let _Vue: typeof Vue | undefined
 
 export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
   private vm: Vue & { state: S }
+  private watcher = new Vue()
 
   constructor (private store: Store<S, G, M, A>) {
     assert(_Vue, 'Must install Brave by Vue.use before instanciate a store')
@@ -32,6 +33,18 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
 
   get actions (): A {
     return this.store.actions
+  }
+
+  watch<R> (
+    getter: (state: S, getters: G) => R,
+    cb: (newState: R, oldState: R) => void,
+    options?: Vue.WatchOptions
+  ): () => void {
+    return this.watcher.$watch(
+      () => getter(this.state, this.getters),
+      cb,
+      options
+    )
   }
 }
 
