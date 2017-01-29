@@ -1,4 +1,4 @@
-import { Dictionary, BG0, BM0, BA0 } from './interface'
+import { BG0, BM0, BA0 } from './interface'
 import { ModuleImpl, ModuleProxyImpl } from './module'
 import { assert, forEachValues } from '../utils'
 
