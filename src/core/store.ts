@@ -1,6 +1,6 @@
 import { Dictionary, BG0, BM0, BA0 } from './interface'
 import { ModuleImpl, ModuleProxyImpl } from './module'
-import { assert } from '../utils'
+import { assert, forEachValues } from '../utils'
 
 interface ModuleMap {
   [key: string]: {
@@ -44,24 +44,11 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   registerModule (module: ModuleImpl): void {
     this.registerModuleLoop([], module)
 
-    // Root module
-    this.state = module.initState()
-    this.getters = module.initGetters(this)
-    this.mutations = module.initMutations(this, (key, desc) => {
-      return this.hookMutation([key], desc)
-    })
-    this.actions = module.initActions(this)
-
-    Object.keys(module.children).forEach(name => {
-      this.initModuleAssets(
-        [name],
-        this.state,
-        this.getters,
-        this.mutations,
-        this.actions,
-        module.children[name]
-      )
-    })
+    const assets = this.initModuleAssets([], module)
+    this.state = assets.state
+    this.getters = assets.getters
+    this.mutations = assets.mutations
+    this.actions = assets.actions
   }
 
   getProxy (module: ModuleImpl): ModuleProxyImpl | null {
@@ -92,30 +79,31 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
 
   private initModuleAssets (
     path: string[],
-    state: {},
-    getters: {},
-    mutations: {},
-    actions: {},
     module: ModuleImpl
-  ): void {
-    const key = path[path.length - 1]
-    state[key] = module.initState()
-    getters[key] = module.initGetters(this)
-    mutations[key] = module.initMutations(this, (name, desc) => {
-      return this.hookMutation(path.concat(name), desc)
-    })
-    actions[key] = module.initActions(this)
+  ): {
+    state: {},
+    getters: BG0,
+    mutations: BM0,
+    actions: BA0
+  } {
+    const assets = {
+      state: module.initState(),
+      getters: module.initGetters(this),
+      mutations: module.initMutations(this, (name, desc) => {
+        return this.hookMutation(path.concat(name), desc)
+      }),
+      actions: module.initActions(this)
+    }
 
-    Object.keys(module.children).forEach(name => {
-      this.initModuleAssets(
-        path.concat(name),
-        state[key],
-        getters[key],
-        mutations[key],
-        actions[key],
-        module.children[name]
-      )
+    forEachValues(module.children, (childModule, key) => {
+      const child = this.initModuleAssets(path.concat(key), childModule)
+      assets.state[key] = child.state
+      assets.getters[key] = child.getters
+      assets.mutations[key] = child.mutations
+      assets.actions[key] = child.actions
     })
+
+    return assets
   }
 
   private hookMutation (path: string[], desc: PropertyDescriptor): PropertyDescriptor {

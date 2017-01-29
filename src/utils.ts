@@ -1,7 +1,18 @@
+import { Dictionary } from './core/interface'
+
 export function assert (condition: any, message: string): void {
   if (!condition) {
     throw new Error('[brave] ' + message)
   }
+}
+
+export function forEachValues<T> (
+  t: Dictionary<T>,
+  fn: (t: T, key: string) => void
+): void {
+  Object.keys(t).forEach(key => {
+    fn(t[key], key)
+  })
 }
 
 export function getByPath<T> (path: string[], obj: any): T {
