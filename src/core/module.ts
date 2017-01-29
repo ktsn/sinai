@@ -1,17 +1,14 @@
 import {
-  Class, Dictionary, CHD,
-  BG0, BM0, BA0,
-  BG1, BM, BA1
+  Class, Dictionary, CHD
 } from './interface'
 
 import {
   BaseClass,
-  BaseGettersImpl,
-  BaseMutationsImpl,
-  BaseActionsImpl
+  BG0, BM0, BA0,
+  BG1, BM, BA1
 } from './inject'
 
-import { StoreImpl } from './store'
+import { CoreStore0 } from './store'
 import { assert, identity, getByPath, bind, isPromise } from '../utils'
 
 export type Transformer = (desc: PropertyDescriptor, key: string) => PropertyDescriptor
@@ -30,35 +27,28 @@ export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
   ): Module<S & CHD<K, S1>, G & CHD<K, G1>, M & CHD<K, M1>, A & CHD<K, A1>>
 }
 
-export interface ModuleProxy<S, G extends BG0, M extends BM0, A extends BA0> {
-  readonly state: S
-  readonly getters: G
-  readonly mutations: M
-  readonly actions: A
-}
-
 export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implements Module<S, G, M, A> {
-  children: Dictionary<ModuleImpl<{}, BG0, BM0, BA0>> = {}
-  State: Class<{}> | undefined
-  Getters: BaseClass<BaseGettersImpl> | undefined
-  Mutations: BaseClass<BaseMutationsImpl> | undefined
-  Actions: BaseClass<BaseActionsImpl> | undefined
+  children: Dictionary<ModuleImpl0> = {}
+  State: Class<S> | undefined
+  Getters: BaseClass<BG0> | undefined
+  Mutations: BaseClass<BM0> | undefined
+  Actions: BaseClass<BA0> | undefined
 
   constructor (
     public uid: number,
     { state, getters, mutations, actions }: ModuleOptions<{}, BG0, BM0, BA0>
   ) {
-    this.State = state
-    this.Getters = getters as BaseClass<BaseGettersImpl>
-    this.Mutations = mutations as BaseClass<BaseMutationsImpl>
-    this.Actions = actions as BaseClass<BaseActionsImpl>
+    this.State = state as Class<S>
+    this.Getters = getters
+    this.Mutations = mutations
+    this.Actions = actions
   }
 
   initState (): {} {
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: StoreImpl<{}, BG0, BM0, BA0>, transformer: Transformer = identity): BG0 {
+  initGetters (store: CoreStore0, transformer: Transformer = identity): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
@@ -86,7 +76,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return getters
   }
 
-  initMutations (store: StoreImpl<{}, BG0, BM0, BA0>, transformer: Transformer = identity): BM0 {
+  initMutations (store: CoreStore0, transformer: Transformer = identity): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
@@ -106,7 +96,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return mutations
   }
 
-  initActions (store: StoreImpl<{}, BG0, BM0, BA0>, transformer: Transformer = identity): BA0 {
+  initActions (store: CoreStore0, transformer: Transformer = identity): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
@@ -126,17 +116,19 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return actions
   }
 
-  module (key: string, module: ModuleImpl<{}, BG0, BM0, BA0>): this {
+  module (key: string, module: ModuleImpl0): this {
     assert(!(key in this.children), `${key} is already used in the module`)
     this.children[key] = module
     return this
   }
 }
 
-export class ModuleProxyImpl<S, G extends BG0, M extends BM0, A extends BA0> implements ModuleProxy<S, G, M, A> {
+export interface ModuleImpl0 extends ModuleImpl<{}, BG0, BM0, BA0> {}
+
+export class ModuleProxy<S, G extends BG0, M extends BM0, A extends BA0> {
   constructor (
     private path: string[],
-    private store: StoreImpl<{}, BG0, BM0, BA0>
+    private store: CoreStore0
   ) {}
 
   get state () {
@@ -155,6 +147,8 @@ export class ModuleProxyImpl<S, G extends BG0, M extends BM0, A extends BA0> imp
     return getByPath<A>(this.path, this.store.actions)
   }
 }
+
+export type ModuleProxy0 = ModuleProxy<{}, BG0, BM0, BA0>
 
 let uid = 0
 

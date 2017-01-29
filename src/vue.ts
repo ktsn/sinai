@@ -1,7 +1,8 @@
 import * as Vue from 'vue'
-import { Dictionary, BG0, BM0, BA0 } from './core/interface'
+import { Dictionary } from './core/interface'
+import { BG0, BM0, BA0 } from './core/inject'
 import { Module, ModuleImpl } from './core/module'
-import { Store, StoreImpl, Subscriber } from './core/store'
+import { Store, CoreStore, Subscriber } from './core/store'
 import { assert, bind } from './utils'
 
 let _Vue: typeof Vue
@@ -15,7 +16,7 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
   constructor (module: Module<S, G, M, A>) {
     assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
 
-    this.innerStore = new StoreImpl(module as ModuleImpl<S, G, M, A>, {
+    this.innerStore = new CoreStore(module as ModuleImpl<S, G, M, A>, {
       transformGetter: bind(this, this.transformGetter)
     })
 
