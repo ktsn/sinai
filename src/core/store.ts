@@ -5,8 +5,8 @@ import { assert, identity, bind, forEachValues } from '../utils'
 interface ModuleMap {
   [key: string]: {
     path: string[]
-    module: ModuleImpl
-    proxy: ModuleProxyImpl
+    module: ModuleImpl<{}, BG0, BM0, BA0>
+    proxy: ModuleProxyImpl<{}, BG0, BM0, BA0>
   }
 }
 
@@ -29,19 +29,19 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   subscribe (fn: Subscriber<S>): () => void
 }
 
-export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
+export class StoreImpl<S, G extends BG0, M extends BM0, A extends BA0> implements Store<S, G, M, A> {
   private moduleMap: ModuleMap = {}
   private subscribers: Subscriber<{}>[] = []
   private transformGetter: Transformer
   private transformMutation: Transformer
   private transformAction: Transformer
 
-  state: {}
-  getters: BG0
-  mutations: BM0
-  actions: BA0
+  state: S
+  getters: G
+  mutations: M
+  actions: A
 
-  constructor (module: ModuleImpl, options: StoreOptions = {}) {
+  constructor (module: ModuleImpl<S, G, M, A>, options: StoreOptions = {}) {
     this.transformGetter = options.transformGetter || identity
     this.transformMutation = options.transformMutation || identity
     this.transformAction = options.transformAction || identity
@@ -56,23 +56,23 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     }
   }
 
-  registerModule (module: ModuleImpl): void {
+  registerModule (module: ModuleImpl<S, G, M, A>): void {
     this.registerModuleLoop([], module)
 
     const assets = this.initModuleAssets([], module)
-    this.state = assets.state
-    this.getters = assets.getters
-    this.mutations = assets.mutations
-    this.actions = assets.actions
+    this.state = assets.state as S
+    this.getters = assets.getters as G
+    this.mutations = assets.mutations as M
+    this.actions = assets.actions as A
   }
 
-  getProxy (module: ModuleImpl): ModuleProxyImpl | null {
+  getProxy (module: ModuleImpl<{}, BG0, BM0, BA0>): ModuleProxyImpl<{}, BG0, BM0, BA0> | null {
     const map = this.moduleMap[module.uid]
     if (map == null) return null
     return map.proxy
   }
 
-  private registerModuleLoop (path: string[], module: ModuleImpl): void {
+  private registerModuleLoop (path: string[], module: ModuleImpl<{}, BG0, BM0, BA0>): void {
     assert(
       !(module.uid in this.moduleMap),
       'The module is already registered. The module object must not be re-used in twice or more'
@@ -94,7 +94,7 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
 
   private initModuleAssets (
     path: string[],
-    module: ModuleImpl
+    module: ModuleImpl<{}, BG0, BM0, BA0>
   ): {
     state: {},
     getters: BG0,

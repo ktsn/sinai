@@ -33,7 +33,7 @@ export function makeInjected (
     Getters: () => Getters,
     Mutations: () => Mutations,
     Actions: () => Actions,
-    and (key: string, module: ModuleImpl): Injected<{}, {}> {
+    and (key: string, module: ModuleImpl<{}, BG0, BM0, BA0>): Injected<{}, {}> {
       return makeInjected(
         injectModule(Getters, key, module) as BaseClass<BaseGettersImpl>,
         Mutations,
@@ -46,10 +46,10 @@ export function makeInjected (
 function injectModule<T extends BaseClass<Base>> (
   Super: BaseClass<Base>,
   key: string,
-  depModule: ModuleImpl
+  depModule: ModuleImpl<{}, BG0, BM0, BA0>
 ): BaseClass<Base> {
   return class extends Super {
-    constructor (module: ModuleImpl, store: StoreImpl) {
+    constructor (module: ModuleImpl<{}, BG0, BM0, BA0>, store: StoreImpl<{}, BG0, BM0, BA0>) {
       super(module, store)
 
       const proxy = store.getProxy(depModule)
@@ -60,16 +60,16 @@ function injectModule<T extends BaseClass<Base>> (
 }
 
 export interface BaseClass<T extends Base> {
-  new (module: ModuleImpl, store: StoreImpl): T
+  new (module: ModuleImpl<{}, BG0, BM0, BA0>, store: StoreImpl<{}, BG0, BM0, BA0>): T
 }
 
 export class Base {
   modules: {}
-  protected proxy: ModuleProxyImpl
+  protected proxy: ModuleProxyImpl<{}, BG0, BM0, BA0>
 
   constructor (
-    module: ModuleImpl,
-    store: StoreImpl
+    module: ModuleImpl<{}, BG0, BM0, BA0>,
+    store: StoreImpl<{}, BG0, BM0, BA0>
   ) {
     const proxy = store.getProxy(module)
     assert(proxy !== null, 'The module proxy is not found in the store, unexpectedly')
@@ -133,5 +133,5 @@ export function inject<K extends string, S, G extends BG0, M extends BM0, A exte
     BaseGettersImpl,
     BaseMutationsImpl,
     BaseActionsImpl
-  ).and(key, module as ModuleImpl) as Injected<CHD<K, GI<S, G>>, CHD<K, AI<S, G, M, A>>>
+  ).and(key, module)
 }

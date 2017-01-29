@@ -15,9 +15,9 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
   constructor (module: Module<S, G, M, A>) {
     assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
 
-    this.innerStore = new StoreImpl(module as ModuleImpl, {
+    this.innerStore = new StoreImpl(module as ModuleImpl<S, G, M, A>, {
       transformGetter: bind(this, this.transformGetter)
-    }) as Store<any, any, any, any>
+    })
 
     this.vm = new _Vue({
       data: {
