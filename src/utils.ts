@@ -1,4 +1,14 @@
-import { Dictionary } from './core/interface'
+export interface Class<R> {
+  new (...args: any[]): R
+}
+
+export interface Dictionary<T> {
+  [key: string]: T
+}
+
+export type CHD<K extends string, T> = {
+  [_ in K]: T
+}
 
 export function assert (condition: any, message: string): void {
   if (!condition) {

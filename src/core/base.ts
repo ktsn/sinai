@@ -1,4 +1,4 @@
-import { Class, Dictionary, CHD } from './interface'
+import { Class, Dictionary, CHD } from '../utils'
 import { Module, ModuleImpl0, ModuleProxy, ModuleProxy0 } from './module'
 import { CoreStore0 } from './store'
 import { assert } from '../utils'

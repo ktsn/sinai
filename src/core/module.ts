@@ -1,15 +1,15 @@
 import {
-  Class, Dictionary, CHD
-} from './interface'
-
-import {
   BaseClass,
   BG0, BM0, BA0,
   BG1, BM, BA1
-} from './inject'
+} from './base'
 
 import { CoreStore0 } from './store'
-import { assert, identity, getByPath, bind, isPromise } from '../utils'
+
+import {
+  Class, Dictionary, CHD,
+  assert, identity, getByPath, bind, isPromise
+} from '../utils'
 
 export type Transformer = (desc: PropertyDescriptor, key: string) => PropertyDescriptor
 

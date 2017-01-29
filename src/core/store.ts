@@ -1,4 +1,4 @@
-import { BG0, BM0, BA0 } from './inject'
+import { BG0, BM0, BA0 } from './base'
 import { ModuleImpl, ModuleImpl0, ModuleProxy, ModuleProxy0 } from './module'
 import { assert, identity, bind, forEachValues } from '../utils'
 

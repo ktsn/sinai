@@ -1,9 +1,8 @@
 import * as Vue from 'vue'
-import { Dictionary } from './core/interface'
-import { BG0, BM0, BA0 } from './core/inject'
+import { BG0, BM0, BA0 } from './core/base'
 import { Module, ModuleImpl } from './core/module'
 import { Store, CoreStore, Subscriber } from './core/store'
-import { assert, bind } from './utils'
+import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
