@@ -1,12 +1,12 @@
 import * as Vue from 'vue'
 import { BG0, BM0, BA0 } from './core/interface'
 import { Module, ModuleImpl } from './core/module'
-import { Store, StoreImpl } from './core/store'
+import { Store, StoreImpl, Subscriber } from './core/store'
 import { assert } from './utils'
 
 let _Vue: typeof Vue
 
-export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
+export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements Store<S, G, M, A> {
   private vm: Vue & { state: S }
   private watcher: Vue
 
@@ -36,6 +36,10 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> {
 
   get actions (): A {
     return this.store.actions
+  }
+
+  subscribe (fn: Subscriber<S>): () => void {
+    return this.store.subscribe(fn)
   }
 
   watch<R> (

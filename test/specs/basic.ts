@@ -318,6 +318,37 @@ describe('Basic', () => {
     assert(spy2.called)
   })
 
+  it('subscribes mutations', () => {
+    const spy = sinon.spy()
+
+    class FooState {
+      value = 'foo'
+    }
+    class FooMutations extends Mutations<FooState>() {
+      test (value: string, ...args: any[]) {
+        this.state.value = value
+      }
+    }
+
+    const s = store(create()
+      .module('foo', create({
+        state: FooState,
+        mutations: FooMutations
+      }))
+    )
+
+    const unsubscribe = s.subscribe(spy)
+    s.mutations.foo.test('bar')
+    assert(spy.calledWith(['foo', 'test'], ['bar'], { foo: { value: 'bar' }}))
+    s.mutations.foo.test('baz', 1, true, null)
+    assert(spy.calledWith(['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}))
+
+    assert(spy.callCount === 2)
+    unsubscribe()
+    s.mutations.foo.test('qux')
+    assert(spy.callCount === 2)
+  })
+
   it('throws if trying to register a module that the name is already exists', () => {
     const foo = create()
     const bar = create()

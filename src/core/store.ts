@@ -10,15 +10,20 @@ interface ModuleMap {
   }
 }
 
-export interface Store<S, G, M, A> {
+export type Subscriber<S> = (mutationPath: string[], payload: any[], state: S) => void
+
+export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly state: S
   readonly getters: G
   readonly mutations: M
   readonly actions: A
+
+  subscribe (fn: Subscriber<S>): () => void
 }
 
 export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
+  private subscribers: Subscriber<{}>[] = []
 
   state: {}
   getters: BG0
@@ -29,13 +34,22 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     this.registerModule(module)
   }
 
+  subscribe (fn: Subscriber<{}>): () => void {
+    this.subscribers.push(fn)
+    return () => {
+      this.subscribers.splice(this.subscribers.indexOf(fn), 1)
+    }
+  }
+
   registerModule (module: ModuleImpl): void {
     this.registerModuleLoop([], module)
 
     // Root module
     this.state = module.initState()
     this.getters = module.initGetters(this)
-    this.mutations = module.initMutations(this)
+    this.mutations = module.initMutations(this, (key, desc) => {
+      return this.hookMutation([key], desc)
+    })
     this.actions = module.initActions(this)
 
     Object.keys(module.children).forEach(name => {
@@ -87,7 +101,9 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     const key = path[path.length - 1]
     state[key] = module.initState()
     getters[key] = module.initGetters(this)
-    mutations[key] = module.initMutations(this)
+    mutations[key] = module.initMutations(this, (name, desc) => {
+      return this.hookMutation(path.concat(name), desc)
+    })
     actions[key] = module.initActions(this)
 
     Object.keys(module.children).forEach(name => {
@@ -100,6 +116,15 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
         module.children[name]
       )
     })
+  }
+
+  private hookMutation (path: string[], desc: PropertyDescriptor): PropertyDescriptor {
+    const original = desc.value as Function
+    desc.value = (...args: any[]) => {
+      original(...args)
+      this.subscribers.forEach(fn => fn(path, args, this.state))
+    }
+    return desc
   }
 }
 

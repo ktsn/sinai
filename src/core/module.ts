@@ -14,6 +14,8 @@ import {
 import { StoreImpl } from './store'
 import { assert, getByPath, bind, isPromise } from '../utils'
 
+export type Transformer = (key: string, desc: PropertyDescriptor) => PropertyDescriptor
+
 export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>
   getters?: Class<G>
@@ -56,7 +58,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: StoreImpl): BG0 {
+  initGetters (store: StoreImpl, transformer: Transformer = identityTransformer): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
@@ -78,13 +80,13 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(false, 'Getters should not have other than getter properties or methods')
       }
 
-      Object.defineProperty(getters, key, desc)
+      Object.defineProperty(getters, key, transformer(key, desc))
     })
 
     return getters
   }
 
-  initMutations (store: StoreImpl): BM0 {
+  initMutations (store: StoreImpl, transformer: Transformer = identityTransformer): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
@@ -98,13 +100,13 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(r === undefined, 'Mutations should not return anything')
       }
 
-      Object.defineProperty(mutations, key, desc)
+      Object.defineProperty(mutations, key, transformer(key, desc))
     })
 
     return mutations
   }
 
-  initActions (store: StoreImpl): BA0 {
+  initActions (store: StoreImpl, transformer: Transformer = identityTransformer): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
@@ -118,7 +120,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(r === undefined, 'Actions should not return other than Promise')
       }
 
-      Object.defineProperty(actions, key, desc)
+      Object.defineProperty(actions, key, transformer(key, desc))
     })
 
     return actions
@@ -172,4 +174,8 @@ function forEachDescriptor<T extends Class<{}>> (
     const desc = Object.getOwnPropertyDescriptor(Class.prototype, key)
     fn(key, desc)
   })
+}
+
+function identityTransformer (key: string, desc: PropertyDescriptor): PropertyDescriptor {
+  return desc
 }
