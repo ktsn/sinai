@@ -24,8 +24,8 @@ export function getByPath<T> (path: string[], obj: any): T {
 }
 
 export function bind<T extends Function> (obj: any, fn: T): T {
-  return function boundFn (...args: any[]) {
-    return fn.call(obj, ...args)
+  return function boundFn () {
+    return fn.apply(obj, arguments)
   } as any
 }
 

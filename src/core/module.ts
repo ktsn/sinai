@@ -73,8 +73,8 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         }
       } else if (typeof desc.value === 'function') {
         const original = desc.value
-        desc.value = function boundGetterFn (...args: any[]) {
-          return original.call(getters, ...args)
+        desc.value = function boundGetterFn () {
+          return original.apply(getters, arguments)
         }
       } else {
         assert(false, 'Getters should not have other than getter properties or methods')
@@ -95,8 +95,8 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
       assert(typeof desc.value === 'function', 'Mutations should only have functions')
 
       const original = desc.value
-      desc.value = function boundMutationFn (...args: any[]) {
-        const r = original.call(mutations, ...args)
+      desc.value = function boundMutationFn () {
+        const r = original.apply(mutations, arguments)
         assert(r === undefined, 'Mutations should not return anything')
       }
 
@@ -115,8 +115,8 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
       assert(typeof desc.value === 'function', 'Actions should only have functions')
 
       const original = desc.value
-      desc.value = function boundMutationFn (...args: any[]) {
-        const r = original.call(actions, ...args)
+      desc.value = function boundMutationFn () {
+        const r = original.apply(actions, arguments)
         assert(r === undefined, 'Actions should not return other than Promise')
       }
 
