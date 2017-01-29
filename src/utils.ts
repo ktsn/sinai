@@ -6,6 +6,10 @@ export function assert (condition: any, message: string): void {
   }
 }
 
+export function identity<T> (value: T): T {
+  return value
+}
+
 export function forEachValues<T> (
   t: Dictionary<T>,
   fn: (t: T, key: string) => void

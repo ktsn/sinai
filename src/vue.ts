@@ -1,22 +1,29 @@
 import * as Vue from 'vue'
-import { BG0, BM0, BA0 } from './core/interface'
+import { Dictionary, BG0, BM0, BA0 } from './core/interface'
 import { Module, ModuleImpl } from './core/module'
 import { Store, StoreImpl, Subscriber } from './core/store'
-import { assert } from './utils'
+import { assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
 export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements Store<S, G, M, A> {
+  private innerStore: Store<S, G, M, A>
   private vm: Vue & { state: S }
   private watcher: Vue
+  private gettersForComputed: Dictionary<() => any> = {}
 
-  constructor (private store: Store<S, G, M, A>) {
+  constructor (module: Module<S, G, M, A>) {
     assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
+
+    this.innerStore = new StoreImpl(module as ModuleImpl, {
+      transformGetter: bind(this, this.transformGetter)
+    }) as Store<any, any, any, any>
 
     this.vm = new _Vue({
       data: {
-        state: store.state
-      }
+        state: this.innerStore.state
+      },
+      computed: this.gettersForComputed
     }) as Vue & { state: S }
 
     this.watcher = new _Vue()
@@ -27,19 +34,19 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
   }
 
   get getters (): G {
-    return this.store.getters
+    return this.innerStore.getters
   }
 
   get mutations (): M {
-    return this.store.mutations
+    return this.innerStore.mutations
   }
 
   get actions (): A {
-    return this.store.actions
+    return this.innerStore.actions
   }
 
   subscribe (fn: Subscriber<S>): () => void {
-    return this.store.subscribe(fn)
+    return this.innerStore.subscribe(fn)
   }
 
   watch<R> (
@@ -53,13 +60,23 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
       options
     )
   }
+
+  private transformGetter (desc: PropertyDescriptor, path: string[]): PropertyDescriptor {
+    if (typeof desc.get !== 'function') return desc
+
+    const name = path.join('.')
+    this.gettersForComputed[name] = desc.get
+
+    desc.get = () => this.vm[name]
+
+    return desc
+  }
 }
 
 export function store<S, G extends BG0, M extends BM0, A extends BA0> (
   module: Module<S, G, M, A>
 ): VueStore<S, G, M, A> {
-  const store = new StoreImpl(module as ModuleImpl)
-  return new VueStore(store) as VueStore<S, G, M, A>
+  return new VueStore(module)
 }
 
 export function install (InjectedVue: typeof Vue): void {

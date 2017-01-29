@@ -151,4 +151,34 @@ describe('Vue integration', () => {
       done()
     })
   })
+
+  it('caches getters of property getter with Vue', () => {
+    const spy = sinon.spy()
+
+    class FooState {
+      value = 'foo'
+    }
+    class FooGetters extends Getters<FooState>() {
+      get test () {
+        spy()
+        return this.state.value + 'bar'
+      }
+    }
+
+    const s = store(create({
+      state: FooState,
+      getters: FooGetters
+    }))
+
+    assert(!spy.called)
+    assert(s.getters.test === 'foobar')
+    assert(s.getters.test === 'foobar')
+    assert(s.getters.test === 'foobar')
+    assert(spy.callCount === 1)
+    s.state.value = 'bar'
+    assert(s.getters.test === 'barbar')
+    assert(s.getters.test === 'barbar')
+    assert(s.getters.test === 'barbar')
+    assert(spy.callCount === 2)
+  })
 })

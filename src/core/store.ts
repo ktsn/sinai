@@ -1,6 +1,6 @@
 import { BG0, BM0, BA0 } from './interface'
 import { ModuleImpl, ModuleProxyImpl } from './module'
-import { assert, forEachValues } from '../utils'
+import { assert, identity, bind, forEachValues } from '../utils'
 
 interface ModuleMap {
   [key: string]: {
@@ -8,6 +8,14 @@ interface ModuleMap {
     module: ModuleImpl
     proxy: ModuleProxyImpl
   }
+}
+
+export type Transformer = (desc: PropertyDescriptor, path: string[]) => PropertyDescriptor
+
+export interface StoreOptions {
+  transformGetter?: Transformer
+  transformMutation?: Transformer
+  transformAction?: Transformer
 }
 
 export type Subscriber<S> = (mutationPath: string[], payload: any[], state: S) => void
@@ -24,13 +32,20 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
 export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
   private subscribers: Subscriber<{}>[] = []
+  private transformGetter: Transformer
+  private transformMutation: Transformer
+  private transformAction: Transformer
 
   state: {}
   getters: BG0
   mutations: BM0
   actions: BA0
 
-  constructor (module: ModuleImpl) {
+  constructor (module: ModuleImpl, options: StoreOptions = {}) {
+    this.transformGetter = options.transformGetter || identity
+    this.transformMutation = options.transformMutation || identity
+    this.transformAction = options.transformAction || identity
+
     this.registerModule(module)
   }
 
@@ -88,11 +103,18 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   } {
     const assets = {
       state: module.initState(),
-      getters: module.initGetters(this),
-      mutations: module.initMutations(this, (name, desc) => {
-        return this.hookMutation(path.concat(name), desc)
-      }),
-      actions: module.initActions(this)
+      getters: module.initGetters(
+        this,
+        chainTransformer(path, this.transformGetter)
+      ),
+      mutations: module.initMutations(
+        this,
+        chainTransformer(path, bind(this, this.hookMutation))
+      ),
+      actions: module.initActions(
+        this,
+        chainTransformer(path, this.transformAction)
+      )
     }
 
     forEachValues(module.children, (childModule, key) => {
@@ -106,13 +128,21 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     return assets
   }
 
-  private hookMutation (path: string[], desc: PropertyDescriptor): PropertyDescriptor {
+  private hookMutation (desc: PropertyDescriptor, path: string[]): PropertyDescriptor {
     const original = desc.value as Function
     desc.value = (...args: any[]) => {
       original(...args)
       this.subscribers.forEach(fn => fn(path, args, this.state))
     }
-    return desc
+    return this.transformMutation(desc, path)
   }
 }
 
+function chainTransformer (
+  path: string[],
+  transform: Transformer
+): (desc: PropertyDescriptor, name: string) => PropertyDescriptor {
+  return function chainedTransformer (desc, name) {
+    return transform(desc, path.concat(name))
+  }
+}

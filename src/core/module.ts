@@ -12,9 +12,9 @@ import {
 } from './inject'
 
 import { StoreImpl } from './store'
-import { assert, getByPath, bind, isPromise } from '../utils'
+import { assert, identity, getByPath, bind, isPromise } from '../utils'
 
-export type Transformer = (key: string, desc: PropertyDescriptor) => PropertyDescriptor
+export type Transformer = (desc: PropertyDescriptor, key: string) => PropertyDescriptor
 
 export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>
@@ -58,12 +58,12 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: StoreImpl, transformer: Transformer = identityTransformer): BG0 {
+  initGetters (store: StoreImpl, transformer: Transformer = identity): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
 
-    forEachDescriptor(this.Getters, (key, desc) => {
+    forEachDescriptor(this.Getters, (desc, key) => {
       assert(desc.set === undefined, 'Getters should not have any setters')
 
       if (typeof desc.get === 'function') {
@@ -80,18 +80,18 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(false, 'Getters should not have other than getter properties or methods')
       }
 
-      Object.defineProperty(getters, key, transformer(key, desc))
+      Object.defineProperty(getters, key, transformer(desc, key))
     })
 
     return getters
   }
 
-  initMutations (store: StoreImpl, transformer: Transformer = identityTransformer): BM0 {
+  initMutations (store: StoreImpl, transformer: Transformer = identity): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
 
-    forEachDescriptor(this.Mutations, (key, desc) => {
+    forEachDescriptor(this.Mutations, (desc, key) => {
       assert(typeof desc.value === 'function', 'Mutations should only have functions')
 
       const original = desc.value
@@ -100,18 +100,18 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(r === undefined, 'Mutations should not return anything')
       }
 
-      Object.defineProperty(mutations, key, transformer(key, desc))
+      Object.defineProperty(mutations, key, transformer(desc, key))
     })
 
     return mutations
   }
 
-  initActions (store: StoreImpl, transformer: Transformer = identityTransformer): BA0 {
+  initActions (store: StoreImpl, transformer: Transformer = identity): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
 
-    forEachDescriptor(this.Actions, (key, desc) => {
+    forEachDescriptor(this.Actions, (desc, key) => {
       assert(typeof desc.value === 'function', 'Actions should only have functions')
 
       const original = desc.value
@@ -120,7 +120,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         assert(r === undefined, 'Actions should not return other than Promise')
       }
 
-      Object.defineProperty(actions, key, transformer(key, desc))
+      Object.defineProperty(actions, key, transformer(desc, key))
     })
 
     return actions
@@ -166,16 +166,12 @@ export function create<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G,
 
 function forEachDescriptor<T extends Class<{}>> (
   Class: T,
-  fn: (key: string, desc: PropertyDescriptor) => void
+  fn: (desc: PropertyDescriptor, key: string) => void
 ): void {
   Object.getOwnPropertyNames(Class.prototype).forEach(key => {
     if (key === 'constructor') return
 
     const desc = Object.getOwnPropertyDescriptor(Class.prototype, key)
-    fn(key, desc)
+    fn(desc, key)
   })
-}
-
-function identityTransformer (key: string, desc: PropertyDescriptor): PropertyDescriptor {
-  return desc
 }
