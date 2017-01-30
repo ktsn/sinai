@@ -37,7 +37,6 @@
     "@types/power-assert": "0.0.28",
     "@types/sinon": "^1.16.34",
     "glob": "^7.1.0",
-    "json-loader": "^0.5.4",
     "power-assert": "^1.4.1",
     "rollup": "^0.41.1",
     "rollup-plugin-commonjs": "^7.0.0",
