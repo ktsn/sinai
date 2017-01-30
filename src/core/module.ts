@@ -4,7 +4,7 @@ import {
   BG1, BM, BA1
 } from './base'
 
-import { CoreStore } from './store'
+import { StoreImpl } from './store'
 
 import {
   Class, Dictionary, CHD,
@@ -48,7 +48,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: CoreStore, transformer: Transformer = identity): BG0 {
+  initGetters (store: StoreImpl, transformer: Transformer = identity): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
@@ -76,7 +76,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return getters
   }
 
-  initMutations (store: CoreStore, transformer: Transformer = identity): BM0 {
+  initMutations (store: StoreImpl, transformer: Transformer = identity): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
@@ -96,7 +96,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return mutations
   }
 
-  initActions (store: CoreStore, transformer: Transformer = identity): BA0 {
+  initActions (store: StoreImpl, transformer: Transformer = identity): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
@@ -126,7 +126,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
 export class ModuleProxy {
   constructor (
     private path: string[],
-    private store: CoreStore
+    private store: StoreImpl
   ) {}
 
   get state () {

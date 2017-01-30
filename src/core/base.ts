@@ -1,6 +1,6 @@
 import { Class, Dictionary, CHD } from '../utils'
 import { Module, ModuleImpl, ModuleProxy } from './module'
-import { CoreStore } from './store'
+import { StoreImpl } from './store'
 import { assert } from '../utils'
 
 export interface GI<S, G extends BG0> {
@@ -57,7 +57,7 @@ function injectModule (
   depModule: ModuleImpl
 ): BaseClass<Base> {
   return class extends Super {
-    constructor (module: ModuleImpl, store: CoreStore) {
+    constructor (module: ModuleImpl, store: StoreImpl) {
       super(module, store)
 
       const proxy = store.getProxy(depModule)
@@ -70,7 +70,7 @@ function injectModule (
 }
 
 export interface BaseClass<T> {
-  new (module: ModuleImpl, store: CoreStore): T
+  new (module: ModuleImpl, store: StoreImpl): T
 }
 
 export class Base {
@@ -78,7 +78,7 @@ export class Base {
 
   constructor (
     module: ModuleImpl,
-    store: CoreStore
+    store: StoreImpl
   ) {
     const proxy = store.getProxy(module)
     assert(proxy !== null, 'The module proxy is not found in the store, unexpectedly')

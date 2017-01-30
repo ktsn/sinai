@@ -29,7 +29,7 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   subscribe (fn: Subscriber<S>): () => void
 }
 
-export class CoreStore implements Store<{}, BG0, BM0, BA0> {
+export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
   private subscribers: Subscriber<{}>[] = []
   private transformGetter: Transformer
