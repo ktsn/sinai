@@ -83,13 +83,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   }
 
   private setupStoreVM (): void {
-    // Ensure to re-evaluate getters for hot update
-    if (this.vm != null) {
-      this.vm.state = null as any
-      _Vue.nextTick(() => {
-        this.vm.$destroy()
-      })
-    }
+    const oldVM = this.vm
 
     this.vm = new _Vue({
       data: {
@@ -97,6 +91,14 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
       },
       computed: this.gettersForComputed
     }) as Vue & { state: {} }
+
+    // Ensure to re-evaluate getters for hot update
+    if (oldVM != null) {
+      oldVM.state = null as any
+      _Vue.nextTick(() => {
+        oldVM.$destroy()
+      })
+    }
   }
 }
 
