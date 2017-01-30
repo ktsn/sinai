@@ -6,16 +6,24 @@ import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
-export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements Store<S, G, M, A> {
-  private innerStore: Store<S, G, M, A>
-  private vm: Vue & { state: S }
+export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extends Store<S, G, M, A> {
+  watch<R> (
+    getter: (state: S, getters: G) => R,
+    cb: (newState: R, oldState: R) => void,
+    options?: Vue.WatchOptions
+  ): () => void
+}
+
+export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
+  private innerStore: CoreStore
+  private vm: Vue & { state: {} }
   private watcher: Vue
   private gettersForComputed: Dictionary<() => any> = {}
 
-  constructor (module: Module<S, G, M, A>) {
+  constructor (module: ModuleImpl) {
     assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
 
-    this.innerStore = new CoreStore(module as ModuleImpl<S, G, M, A>, {
+    this.innerStore = new CoreStore(module, {
       transformGetter: bind(this, this.transformGetter)
     })
 
@@ -24,34 +32,34 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
         state: this.innerStore.state
       },
       computed: this.gettersForComputed
-    }) as Vue & { state: S }
+    }) as Vue & { state: {} }
 
     this.watcher = new _Vue()
   }
 
-  get state (): S {
+  get state () {
     return this.vm.state
   }
 
-  get getters (): G {
+  get getters () {
     return this.innerStore.getters
   }
 
-  get mutations (): M {
+  get mutations () {
     return this.innerStore.mutations
   }
 
-  get actions (): A {
+  get actions () {
     return this.innerStore.actions
   }
 
-  subscribe (fn: Subscriber<S>): () => void {
+  subscribe (fn: Subscriber<{}>): () => void {
     return this.innerStore.subscribe(fn)
   }
 
-  watch<R> (
-    getter: (state: S, getters: G) => R,
-    cb: (newState: R, oldState: R) => void,
+  watch (
+    getter: (state: {}, getters: BG0) => {},
+    cb: (newState: {}, oldState: {}) => void,
     options?: Vue.WatchOptions
   ): () => void {
     return this.watcher.$watch(
@@ -76,7 +84,7 @@ export class VueStore<S, G extends BG0, M extends BM0, A extends BA0> implements
 export function store<S, G extends BG0, M extends BM0, A extends BA0> (
   module: Module<S, G, M, A>
 ): VueStore<S, G, M, A> {
-  return new VueStore(module)
+  return new VueStoreImpl(module as ModuleImpl) as VueStore<any, any, any, any>
 }
 
 export function install (InjectedVue: typeof Vue): void {

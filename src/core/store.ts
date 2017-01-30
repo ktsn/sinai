@@ -1,12 +1,12 @@
 import { BG0, BM0, BA0 } from './base'
-import { ModuleImpl, ModuleImpl0, ModuleProxy, ModuleProxy0 } from './module'
+import { ModuleImpl, ModuleProxy } from './module'
 import { assert, identity, bind, forEachValues } from '../utils'
 
 interface ModuleMap {
   [key: string]: {
     path: string[]
-    module: ModuleImpl0
-    proxy: ModuleProxy0
+    module: ModuleImpl
+    proxy: ModuleProxy
   }
 }
 
@@ -29,19 +29,19 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   subscribe (fn: Subscriber<S>): () => void
 }
 
-export class CoreStore<S, G extends BG0, M extends BM0, A extends BA0> implements Store<S, G, M, A> {
+export class CoreStore implements Store<{}, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
-  private subscribers: Subscriber<S>[] = []
+  private subscribers: Subscriber<{}>[] = []
   private transformGetter: Transformer
   private transformMutation: Transformer
   private transformAction: Transformer
 
-  state: S
-  getters: G
-  mutations: M
-  actions: A
+  state: {}
+  getters: BG0
+  mutations: BM0
+  actions: BA0
 
-  constructor (module: ModuleImpl<S, G, M, A>, options: StoreOptions = {}) {
+  constructor (module: ModuleImpl, options: StoreOptions = {}) {
     this.transformGetter = options.transformGetter || identity
     this.transformMutation = options.transformMutation || identity
     this.transformAction = options.transformAction || identity
@@ -49,30 +49,30 @@ export class CoreStore<S, G extends BG0, M extends BM0, A extends BA0> implement
     this.registerModule(module)
   }
 
-  subscribe (fn: Subscriber<S>): () => void {
+  subscribe (fn: Subscriber<{}>): () => void {
     this.subscribers.push(fn)
     return () => {
       this.subscribers.splice(this.subscribers.indexOf(fn), 1)
     }
   }
 
-  registerModule (module: ModuleImpl<S, G, M, A>): void {
+  registerModule (module: ModuleImpl): void {
     this.registerModuleLoop([], module)
 
     const assets = this.initModuleAssets([], module)
-    this.state = assets.state as S
-    this.getters = assets.getters as G
-    this.mutations = assets.mutations as M
-    this.actions = assets.actions as A
+    this.state = assets.state
+    this.getters = assets.getters
+    this.mutations = assets.mutations
+    this.actions = assets.actions
   }
 
-  getProxy (module: ModuleImpl0): ModuleProxy0 | null {
+  getProxy (module: ModuleImpl): ModuleProxy | null {
     const map = this.moduleMap[module.uid]
     if (map == null) return null
     return map.proxy
   }
 
-  private registerModuleLoop (path: string[], module: ModuleImpl0): void {
+  private registerModuleLoop (path: string[], module: ModuleImpl): void {
     assert(
       !(module.uid in this.moduleMap),
       'The module is already registered. The module object must not be re-used in twice or more'
@@ -94,7 +94,7 @@ export class CoreStore<S, G extends BG0, M extends BM0, A extends BA0> implement
 
   private initModuleAssets (
     path: string[],
-    module: ModuleImpl0
+    module: ModuleImpl
   ): {
     state: {},
     getters: BG0,
@@ -137,8 +137,6 @@ export class CoreStore<S, G extends BG0, M extends BM0, A extends BA0> implement
     return this.transformMutation(desc, path)
   }
 }
-
-export type CoreStore0 = CoreStore<{}, BG0, BM0, BA0>
 
 function chainTransformer (
   path: string[],

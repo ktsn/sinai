@@ -1,6 +1,6 @@
 import { Class, Dictionary, CHD } from '../utils'
-import { Module, ModuleImpl0, ModuleProxy, ModuleProxy0 } from './module'
-import { CoreStore0 } from './store'
+import { Module, ModuleImpl, ModuleProxy } from './module'
+import { CoreStore } from './store'
 import { assert } from '../utils'
 
 export interface GI<S, G extends BG0> {
@@ -41,7 +41,7 @@ export function makeInjected (
     Getters: () => Getters,
     Mutations: () => Mutations,
     Actions: () => Actions,
-    and (key: string, module: ModuleImpl0): Injected<{}, {}> {
+    and (key: string, module: ModuleImpl): Injected<{}, {}> {
       return makeInjected(
         injectModule(Getters, key, module) as BaseClass<BG0>,
         Mutations,
@@ -54,29 +54,29 @@ export function makeInjected (
 function injectModule (
   Super: BaseClass<Base>,
   key: string,
-  depModule: ModuleImpl0
+  depModule: ModuleImpl
 ): BaseClass<Base> {
   return class extends Super {
-    constructor (module: ModuleImpl0, store: CoreStore0) {
+    constructor (module: ModuleImpl, store: CoreStore) {
       super(module, store)
 
       const proxy = store.getProxy(depModule)
       assert(proxy !== null, 'The dependent module is not found in the store')
-      ;(this as this & { modules: ModuleProxy0 }).modules[key] = proxy
+      ;(this as this & { modules: ModuleProxy }).modules[key] = proxy
     }
   }
 }
 
 export interface BaseClass<T> {
-  new (module: ModuleImpl0, store: CoreStore0): T
+  new (module: ModuleImpl, store: CoreStore): T
 }
 
 export class Base {
-  protected __proxy__: ModuleProxy0
+  protected __proxy__: ModuleProxy
 
   constructor (
-    module: ModuleImpl0,
-    store: CoreStore0
+    module: ModuleImpl,
+    store: CoreStore
   ) {
     const proxy = store.getProxy(module)
     assert(proxy !== null, 'The module proxy is not found in the store, unexpectedly')

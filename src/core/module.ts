@@ -4,7 +4,7 @@ import {
   BG1, BM, BA1
 } from './base'
 
-import { CoreStore0 } from './store'
+import { CoreStore } from './store'
 
 import {
   Class, Dictionary, CHD,
@@ -27,9 +27,9 @@ export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
   ): Module<S & CHD<K, S1>, G & CHD<K, G1>, M & CHD<K, M1>, A & CHD<K, A1>>
 }
 
-export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implements Module<S, G, M, A> {
-  children: Dictionary<ModuleImpl0> = {}
-  State: Class<S> | undefined
+export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
+  children: Dictionary<ModuleImpl> = {}
+  State: Class<{}> | undefined
   Getters: BaseClass<BG0> | undefined
   Mutations: BaseClass<BM0> | undefined
   Actions: BaseClass<BA0> | undefined
@@ -38,7 +38,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     public uid: number,
     { state, getters, mutations, actions }: ModuleOptions<{}, BG0, BM0, BA0>
   ) {
-    this.State = state as Class<S>
+    this.State = state
     this.Getters = getters
     this.Mutations = mutations
     this.Actions = actions
@@ -48,7 +48,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: CoreStore0, transformer: Transformer = identity): BG0 {
+  initGetters (store: CoreStore, transformer: Transformer = identity): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
@@ -76,7 +76,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return getters
   }
 
-  initMutations (store: CoreStore0, transformer: Transformer = identity): BM0 {
+  initMutations (store: CoreStore, transformer: Transformer = identity): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
@@ -96,7 +96,7 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return mutations
   }
 
-  initActions (store: CoreStore0, transformer: Transformer = identity): BA0 {
+  initActions (store: CoreStore, transformer: Transformer = identity): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
@@ -116,39 +116,35 @@ export class ModuleImpl<S, G extends BG0, M extends BM0, A extends BA0> implemen
     return actions
   }
 
-  module (key: string, module: ModuleImpl0): this {
+  module (key: string, module: ModuleImpl): this {
     assert(!(key in this.children), `${key} is already used in the module`)
     this.children[key] = module
     return this
   }
 }
 
-export interface ModuleImpl0 extends ModuleImpl<{}, BG0, BM0, BA0> {}
-
-export class ModuleProxy<S, G extends BG0, M extends BM0, A extends BA0> {
+export class ModuleProxy {
   constructor (
     private path: string[],
-    private store: CoreStore0
+    private store: CoreStore
   ) {}
 
   get state () {
-    return getByPath<S>(this.path, this.store.state)
+    return getByPath<{}>(this.path, this.store.state)
   }
 
   get getters () {
-    return getByPath<G>(this.path, this.store.getters)
+    return getByPath<BG0>(this.path, this.store.getters)
   }
 
   get mutations () {
-    return getByPath<M>(this.path, this.store.mutations)
+    return getByPath<BM0>(this.path, this.store.mutations)
   }
 
   get actions () {
-    return getByPath<A>(this.path, this.store.actions)
+    return getByPath<BA0>(this.path, this.store.actions)
   }
 }
-
-export type ModuleProxy0 = ModuleProxy<{}, BG0, BM0, BA0>
 
 let uid = 0
 
