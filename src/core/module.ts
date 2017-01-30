@@ -21,7 +21,7 @@ export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
 }
 
 export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
-  module<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0> (
+  child<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0> (
     key: K,
     module: Module<S1, G1, M1, A1>
   ): Module<S & CHD<K, S1>, G & CHD<K, G1>, M & CHD<K, M1>, A & CHD<K, A1>>
@@ -126,7 +126,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     return actions
   }
 
-  module (key: string, module: ModuleImpl): this {
+  child (key: string, module: ModuleImpl): this {
     if (process.env.NODE_ENV !== 'production') {
       assert(!(key in this.children), `${key} is already used in the module`)
     }

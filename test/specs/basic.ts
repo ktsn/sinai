@@ -19,11 +19,11 @@ describe('Basic', () => {
 
     const qux = create({ state: Qux })
     const baz = create({ state: Baz })
-      .module('qux', qux)
+      .child('qux', qux)
     const bar = create({ state: Bar })
     const foo = create({ state: Foo })
-      .module('bar', bar)
-      .module('baz', baz)
+      .child('bar', bar)
+      .child('baz', baz)
 
     const s = store(foo)
     assert(s.state.a === 1)
@@ -60,11 +60,11 @@ describe('Basic', () => {
     const bar = create({
       state: BarState,
       getters: BarGetters
-    }).module('baz', baz)
+    }).child('baz', baz)
     const foo = create({
       state: FooState,
       getters: FooGetters
-    }).module('bar', bar)
+    }).child('bar', bar)
 
     const s = store(foo)
     assert(s.getters.a === 2)
@@ -137,10 +137,10 @@ describe('Basic', () => {
     })
     const bar = create({
       mutations: BarMutations
-    }).module('baz', baz)
+    }).child('baz', baz)
     const foo = create({
       mutations: FooMutations
-    }).module('bar', bar)
+    }).child('bar', bar)
 
     const s = store(foo)
     s.mutations.test(5)
@@ -216,10 +216,10 @@ describe('Basic', () => {
     })
     const bar = create({
       actions: BarActions
-    }).module('baz', baz)
+    }).child('baz', baz)
     const foo = create({
       actions: FooActions
-    }).module('bar', bar)
+    }).child('bar', bar)
 
     const s = store(foo)
 
@@ -331,7 +331,7 @@ describe('Basic', () => {
     }
 
     const s = store(create()
-      .module('foo', create({
+      .child('foo', create({
         state: FooState,
         mutations: FooMutations
       }))
@@ -354,17 +354,17 @@ describe('Basic', () => {
     const bar = create()
 
     assert.throws(() => {
-      create().module('foo', foo).module('foo', foo)
+      create().child('foo', foo).child('foo', foo)
     })
   })
 
   it('throws if a module is registered in twice or more', () => {
     const foo = create()
     const bar = create()
-      .module('foo', foo)
+      .child('foo', foo)
     const baz = create()
-      .module('bar', bar)
-      .module('test', foo)
+      .child('bar', bar)
+      .child('test', foo)
 
     assert.throws(() => {
       store(baz)

@@ -38,8 +38,8 @@ describe('Inject', () => {
       getters: FooGetters
     })
     const root = create()
-      .module('foo', foo)
-      .module('counter', counter)
+      .child('foo', foo)
+      .child('counter', counter)
     const s = store(root)
 
     assert(s.getters.foo.stateTest === 1)
@@ -71,8 +71,8 @@ describe('Inject', () => {
       actions: FooActions
     })
     const root = create()
-      .module('foo', foo)
-      .module('counter', counter)
+      .child('foo', foo)
+      .child('counter', counter)
     const s = store(root)
 
     s.actions.foo.test()
@@ -96,8 +96,8 @@ describe('Inject', () => {
       mutations: FooMutations
     })
     const root = create()
-      .module('foo', foo)
-      .module('counter', counter)
+      .child('foo', foo)
+      .child('counter', counter)
     const s = store(root)
 
     assert(s.state.foo.value === 1)
@@ -154,11 +154,11 @@ describe('Inject', () => {
       actions: FooActions
     })
     const root = create()
-      .module('counter', counter)
-      .module('nested', create()
-        .module('anotherCounter', anotherCounter)
+      .child('counter', counter)
+      .child('nested', create()
+        .child('anotherCounter', anotherCounter)
       )
-      .module('foo', foo)
+      .child('foo', foo)
     const s = store(root)
 
     assert(s.getters.foo.aTest === 2)

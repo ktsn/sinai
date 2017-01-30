@@ -16,9 +16,9 @@ describe('Hot Update', () => {
     }
 
     const s = store(m(1)
-      .module('a', m(2)
-        .module('b', m(3)))
-      .module('c', m(4)))
+      .child('a', m(2)
+        .child('b', m(3)))
+      .child('c', m(4)))
 
     assert(s.getters.test === 1)
     assert(s.getters.a.test === 2)
@@ -26,9 +26,9 @@ describe('Hot Update', () => {
     assert(s.getters.c.test === 4)
 
     s.hotUpdate(m(10)
-      .module('a', m(20)
-        .module('b', m(30)))
-      .module('c', m(40)))
+      .child('a', m(20)
+        .child('b', m(30)))
+      .child('c', m(40)))
 
     assert(s.getters.test === 10)
     assert(s.getters.a.test === 20)
@@ -53,9 +53,9 @@ describe('Hot Update', () => {
     }
 
     const s = store(m(1)
-      .module('a', m(2)
-        .module('b', m(3)))
-      .module('c', m(4)))
+      .child('a', m(2)
+        .child('b', m(3)))
+      .child('c', m(4)))
 
     const emit = (store: typeof s) => {
       store.mutations.inc()
@@ -77,9 +77,9 @@ describe('Hot Update', () => {
     assert(s.state.c.value === 5)
 
     s.hotUpdate(m(10)
-      .module('a', m(20)
-        .module('b', m(30)))
-      .module('c', m(40)))
+      .child('a', m(20)
+        .child('b', m(30)))
+      .child('c', m(40)))
 
     emit(s)
 
@@ -112,9 +112,9 @@ describe('Hot Update', () => {
     }
 
     const s = store(m(1)
-      .module('a', m(2)
-        .module('b', m(3)))
-      .module('c', m(4)))
+      .child('a', m(2)
+        .child('b', m(3)))
+      .child('c', m(4)))
 
     const emit = (store: typeof s) => {
       store.actions.inc()
@@ -136,9 +136,9 @@ describe('Hot Update', () => {
     assert(s.state.c.value === 5)
 
     s.hotUpdate(m(10)
-      .module('a', m(20)
-        .module('b', m(30)))
-      .module('c', m(40)))
+      .child('a', m(20)
+        .child('b', m(30)))
+      .child('c', m(40)))
 
     emit(s)
 

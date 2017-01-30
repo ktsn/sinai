@@ -122,7 +122,7 @@ describe('Vue integration', () => {
       state: class {
         value = 567
       }
-    }).module('foo', foo)
+    }).child('foo', foo)
 
     const s = store(bar)
 
