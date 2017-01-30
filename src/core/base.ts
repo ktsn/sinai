@@ -61,7 +61,9 @@ function injectModule<I> (
       super(module, store)
 
       const proxy = store.getProxy(depModule)
-      assert(proxy !== null, 'The dependent module is not found in the store')
+      if (process.env.NODE_ENV !== 'production') {
+        assert(proxy !== null, 'The dependent module is not found in the store')
+      }
       this.modules[key] = proxy
     }
   }
@@ -79,7 +81,9 @@ export class Base {
     store: StoreImpl
   ) {
     const proxy = store.getProxy(module)
-    assert(proxy !== null, 'The module proxy is not found in the store, unexpectedly')
+    if (process.env.NODE_ENV !== 'production') {
+      assert(proxy !== null, 'The module proxy is not found in the store, unexpectedly')
+    }
     this.__proxy__ = proxy!
   }
 }

@@ -21,7 +21,9 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private gettersForComputed: Dictionary<() => any> = {}
 
   constructor (module: ModuleImpl) {
-    assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
+    if (process.env.NODE_ENV !== 'production') {
+      assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
+    }
 
     this.innerStore = new StoreImpl(module, {
       transformGetter: bind(this, this.transformGetter)
@@ -105,7 +107,9 @@ export function store<S, G extends BG0, M extends BM0, A extends BA0> (
 }
 
 export function install (InjectedVue: typeof Vue): void {
-  assert(!_Vue, 'Brave is already installed')
+  if (process.env.NODE_ENV !== 'production') {
+    assert(!_Vue, 'Brave is already installed')
+  }
   _Vue = InjectedVue
   _Vue.mixin({
     beforeCreate: braveInit

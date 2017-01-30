@@ -54,7 +54,9 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     const getters = new this.Getters(this, store)
 
     forEachDescriptor(this.Getters, (desc, key) => {
-      assert(desc.set === undefined, 'Getters should not have any setters')
+      if (process.env.NODE_ENV !== 'production') {
+        assert(desc.set === undefined, 'Getters should not have any setters')
+      }
 
       if (typeof desc.get === 'function') {
         const original = desc.get
@@ -66,7 +68,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
         desc.value = function boundGetterFn () {
           return original.apply(getters, arguments)
         }
-      } else {
+      } else if (process.env.NODE_ENV !== 'production') {
         assert(false, 'Getters should not have other than getter properties or methods')
       }
 
@@ -82,12 +84,16 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     const mutations = new this.Mutations(this, store)
 
     forEachDescriptor(this.Mutations, (desc, key) => {
-      assert(typeof desc.value === 'function', 'Mutations should only have functions')
+      if (process.env.NODE_ENV !== 'production') {
+        assert(typeof desc.value === 'function', 'Mutations should only have functions')
+      }
 
       const original = desc.value
       desc.value = function boundMutationFn () {
         const r = original.apply(mutations, arguments)
-        assert(r === undefined, 'Mutations should not return anything')
+        if (process.env.NODE_ENV !== 'production') {
+          assert(r === undefined, 'Mutations should not return anything')
+        }
       }
 
       Object.defineProperty(mutations, key, transformer(desc, key))
@@ -102,12 +108,16 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     const actions = new this.Actions(this, store)
 
     forEachDescriptor(this.Actions, (desc, key) => {
-      assert(typeof desc.value === 'function', 'Actions should only have functions')
+      if (process.env.NODE_ENV !== 'production') {
+        assert(typeof desc.value === 'function', 'Actions should only have functions')
+      }
 
       const original = desc.value
       desc.value = function boundMutationFn () {
         const r = original.apply(actions, arguments)
-        assert(r === undefined, 'Actions should not return other than Promise')
+        if (process.env.NODE_ENV !== 'production') {
+          assert(r === undefined, 'Actions should not return other than Promise')
+        }
       }
 
       Object.defineProperty(actions, key, transformer(desc, key))
@@ -117,7 +127,9 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
   }
 
   module (key: string, module: ModuleImpl): this {
-    assert(!(key in this.children), `${key} is already used in the module`)
+    if (process.env.NODE_ENV !== 'production') {
+      assert(!(key in this.children), `${key} is already used in the module`)
+    }
     this.children[key] = module
     return this
   }

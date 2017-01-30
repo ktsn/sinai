@@ -81,10 +81,12 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   }
 
   private registerModuleLoop (path: string[], module: ModuleImpl): void {
-    assert(
-      !(module.uid in this.moduleMap),
-      'The module is already registered. The module object must not be re-used in twice or more'
-    )
+    if (process.env.NODE_ENV !== 'production') {
+      assert(
+        !(module.uid in this.moduleMap),
+        'The module is already registered. The module object must not be re-used in twice or more'
+      )
+    }
 
     this.moduleMap[module.uid] = {
       path,
