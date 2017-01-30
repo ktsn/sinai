@@ -129,6 +129,8 @@ export class CoreStore implements Store<{}, BG0, BM0, BA0> {
   }
 
   private hookMutation (desc: PropertyDescriptor, path: string[]): PropertyDescriptor {
+    // desc.value must be a Function since
+    // it should be already checked in each module
     const original = desc.value as Function
     desc.value = (...args: any[]) => {
       original(...args)

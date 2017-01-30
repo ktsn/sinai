@@ -62,6 +62,8 @@ function injectModule (
 
       const proxy = store.getProxy(depModule)
       assert(proxy !== null, 'The dependent module is not found in the store')
+
+      // this should be BG or BA
       ;(this as this & { modules: ModuleProxy }).modules[key] = proxy
     }
   }
