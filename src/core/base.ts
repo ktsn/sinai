@@ -51,20 +51,18 @@ export function makeInjected (
   }
 }
 
-function injectModule (
-  Super: BaseClass<Base>,
+function injectModule<I> (
+  Super: BaseClass<BaseInjectable<I>>,
   key: string,
   depModule: ModuleImpl
-): BaseClass<Base> {
+): BaseClass<BaseInjectable<I>> {
   return class extends Super {
     constructor (module: ModuleImpl, store: StoreImpl) {
       super(module, store)
 
       const proxy = store.getProxy(depModule)
       assert(proxy !== null, 'The dependent module is not found in the store')
-
-      // this should be BG or BA
-      ;(this as this & { modules: ModuleProxy }).modules[key] = proxy
+      this.modules[key] = proxy
     }
   }
 }
@@ -86,9 +84,11 @@ export class Base {
   }
 }
 
-export class BG<S, SG> extends Base {
-  protected modules: SG = {} as SG
+export class BaseInjectable<I> extends Base {
+  protected modules: I = {} as I
+}
 
+export class BG<S, SG> extends BaseInjectable<SG> {
   protected get state (): S {
     return this.__proxy__.state as S
   }
@@ -100,9 +100,7 @@ export class BM<S> extends Base {
   }
 }
 
-export class BA<S, G extends BG0, M extends BM0, SGMA> extends Base {
-  protected modules: SGMA = {} as SGMA
-
+export class BA<S, G extends BG0, M extends BM0, SGMA> extends BaseInjectable<SGMA> {
   protected get state (): S {
     return this.__proxy__.state as S
   }
