@@ -160,7 +160,7 @@ export class ModuleProxy {
 
 let uid = 0
 
-export function create<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G, M>> (
+export function module<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G, M>> (
   options: ModuleOptions<S, G, M, A> = {}
 ): Module<S, G, M, A> {
   return new ModuleImpl(++uid, options)

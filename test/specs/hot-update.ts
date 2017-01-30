@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue = require('vue')
-import { create, store, Getters, Mutations, Actions } from '../../src'
+import { module, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Hot Update', () => {
   it('supports hot module replacement for getters', () => {
@@ -10,7 +10,7 @@ describe('Hot Update', () => {
         get test () { return num }
       }
 
-      return create({
+      return module({
         getters: FooGetters
       })
     }
@@ -46,7 +46,7 @@ describe('Hot Update', () => {
           this.state.value += num
         }
       }
-      return create({
+      return module({
         state: FooState,
         mutations: FooMutations
       })
@@ -104,7 +104,7 @@ describe('Hot Update', () => {
           this.mutations.inc(num)
         }
       }
-      return create({
+      return module({
         state: FooState,
         mutations: FooMutations,
         actions: FooActions
@@ -160,7 +160,7 @@ describe('Hot Update', () => {
         foo () { return this.state.value + num }
         get bar () { return this.state.value + num }
       }
-      return create({
+      return module({
         state: FooState,
         getters: FooGetters
       })

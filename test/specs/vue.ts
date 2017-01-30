@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue = require('vue')
-import { create, store, Getters, Mutations } from '../../src'
+import { module, store, Getters, Mutations } from '../../src'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -14,7 +14,7 @@ describe('Vue integration', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       mutations: FooMutations
     }))
@@ -48,7 +48,7 @@ describe('Vue integration', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       getters: FooGetters,
       mutations: FooMutations
@@ -72,7 +72,7 @@ describe('Vue integration', () => {
     const spy1 = sinon.spy()
     const spy2 = sinon.spy()
 
-    const s = store(create({
+    const s = store(module({
       state: class {
         value = 123
       }
@@ -111,14 +111,14 @@ describe('Vue integration', () => {
       value = 123
     }
 
-    const foo = create({
+    const foo = module({
       state: FooState,
       getters: class extends Getters<FooState>() {
         get ten () { return 10 }
       }
     })
 
-    const bar = create({
+    const bar = module({
       state: class {
         value = 567
       }
@@ -165,7 +165,7 @@ describe('Vue integration', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       getters: FooGetters
     }))

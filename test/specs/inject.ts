@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import { inject, create, store, Getters, Mutations, Actions } from '../../src'
+import { inject, module, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Inject', () => {
   class AState {
@@ -15,7 +15,7 @@ describe('Inject', () => {
   class AActions extends Actions<AState, AGetters, AMutations>() {
     inc () { this.mutations.inc() }
   }
-  const counter = create({
+  const counter = module({
     state: AState,
     getters: AGetters,
     mutations: AMutations,
@@ -34,10 +34,10 @@ describe('Inject', () => {
       }
     }
 
-    const foo = create({
+    const foo = module({
       getters: FooGetters
     })
-    const root = create()
+    const root = module()
       .child('foo', foo)
       .child('counter', counter)
     const s = store(root)
@@ -67,10 +67,10 @@ describe('Inject', () => {
       }
     }
 
-    const foo = create({
+    const foo = module({
       actions: FooActions
     })
-    const root = create()
+    const root = module()
       .child('foo', foo)
       .child('counter', counter)
     const s = store(root)
@@ -91,11 +91,11 @@ describe('Inject', () => {
       }
     }
 
-    const foo = create({
+    const foo = module({
       state: FooState,
       mutations: FooMutations
     })
-    const root = create()
+    const root = module()
       .child('foo', foo)
       .child('counter', counter)
     const s = store(root)
@@ -108,7 +108,7 @@ describe('Inject', () => {
   it('collects modules that placed as various structures', () => {
     const spy = sinon.spy()
 
-    const anotherCounter = create({
+    const anotherCounter = module({
       state: AState,
       getters: AGetters,
       mutations: AMutations,
@@ -149,13 +149,13 @@ describe('Inject', () => {
       }
     }
 
-    const foo = create({
+    const foo = module({
       getters: FooGetters,
       actions: FooActions
     })
-    const root = create()
+    const root = module()
       .child('counter', counter)
-      .child('nested', create()
+      .child('nested', module()
         .child('anotherCounter', anotherCounter)
       )
       .child('foo', foo)
@@ -173,7 +173,7 @@ describe('Inject', () => {
 
     class FooGetters extends Getters() {}
 
-    const foo = create({ getters: FooGetters })
+    const foo = module({ getters: FooGetters })
 
     assert.throws(() => {
       store(foo)

@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import { create, store, Getters, Mutations, Actions } from '../../src'
+import { module, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Basic', () => {
   it('compose state tree', () => {
@@ -17,11 +17,11 @@ describe('Basic', () => {
       d = 4
     }
 
-    const qux = create({ state: Qux })
-    const baz = create({ state: Baz })
+    const qux = module({ state: Qux })
+    const baz = module({ state: Baz })
       .child('qux', qux)
-    const bar = create({ state: Bar })
-    const foo = create({ state: Foo })
+    const bar = module({ state: Bar })
+    const foo = module({ state: Foo })
       .child('bar', bar)
       .child('baz', baz)
 
@@ -53,15 +53,15 @@ describe('Basic', () => {
       get c () { return this.state.c + 3 }
     }
 
-    const baz = create({
+    const baz = module({
       state: BazState,
       getters: BazGetters
     })
-    const bar = create({
+    const bar = module({
       state: BarState,
       getters: BarGetters
     }).child('baz', baz)
-    const foo = create({
+    const foo = module({
       state: FooState,
       getters: FooGetters
     }).child('bar', bar)
@@ -91,7 +91,7 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       getters: FooGetters
     }))
@@ -109,7 +109,7 @@ describe('Basic', () => {
         return one() + 1
       }
     }
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       getters: FooGetters
     }))
@@ -132,13 +132,13 @@ describe('Basic', () => {
       test: (n: number) => void = spy3
     }
 
-    const baz = create({
+    const baz = module({
       mutations: BazMutations
     })
-    const bar = create({
+    const bar = module({
       mutations: BarMutations
     }).child('baz', baz)
-    const foo = create({
+    const foo = module({
       mutations: FooMutations
     }).child('bar', bar)
 
@@ -166,7 +166,7 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       mutations: FooMutations
     }))
@@ -186,7 +186,7 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       mutations: FooMutations
     }))
@@ -211,13 +211,13 @@ describe('Basic', () => {
       test: (n: number) => void = spy3
     }
 
-    const baz = create({
+    const baz = module({
       actions: BazActions
     })
-    const bar = create({
+    const bar = module({
       actions: BarActions
     }).child('baz', baz)
-    const foo = create({
+    const foo = module({
       actions: FooActions
     }).child('bar', bar)
 
@@ -255,7 +255,7 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       mutations: FooMutations,
       actions: FooActions
@@ -288,7 +288,7 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create({
+    const s = store(module({
       state: FooState,
       getters: FooGetters,
       mutations: FooMutations,
@@ -310,7 +310,7 @@ describe('Basic', () => {
       callee = spy2
     }
 
-    const s = store(create({
+    const s = store(module({
       actions: FooActions
     }))
     s.actions.caller()
@@ -330,8 +330,8 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(create()
-      .child('foo', create({
+    const s = store(module()
+      .child('foo', module({
         state: FooState,
         mutations: FooMutations
       }))
@@ -350,19 +350,19 @@ describe('Basic', () => {
   })
 
   it('throws if trying to register a module that the name is already exists', () => {
-    const foo = create()
-    const bar = create()
+    const foo = module()
+    const bar = module()
 
     assert.throws(() => {
-      create().child('foo', foo).child('foo', foo)
+      module().child('foo', foo).child('foo', foo)
     })
   })
 
   it('throws if a module is registered in twice or more', () => {
-    const foo = create()
-    const bar = create()
+    const foo = module()
+    const bar = module()
       .child('foo', foo)
-    const baz = create()
+    const baz = module()
       .child('bar', bar)
       .child('test', foo)
 
@@ -375,7 +375,7 @@ describe('Basic', () => {
     class FooGetters extends Getters() {
       set foo (value: number) { /* nothing */ }
     }
-    const foo = create({
+    const foo = module({
       getters: FooGetters
     })
 
@@ -388,7 +388,7 @@ describe('Basic', () => {
     class FooMutations extends Mutations() {
       get foo () { return 1 }
     }
-    const foo = create({
+    const foo = module({
       mutations: FooMutations
     })
 
@@ -401,7 +401,7 @@ describe('Basic', () => {
     class FooMutations extends Mutations() {
       foo () { return null }
     }
-    const s = store(create({
+    const s = store(module({
       mutations: FooMutations
     }))
 
@@ -414,7 +414,7 @@ describe('Basic', () => {
     class FooActions extends Actions() {
       get foo () { return 1 }
     }
-    const foo = create({
+    const foo = module({
       actions: FooActions
     })
 
@@ -429,7 +429,7 @@ describe('Basic', () => {
         return 1
       }
     }
-    const s = store(create({
+    const s = store(module({
       actions: FooActions
     }))
 
