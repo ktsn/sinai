@@ -1,5 +1,5 @@
 import { BG0, BM0, BA0 } from './base'
-import { ModuleImpl, ModuleProxy } from './module'
+import { Module, ModuleImpl, ModuleProxy } from './module'
 import { assert, identity, bind, forEachValues } from '../utils'
 
 interface ModuleMap {
@@ -27,6 +27,7 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly actions: A
 
   subscribe (fn: Subscriber<S>): () => void
+  hotUpdate (module: Module<S, G, M, A>): void
 }
 
 export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
@@ -46,7 +47,7 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     this.transformMutation = options.transformMutation || identity
     this.transformAction = options.transformAction || identity
 
-    this.registerModule(module)
+    this.registerModule(module, false)
   }
 
   subscribe (fn: Subscriber<{}>): () => void {
@@ -56,11 +57,13 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     }
   }
 
-  registerModule (module: ModuleImpl): void {
+  registerModule (module: ModuleImpl, isHot: boolean): void {
     this.registerModuleLoop([], module)
 
     const assets = this.initModuleAssets([], module)
-    this.state = assets.state
+    if (!isHot) {
+      this.state = assets.state
+    }
     this.getters = assets.getters
     this.mutations = assets.mutations
     this.actions = assets.actions
@@ -70,6 +73,11 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     const map = this.moduleMap[module.uid]
     if (map == null) return null
     return map.proxy
+  }
+
+  hotUpdate (module: ModuleImpl): void {
+    this.moduleMap = {}
+    this.registerModule(module, true)
   }
 
   private registerModuleLoop (path: string[], module: ModuleImpl): void {

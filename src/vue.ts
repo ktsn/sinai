@@ -27,13 +27,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
       transformGetter: bind(this, this.transformGetter)
     })
 
-    this.vm = new _Vue({
-      data: {
-        state: this.innerStore.state
-      },
-      computed: this.gettersForComputed
-    }) as Vue & { state: {} }
-
+    this.setupStoreVM()
     this.watcher = new _Vue()
   }
 
@@ -69,6 +63,12 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     )
   }
 
+  hotUpdate (module: ModuleImpl): void {
+    this.gettersForComputed = {}
+    this.innerStore.hotUpdate(module)
+    this.setupStoreVM()
+  }
+
   private transformGetter (desc: PropertyDescriptor, path: string[]): PropertyDescriptor {
     if (typeof desc.get !== 'function') return desc
 
@@ -78,6 +78,23 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     desc.get = () => this.vm[name]
 
     return desc
+  }
+
+  private setupStoreVM (): void {
+    // Ensure to re-evaluate getters for hot update
+    if (this.vm != null) {
+      this.vm.state = null as any
+      _Vue.nextTick(() => {
+        this.vm.$destroy()
+      })
+    }
+
+    this.vm = new _Vue({
+      data: {
+        state: this.innerStore.state
+      },
+      computed: this.gettersForComputed
+    }) as Vue & { state: {} }
   }
 }
 
