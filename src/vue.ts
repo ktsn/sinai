@@ -6,6 +6,10 @@ import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
+export interface VueStoreOptions {
+  strict?: boolean
+}
+
 export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extends Store<S, G, M, A> {
   watch<R> (
     getter: (state: S, getters: G) => R,
@@ -19,18 +23,35 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private vm: Vue & { state: {} }
   private watcher: Vue
   private gettersForComputed: Dictionary<() => any> = {}
+  private strict: boolean
 
-  constructor (module: ModuleImpl) {
+  constructor (module: ModuleImpl, options: VueStoreOptions) {
     if (process.env.NODE_ENV !== 'production') {
       assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
     }
 
+    this.strict = Boolean(options.strict)
+
     this.innerStore = new StoreImpl(module, {
-      transformGetter: bind(this, this.transformGetter)
+      transformGetter: bind(this, this.transformGetter),
+      transformMutation: bind(this, this.transformMutation)
     })
 
     this.setupStoreVM()
     this.watcher = new _Vue()
+
+    if (this.strict) {
+      this.watch(
+        state => state,
+        () => {
+          assert(
+            !this.strict,
+            'Must not update state out of mutations when strict mode is enabled.'
+          )
+        },
+        { deep: true, sync: true } as Vue.WatchOptions
+      )
+    }
   }
 
   get state () {
@@ -82,6 +103,16 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     return desc
   }
 
+  private transformMutation (desc: PropertyDescriptor): PropertyDescriptor {
+    if (!this.strict) return desc
+
+    const original = desc.value as Function
+    desc.value = (...args: any[]) => {
+      this.commit(() => original.apply(null, args))
+    }
+    return desc
+  }
+
   private setupStoreVM (): void {
     const oldVM = this.vm
 
@@ -94,18 +125,32 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
 
     // Ensure to re-evaluate getters for hot update
     if (oldVM != null) {
-      oldVM.state = null as any
+      this.commit(() => {
+        oldVM.state = null as any
+      })
+
       _Vue.nextTick(() => {
         oldVM.$destroy()
       })
     }
   }
+
+  private commit (fn: () => void): void {
+    const original = this.strict
+    this.strict = false
+    fn()
+    this.strict = original
+  }
 }
 
 export function store<S, G extends BG0, M extends BM0, A extends BA0> (
-  module: Module<S, G, M, A>
+  module: Module<S, G, M, A>,
+  options: VueStoreOptions = {}
 ): VueStore<S, G, M, A> {
-  return new VueStoreImpl(module as ModuleImpl) as VueStore<any, any, any, any>
+  return new VueStoreImpl(
+    module as ModuleImpl,
+    options
+  ) as VueStore<any, any, any, any>
 }
 
 export function install (InjectedVue: typeof Vue): void {

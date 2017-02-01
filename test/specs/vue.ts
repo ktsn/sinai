@@ -181,4 +181,53 @@ describe('Vue integration', () => {
     assert(s.getters.test === 'barbar')
     assert(spy.callCount === 2)
   })
+
+  it('throws if mutate state out of mutations when strict mode', () => {
+    class FooState {
+      value = 1
+    }
+    class FooMutation extends Mutations<FooState>() {
+      inc (n: number) {
+        this.state.value += n
+      }
+    }
+    const s = store(module({
+      state: FooState,
+      mutations: FooMutation
+    }), {
+      strict: true
+    })
+
+    // Should not throw
+    s.mutations.inc(1)
+    assert(s.state.value === 2)
+
+    // Should throw
+    Vue.config.silent = true
+    assert.throws(() => {
+      s.state.value += 10
+    }, /Must not update state out of mutations when strict mode is enabled/)
+    Vue.config.silent = false
+  })
+
+  it('should not throw on hmr even if strict mode is enabled', () => {
+    class FooState {
+      value = 1
+    }
+    class FooGetters extends Getters<FooState>() {
+      test () { return this.state.value + 1 }
+    }
+
+    const m = module({
+      state: FooState,
+      getters: FooGetters
+    })
+    const s = store(m, {
+      strict: true
+    })
+
+    assert.doesNotThrow(() => {
+      s.hotUpdate(m)
+    })
+  })
 })
