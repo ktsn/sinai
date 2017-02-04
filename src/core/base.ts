@@ -21,6 +21,8 @@ export interface AI0 extends AI<{}, BG0, BM0, BA0> {}
 export interface Injected<SG, SGMA> {
   Getters<S> (): Class<BG<S, SG>>
   Mutations<S> (): Class<BM<S>>
+  Actions<G extends BG0> (): Class<BA<{}, G, BM0, SGMA>>
+  Actions<M extends BM0> (): Class<BA<{}, BG0, M, SGMA>>
   Actions<S> (): Class<BA<S, BG0, BM0, SGMA>>
   Actions<S, G extends BG0> (): Class<BA<S, G, BM0, SGMA>>
   Actions<S, M extends BM0> (): Class<BA<S, BG0, M, SGMA>>
@@ -134,6 +136,8 @@ export function Mutations (): Class<BM0> {
   return BM
 }
 
+export function Actions<G extends BG0> (): Class<BA1<{}, G, BM0>>
+export function Actions<M extends BM0> (): Class<BA1<{}, BG0, M>>
 export function Actions<S> (): Class<BA1<S, BG0, BM0>>
 export function Actions<S, G extends BG0> (): Class<BA1<S, G, BM<S>>>
 export function Actions<S, M extends BM0> (): Class<BA1<S, BG1<S>, M>>
