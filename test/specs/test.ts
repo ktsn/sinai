@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import { module, inject, Getters, Mutations, Actions } from '../../src'
-import { test } from '../../src/test'
+import { stub } from '../../src/test'
 
 describe('Testing utility', () => {
   it('tests getters class', () => {
@@ -14,7 +14,7 @@ describe('Testing utility', () => {
       }
     }
 
-    const getters = test(FooGetters)
+    const getters = stub(FooGetters)
     assert(getters.one() === 1)
     assert(getters.two === 2)
   })
@@ -30,7 +30,7 @@ describe('Testing utility', () => {
       }
     }
 
-    const getters = test(FooGetters, {
+    const getters = stub(FooGetters, {
       state: {
         value: 10
       }
@@ -67,7 +67,7 @@ describe('Testing utility', () => {
       }
     }
 
-    const getters = test(BarGetters, {
+    const getters = stub(BarGetters, {
       state: { value: 'testbar' },
       modules: {
         foo: {
@@ -94,7 +94,7 @@ describe('Testing utility', () => {
       }
     }
 
-    const mutations = test(FooMutations, {
+    const mutations = stub(FooMutations, {
       state: { value: 10 }
     })
     mutations.inc(1)
@@ -126,7 +126,7 @@ describe('Testing utility', () => {
       }
     }
 
-    const actions = test(FooActions, {
+    const actions = stub(FooActions, {
       state: {
         value: 10
       },
@@ -180,7 +180,7 @@ describe('Testing utility', () => {
 
     const mutationSpy = sinon.spy()
     const actionSpy = sinon.spy()
-    const actions = test(BarActions, {
+    const actions = stub(BarActions, {
       modules: {
         foo: {
           state: { value: 100 },

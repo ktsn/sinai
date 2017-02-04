@@ -8,22 +8,22 @@ export interface Injection<S, G, M, MD> {
   modules?: Partial<MD>
 }
 
-export function test<S, SG, T extends BG<S, SG>> (
+export function stub<S, SG, T extends BG<S, SG>> (
   Getters: Class<T>,
   injection?: Injection<S, never, never, SG>
 ): T & { state: S, modules: SG }
 
-export function test<S, T extends BM<S>> (
+export function stub<S, T extends BM<S>> (
   Mutations: Class<T>,
   injection?: Injection<S, never, never, never>
 ): T & { state: S }
 
-export function test<S, G, M, SGMA, T extends BA<S, G & BG0, M & BM0, SGMA>> (
+export function stub<S, G, M, SGMA, T extends BA<S, G & BG0, M & BM0, SGMA>> (
   Actions: Class<T>,
   injection?: Injection<S, G, M, SGMA>
 ): T & { state: S, getters: G, mutations: M, modules: SGMA }
 
-export function test (Class: Class<{}>, injection: Injection<{}, {}, {}, {}> = {}): {} {
+export function stub (Class: Class<{}>, injection: Injection<{}, {}, {}, {}> = {}): {} {
   const instance = Object.create(Class.prototype)
   Object.keys(injection).forEach(key => {
     Object.defineProperty(instance, key, {
