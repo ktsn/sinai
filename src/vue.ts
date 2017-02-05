@@ -179,3 +179,9 @@ function braveInit (this: Vue): void {
     vm.$store = vm.$parent.$store
   }
 }
+
+declare module 'vue/types/options' {
+  interface ComponentOptions<V extends Vue> {
+    store?: VueStore<any, any, any, any>
+  }
+}
