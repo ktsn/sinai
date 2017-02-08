@@ -6,7 +6,7 @@ const uglify = require('rollup-plugin-uglify')
 const meta = require('../package.json')
 
 const banner = `/*!
- * ${meta.name} v${meta.version}
+ * Sinai v${meta.version}
  * ${meta.homepage}
  *
  * @license
@@ -34,7 +34,7 @@ const configs = [
 
 const baseConfig = {
   entry: 'lib/index.js',
-  moduleName: 'Brave',
+  moduleName: 'Sinai',
   banner,
   plugins: [
     nodeResolve({

@@ -1,22 +1,22 @@
 {
-  "name": "brave",
+  "name": "sinai",
   "version": "0.0.0",
   "author": "katashin",
   "description": "",
   "keywords": [],
   "license": "MIT",
-  "main": "dist/brave.cjs.js",
+  "main": "dist/sinai.cjs.js",
   "jsnext:main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
     "dist",
     "lib"
   ],
-  "homepage": "https://github.com/ktsn/brave",
-  "bugs": "https://github.com/ktsn/brave/issues",
+  "homepage": "https://github.com/ktsn/sinai",
+  "bugs": "https://github.com/ktsn/sinai/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ktsn/brave.git"
+    "url": "https://github.com/ktsn/sinai.git"
   },
   "scripts": {
     "prepublish": "npm run test:ci && npm run clean && npm run build",

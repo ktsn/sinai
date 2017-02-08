@@ -1,4 +1,4 @@
-# Brave
+# Sinai
 
 Type safe state management.
 

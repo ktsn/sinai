@@ -12,7 +12,7 @@ export type CHD<K extends string, T> = {
 
 export function assert (condition: any, message: string): void {
   if (!condition) {
-    throw new Error('[brave] ' + message)
+    throw new Error('[sinai] ' + message)
   }
 }
 

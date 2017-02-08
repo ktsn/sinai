@@ -27,7 +27,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
 
   constructor (module: ModuleImpl, options: VueStoreOptions) {
     if (process.env.NODE_ENV !== 'production') {
-      assert(_Vue, 'Must install Brave by Vue.use before instantiate a store')
+      assert(_Vue, 'Must install Sinai by Vue.use before instantiate a store')
     }
 
     this.strict = Boolean(options.strict)
@@ -155,15 +155,15 @@ export function store<S, G extends BG0, M extends BM0, A extends BA0> (
 
 export function install (InjectedVue: typeof Vue): void {
   if (process.env.NODE_ENV !== 'production') {
-    assert(!_Vue, 'Brave is already installed')
+    assert(!_Vue, 'Sinai is already installed')
   }
   _Vue = InjectedVue
   _Vue.mixin({
-    beforeCreate: braveInit
+    beforeCreate: sinaiInit
   })
 }
 
-function braveInit (this: Vue): void {
+function sinaiInit (this: Vue): void {
   type Component = Vue & { $store: VueStore<{}, BG0, BM0, BA0>, $parent: Component }
   type ComponentOptions = Vue.ComponentOptions<Vue> & { store?: VueStore<{}, BG0, BM0, BA0> }
 
