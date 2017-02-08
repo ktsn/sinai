@@ -2,8 +2,14 @@
   "name": "sinai",
   "version": "0.0.0",
   "author": "katashin",
-  "description": "",
-  "keywords": [],
+  "description": "Type safe state management inspired by Vuex",
+  "keywords": [
+    "typescript",
+    "type safe",
+    "state management",
+    "vue",
+    "vuex"
+  ],
   "license": "MIT",
   "main": "dist/sinai.cjs.js",
   "jsnext:main": "lib/index.js",
