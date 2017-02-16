@@ -17,14 +17,14 @@ class CounterState {
 }
 
 // Declare getters
-class CounterGetters extends Getters<CounterState> {
+class CounterGetters extends Getters<CounterState>() {
   get half () {
     return this.state.count / 2
   }
 }
 
 // Declare mutations
-class CounterMutations extends Mutations<CounterState> {
+class CounterMutations extends Mutations<CounterState>() {
   inc () {
     this.state.count += 1
   }
@@ -35,7 +35,7 @@ class CounterMutations extends Mutations<CounterState> {
 }
 
 // Declare actions
-class CounterActions extends Actions<CounterState, CounterGetters, CounterMutations> {
+class CounterActions extends Actions<CounterState, CounterGetters, CounterMutations>() {
   asyncInc (ms: number) {
     console.log('count: ' + this.state.count)
     console.log('half: ' + this.getters.half)
