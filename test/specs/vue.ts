@@ -4,9 +4,6 @@ import Vue from 'vue'
 import { module, store, Getters, Mutations } from '../../src'
 
 describe('Vue integration', () => {
-  Vue.config.errorHandler = (err, vm, info) => {
-      throw err
-  }
   it('has reactive state', () => {
     class FooState {
       value = 1
