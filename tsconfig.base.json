@@ -13,6 +13,7 @@
     "noImplicitThis": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "allowSyntheticDefaultImports": true
   }
 }

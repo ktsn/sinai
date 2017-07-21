@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import Vue = require('vue')
+import Vue from 'vue'
 import { module, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Hot Update', () => {
