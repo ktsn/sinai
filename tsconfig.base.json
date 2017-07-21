@@ -12,6 +12,7 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
+    "noStrictGenericChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "importHelpers": true,
     "allowSyntheticDefaultImports": true
