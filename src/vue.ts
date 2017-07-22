@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { BG0, BM0, BA0 } from './core/base'
 import { Module, ModuleImpl } from './core/module'
 import { Store, StoreImpl, Subscriber } from './core/store'
+import { devtoolPlugin } from './devtool-plugin'
 import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
@@ -65,9 +66,11 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
       )
     }
 
-    if (options.plugins) {
-      options.plugins.forEach(plugin => plugin(this))
+    const plugins = options.plugins || []
+    if (process.env.NODE_ENV !== 'production') {
+      plugins.push(devtoolPlugin)
     }
+    plugins.forEach(plugin => plugin(this))
   }
 
   get state () {

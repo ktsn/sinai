@@ -4,3 +4,5 @@ typings/
 /lib/
 /dist/
 /.tmp/
+
+/example/__build__.js

@@ -31,6 +31,7 @@
     "build": "npm run build:ts && npm run build:bundle",
     "build:ts": "tsc -p src",
     "build:bundle": "node scripts/build.js",
+    "example": "webpack-dev-server --hot --config example/webpack.config.js",
     "watch:test": "webpack --watch --config scripts/webpack.config.test.js",
     "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
     "test": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
@@ -40,6 +41,7 @@
     "@types/node": "^8.0.14",
     "@types/power-assert": "1.4.29",
     "@types/sinon": "^2.3.3",
+    "css-loader": "^0.28.4",
     "es6-promise": "^4.1.1",
     "glob": "^7.1.2",
     "power-assert": "^1.4.4",
@@ -55,7 +57,10 @@
     "tslint-config-ktsn": "^2.0.1",
     "typescript": "^2.4.2",
     "vue": "^2.4.2",
+    "vue-loader": "^12.2.2",
+    "vue-template-compiler": "^2.4.2",
     "webpack": "^3.3.0",
+    "webpack-dev-server": "~2.5.0",
     "webpack-espower-loader": "^1.0.2"
   },
   "dependencies": {
