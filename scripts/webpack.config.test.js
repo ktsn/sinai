@@ -13,7 +13,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.ts$/, loader: 'webpack-espower-loader!ts-loader' }
+      { test: /\.ts$/, use: ['webpack-espower-loader', 'ts-loader'] }
     ]
   },
   devtool: 'source-map'
