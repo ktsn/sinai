@@ -17,6 +17,10 @@ const banner = `/*!
 
 const configs = [
   {
+    format: 'es',
+    dest: `dist/${meta.name}.esm.js`
+  },
+  {
     format: 'cjs',
     dest: `dist/${meta.name}.cjs.js`
   },
