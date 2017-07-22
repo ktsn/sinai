@@ -27,13 +27,13 @@
   "scripts": {
     "prepublishOnly": "npm run test:ci && npm run clean && npm run build",
     "clean": "rm -rf lib dist .tmp",
+    "dev": "node scripts/test-dev.js",
     "build": "npm run build:ts && npm run build:bundle",
     "build:ts": "tsc -p src",
     "build:bundle": "node scripts/build.js",
     "watch:test": "webpack --watch --config scripts/webpack.config.test.js",
     "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
-    "test": "npm run watch:test & testem && kill %1",
-    "test:ci": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
+    "test": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.41",
