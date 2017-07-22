@@ -26,6 +26,7 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly mutations: M
   readonly actions: A
 
+  replaceState (state: S): void
   subscribe (fn: Subscriber<S>): () => void
   hotUpdate (module: Module<S, G, M, A>): void
 }
@@ -48,6 +49,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     this.transformAction = options.transformAction || identity
 
     this.registerModule(module, false)
+  }
+
+  replaceState (state: {}): void {
+    this.state = state
   }
 
   subscribe (fn: Subscriber<{}>): () => void {
