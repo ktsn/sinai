@@ -25,7 +25,7 @@
     "url": "https://github.com/ktsn/sinai.git"
   },
   "scripts": {
-    "prepublish": "npm run test:ci && npm run clean && npm run build",
+    "prepublishOnly": "npm run test:ci && npm run clean && npm run build",
     "clean": "rm -rf lib dist .tmp",
     "build": "npm run build:ts && npm run build:bundle",
     "build:ts": "tsc -p src",
@@ -36,28 +36,28 @@
     "test:ci": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.32",
-    "@types/node": "^7.0.4",
-    "@types/power-assert": "0.0.28",
-    "@types/sinon": "^1.16.34",
-    "glob": "^7.1.0",
-    "power-assert": "^1.4.1",
-    "rollup": "^0.41.1",
-    "rollup-plugin-commonjs": "^7.0.0",
-    "rollup-plugin-node-resolve": "^2.0.0",
+    "@types/mocha": "^2.2.41",
+    "@types/node": "^8.0.14",
+    "@types/power-assert": "1.4.29",
+    "@types/sinon": "^2.3.3",
+    "glob": "^7.1.2",
+    "power-assert": "^1.4.4",
+    "rollup": "^0.45.2",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-replace": "^1.1.1",
-    "rollup-plugin-uglify": "^1.0.1",
-    "sinon": "^2.0.0-pre.5",
-    "testem": "^1.12.0",
-    "ts-loader": "^2.0.0",
-    "tslint": "^4.0.0",
-    "tslint-config-ktsn": "^2.0.0",
-    "typescript": "^2.1.4",
-    "vue": "^2.2.0",
-    "webpack": "^2.2.0",
-    "webpack-espower-loader": "^1.0.1"
+    "rollup-plugin-uglify": "^2.0.1",
+    "sinon": "^2.3.8",
+    "testem": "^1.18.0",
+    "ts-loader": "^2.3.1",
+    "tslint": "^5.5.0",
+    "tslint-config-ktsn": "^2.0.1",
+    "typescript": "^2.4.2",
+    "vue": "^2.4.2",
+    "webpack": "^3.3.0",
+    "webpack-espower-loader": "^1.0.2"
   },
   "dependencies": {
-    "tslib": "^1.5.0"
+    "tslib": "^1.7.1"
   }
 }
