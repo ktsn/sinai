@@ -349,6 +349,16 @@ describe('Basic', () => {
     assert(spy.callCount === 2)
   })
 
+  it('receives plugins', () => {
+    const spy = sinon.spy()
+
+    const s = store(module(), {
+      plugins: [spy]
+    })
+
+    assert(spy.calledWith(s))
+  })
+
   it('throws if trying to register a module that the name is already exists', () => {
     const foo = module()
     const bar = module()

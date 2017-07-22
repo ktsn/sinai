@@ -6,8 +6,11 @@ import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
+export type Plugin = (store: VueStore<any, any, any, any>) => void
+
 export interface VueStoreOptions {
   strict?: boolean
+  plugins?: Plugin[]
 }
 
 export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extends Store<S, G, M, A> {
@@ -51,6 +54,10 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
         },
         { deep: true, sync: true } as Vue.WatchOptions
       )
+    }
+
+    if (options.plugins) {
+      options.plugins.forEach(plugin => plugin(this))
     }
   }
 
