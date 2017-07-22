@@ -121,6 +121,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
             'Actions should not return other than Promise'
           )
         }
+        return r
       }
 
       Object.defineProperty(actions, key, transformer(desc, key))
