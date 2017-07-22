@@ -40,6 +40,7 @@
     "@types/node": "^8.0.14",
     "@types/power-assert": "1.4.29",
     "@types/sinon": "^2.3.3",
+    "es6-promise": "^4.1.1",
     "glob": "^7.1.2",
     "power-assert": "^1.4.4",
     "rollup": "^0.45.2",
