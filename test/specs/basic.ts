@@ -359,6 +359,20 @@ describe('Basic', () => {
     assert(spy.calledWith(s))
   })
 
+  it('replaces entire state', () => {
+    class State {
+      foo = 'bar'
+    }
+
+    const s = store(module({
+      state: State
+    }))
+
+    assert(s.state.foo === 'bar')
+    s.replaceState({ foo: 'baz' })
+    assert(s.state.foo === 'baz')
+  })
+
   it('throws if trying to register a module that the name is already exists', () => {
     const foo = module()
     const bar = module()

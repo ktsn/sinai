@@ -77,6 +77,13 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     return this.innerStore.actions
   }
 
+  replaceState (state: {}): void {
+    this.commit(() => {
+      this.vm.state = state
+      this.innerStore.replaceState(state)
+    })
+  }
+
   subscribe (fn: Subscriber<{}>): () => void {
     return this.innerStore.subscribe(fn)
   }
