@@ -7,7 +7,8 @@ Type safe state management inspired by Vuex.
 > This library includes many type level hacks. Use at your own risk.
 
 ## Requirements
-Vue >= 2.2.6
+
+Vue >= 2.2.0
 
 ## Examples
 
