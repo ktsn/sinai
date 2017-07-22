@@ -36,11 +36,14 @@ const baseConfig = {
   entry: 'lib/index.js',
   moduleName: 'Sinai',
   banner,
+  external: ['vue'],
+  globals: {
+    vue: 'Vue'
+  },
   plugins: [
     nodeResolve({
       jsnext: true,
-      main: true,
-      skip: ['vue']
+      main: true
     }),
     commonjs({
       sourceMap: false
@@ -66,7 +69,6 @@ function build (c) {
   if (c.env === 'production') {
     config.plugins.push(
       uglify({
-        screw_ie8: true,
         output: {
           comments (node, comment) {
             const text = comment.value;
@@ -80,9 +82,13 @@ function build (c) {
     )
   }
 
-  rollup(config).then(bundle => {
-    bundle.write(config)
-  })
+  rollup(config)
+    .then(bundle => {
+      return bundle.write(config)
+    })
+    .catch(err => {
+      console.error(err)
+    })
 }
 
 configs.forEach(build)

@@ -8,10 +8,7 @@
       "dom",
       "es2015"
     ],
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
+    "strict": true,
     "noStrictGenericChecks": true,
     "suppressImplicitAnyIndexErrors": true,
     "importHelpers": true,
