@@ -74,9 +74,9 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     return this.innerStore.subscribe(fn)
   }
 
-  watch (
-    getter: (state: {}, getters: BG0) => {},
-    cb: (newState: {}, oldState: {}) => void,
+  watch<R> (
+    getter: (state: {}, getters: BG0) => R,
+    cb: (newState: R, oldState: R) => void,
     options?: Vue.WatchOptions
   ): () => void {
     return this.watcher.$watch(

@@ -50,7 +50,7 @@ export function makeInjected (
         injectModule(Actions, key, module) as BaseClass<BA0>
       )
     }
-  }
+  } as Injected<{}, {}>
 }
 
 function injectModule<I> (
