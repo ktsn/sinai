@@ -182,6 +182,28 @@ describe('Vue integration', () => {
     assert(spy.callCount === 2)
   })
 
+
+  it('track getters dependencies after replacing state', () => {
+    class FooState {
+      foo = 'foo'
+    }
+
+    class FooGetters extends Getters<FooState>() {
+      get foobar () {
+        return this.state.foo + 'bar'
+      }
+    }
+
+    const s = store(module({
+      state: FooState,
+      getters: FooGetters
+    }))
+
+    assert(s.getters.foobar === 'foobar')
+    s.replaceState({ foo: 'bar' })
+    assert(s.getters.foobar === 'barbar')
+  })
+
   it('throws if mutate state out of mutations when strict mode', () => {
     class FooState {
       value = 1
