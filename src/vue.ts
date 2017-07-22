@@ -23,7 +23,7 @@ export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extend
 
 export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private innerStore: StoreImpl
-  private vm: Vue & { state: {} }
+  private vm: Vue & { $data: { state: {} }}
   private watcher: Vue
   private gettersForComputed: Dictionary<() => any> = {}
   private strict: boolean
@@ -42,6 +42,15 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
 
     this.setupStoreVM()
     this.watcher = new _Vue()
+
+    // Override the innerStore's state to point to VueStore's state
+    // The state can do not be reactive sometimes if not do this
+    Object.defineProperty(this.innerStore, 'state', {
+      get: () => this.state,
+      set: (value: {}) => {
+        this.vm.$data.state = value
+      }
+    })
 
     if (this.strict) {
       this.watch(
@@ -62,7 +71,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   }
 
   get state () {
-    return this.vm.state
+    return this.vm.$data.state
   }
 
   get getters () {
@@ -79,8 +88,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
 
   replaceState (state: {}): void {
     this.commit(() => {
-      this.vm.state = state
-      this.innerStore.replaceState(state)
+      this.vm.$data.state = state
     })
   }
 
@@ -135,12 +143,12 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
         state: this.innerStore.state
       },
       computed: this.gettersForComputed
-    }) as Vue & { state: {} }
+    }) as Vue & { $data: { state: {} }}
 
     // Ensure to re-evaluate getters for hot update
     if (oldVM != null) {
       this.commit(() => {
-        oldVM.state = null as any
+        oldVM.$data.state = null as any
       })
 
       _Vue.nextTick(() => {
