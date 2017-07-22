@@ -463,7 +463,7 @@ describe('Basic', () => {
     }))
 
     return s.actions.foo().then(ret => {
-        assert(ret === 1)
+      assert(ret === 1)
     })
   })
 
