@@ -6,11 +6,11 @@ import { Dictionary, assert, bind } from './utils'
 
 let _Vue: typeof Vue
 
-export type Plugin = (store: VueStore<any, any, any, any>) => void
+export type Plugin<S, G extends BG0, M extends BM0, A extends BA0> = (store: VueStore<S, G, M, A>) => void
 
-export interface VueStoreOptions {
+export interface VueStoreOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   strict?: boolean
-  plugins?: Plugin[]
+  plugins?: Plugin<S, G, M, A>[]
 }
 
 export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extends Store<S, G, M, A> {
@@ -28,7 +28,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private gettersForComputed: Dictionary<() => any> = {}
   private strict: boolean
 
-  constructor (module: ModuleImpl, options: VueStoreOptions) {
+  constructor (module: ModuleImpl, options: VueStoreOptions<{}, BG0, BM0, BA0>) {
     if (process.env.NODE_ENV !== 'production') {
       assert(_Vue, 'Must install Sinai by Vue.use before instantiate a store')
     }
@@ -152,7 +152,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
 
 export function store<S, G extends BG0, M extends BM0, A extends BA0> (
   module: Module<S, G, M, A>,
-  options: VueStoreOptions = {}
+  options: VueStoreOptions<S, G, M, A> = {}
 ): VueStore<S, G, M, A> {
   return new VueStoreImpl(
     module as ModuleImpl,
