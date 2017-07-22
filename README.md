@@ -8,7 +8,8 @@ Type safe state management inspired by Vuex.
 
 ## Requirements
 
-Vue >= 2.2.0
+* Vue >= 2.0.0
+* Enable `--allowSyntheticDefaultImports` flag of TypeScript compiler options
 
 ## Examples
 
