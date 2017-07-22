@@ -116,7 +116,10 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
       desc.value = function boundMutationFn () {
         const r = original.apply(actions, arguments)
         if (process.env.NODE_ENV !== 'production') {
-          assert(r === undefined, 'Actions should not return other than Promise')
+          assert(
+            r === undefined || isPromise(r),
+            'Actions should not return other than Promise'
+          )
         }
       }
 

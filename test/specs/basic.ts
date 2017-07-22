@@ -437,4 +437,19 @@ describe('Basic', () => {
       s.actions.foo()
     }, /Actions should not return other than Promise/)
   })
+
+  it('should not throw if an action returns a Promise', () => {
+    class FooActions extends Actions() {
+      foo () {
+        return Promise.resolve()
+      }
+    }
+    const s = store(module({
+      actions: FooActions
+    }))
+
+    assert.doesNotThrow(() => {
+      s.actions.foo()
+    })
+  })
 })
