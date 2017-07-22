@@ -452,4 +452,19 @@ describe('Basic', () => {
       s.actions.foo()
     })
   })
+  it('can get result from an action via Promise', () => {
+    class FooActions extends Actions() {
+      foo () {
+        return Promise.resolve(1)
+      }
+    }
+    const s = store(module({
+      actions: FooActions
+    }))
+
+    return s.actions.foo().then(ret => {
+        assert(ret === 1)
+    })
+  })
+
 })
