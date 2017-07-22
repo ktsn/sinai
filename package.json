@@ -35,7 +35,8 @@
     "example": "webpack-dev-server --hot --config example/webpack.config.js",
     "watch:test": "webpack --watch --config scripts/webpack.config.test.js",
     "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
-    "test": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS"
+    "test": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci --launch PhantomJS",
+    "release": "./scripts/release.sh"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.41",
