@@ -40,7 +40,7 @@ function proxyStore (store: VueStore<{}, BG0, BM0, BA0>) {
 }
 
 function flattenGetters (getters: BG0): Dictionary<any> {
-  function loop(acc: Dictionary<any>, path: string[], getters: BG0): Dictionary<any> {
+  function loop (acc: Dictionary<any>, path: string[], getters: BG0): Dictionary<any> {
     Object.keys(getters).forEach(key => {
       if (key === '__proxy__' || key === 'modules') {
         return
