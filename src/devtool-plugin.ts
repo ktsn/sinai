@@ -1,6 +1,7 @@
-import { BG0, BM0, BA0, BG } from './core/base'
-import { VueStore } from './vue'
+import { BA0, BG, BG0, BM0 } from './core/base'
+
 import { Dictionary } from './utils'
+import { VueStore } from './vue'
 
 const devtoolHook =
   typeof window !== 'undefined' &&
@@ -39,24 +40,25 @@ function proxyStore (store: VueStore<{}, BG0, BM0, BA0>) {
 }
 
 function flattenGetters (getters: BG0): Dictionary<any> {
-    function loop (acc: Dictionary<any>, path: string[], getters: BG0): Dictionary<any> {
-        Object.keys(getters).forEach(key => {
-            if (key === '__proxy__' || key === 'modules') {
-                return
-            }
+  function loop(acc: Dictionary<any>, path: string[], getters: BG0): Dictionary<any> {
+    Object.keys(getters).forEach(key => {
+      if (key === '__proxy__' || key === 'modules') {
+        return
+      }
 
-            const desc = Object.getOwnPropertyDescriptor(getters, key)
-            if (!(getters[key].__proto__ instanceof BG)) {
-                Object.defineProperty(acc, path.concat(key).join('.'), {
-                    get: () => getters[key],
-                    enumerable: true,
-                    configurable: true
-                })
-            }
-            if (getters[key].__proto__ instanceof BG)
-                loop(acc, path.concat(key), getters[key])
+      const desc = Object.getOwnPropertyDescriptor(getters, key)
+      if (!(getters[key].__proto__ instanceof BG)) {
+        Object.defineProperty(acc, path.concat(key).join('.'), {
+          get: () => getters[key],
+          enumerable: true,
+          configurable: true
         })
-        return acc
-    }
-    return loop({}, [], getters)
+      }
+      else {
+        loop(acc, path.concat(key), getters[key])
+      }
+    })
+    return acc
+  }
+  return loop({}, [], getters)
 }
