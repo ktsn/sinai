@@ -1,6 +1,7 @@
-import { BG0, BM0, BA0 } from './core/base'
-import { VueStore } from './vue'
+import { BA0, BG, BG0, BM0 } from './core/base'
+
 import { Dictionary } from './utils'
+import { VueStore } from './vue'
 
 const devtoolHook =
   typeof window !== 'undefined' &&
@@ -46,15 +47,16 @@ function flattenGetters (getters: BG0): Dictionary<any> {
       }
 
       const desc = Object.getOwnPropertyDescriptor(getters, key)
-      if (typeof desc.value !== 'object') {
+      if (!(getters[key].__proto__ instanceof BG)) {
         Object.defineProperty(acc, path.concat(key).join('.'), {
           get: () => getters[key],
           enumerable: true,
           configurable: true
         })
       }
-
-      loop(acc, path.concat(key), getters[key])
+      else {
+        loop(acc, path.concat(key), getters[key])
+      }
     })
     return acc
   }
