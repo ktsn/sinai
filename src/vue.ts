@@ -67,7 +67,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     }
 
     const plugins = options.plugins || []
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production' && _Vue.config.devtools) {
       plugins.push(devtoolPlugin)
     }
     plugins.forEach(plugin => plugin(this))
