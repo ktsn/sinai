@@ -1,7 +1,7 @@
-import { BA0, BG, BG0, BM0 } from './core/base'
+import { BA0, BG, BG0, BM0 } from '../core/base'
 
-import { Dictionary } from './utils'
-import { VueStore } from './vue'
+import { Dictionary } from '../utils'
+import { VueStore } from '../vue'
 
 const devtoolHook =
   typeof window !== 'undefined' &&
