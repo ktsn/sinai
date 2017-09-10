@@ -37,13 +37,15 @@ const configs = [
 ]
 
 const baseConfig = {
-  entry: 'lib/index.js',
-  moduleName: 'Sinai',
-  banner,
-  external: ['vue'],
-  globals: {
-    vue: 'Vue'
+  input: 'lib/index.js',
+  output: {
+    name: 'Sinai',
+    banner,
+    globals: {
+      vue: 'Vue'
+    }
   },
+  external: ['vue'],
   plugins: [
     nodeResolve({
       jsnext: true,
@@ -57,8 +59,10 @@ const baseConfig = {
 
 function build (c) {
   const config = Object.assign({}, baseConfig, {
-    format: c.format,
-    dest: c.dest,
+    output: Object.assign({}, baseConfig.output, {
+      format: c.format,
+      file: c.dest
+    }),
     plugins: baseConfig.plugins.slice()
   })
 
@@ -88,10 +92,11 @@ function build (c) {
 
   rollup(config)
     .then(bundle => {
-      return bundle.write(config)
+      return bundle.write(config.output)
     })
     .catch(err => {
       console.error(err)
+      process.exit(1)
     })
 }
 
