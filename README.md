@@ -4,7 +4,7 @@
 
 Type safe state management inspired by Vuex.
 
-> This library includes many type level hacks. Use at your own risk.
+**This library includes many type level hacks. Use at your own risk.**
 
 ## Requirements
 
