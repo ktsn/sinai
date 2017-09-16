@@ -349,6 +349,32 @@ describe('Basic', () => {
     assert(spy.callCount === 2)
   })
 
+  // #15
+  it('subscribes inherited mutations', () => {
+    const spy = sinon.spy()
+
+    class FooState {
+      value = 'foo'
+    }
+    abstract class AbstractMutations extends Mutations<FooState>() {
+      update(str: string) {
+        this.state.value = str
+      }
+    }
+    class FooMutations extends AbstractMutations {
+    }
+
+    const s = store(module({
+      state: FooState,
+      mutations: FooMutations
+    }))
+
+    const unsubscribe = s.subscribe(spy)
+    s.mutations.update('updated')
+    assert(spy.calledWith(['update'], ['updated'], { value: 'updated' }))
+    unsubscribe()
+  })
+
   it('receives plugins', () => {
     const spy = sinon.spy()
 
