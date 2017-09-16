@@ -1,7 +1,8 @@
 import {
   BaseClass,
+  BG, BM, BA,
   BG0, BM0, BA0,
-  BG1, BM, BA1
+  BG1, BA1
 } from './base'
 
 import { StoreImpl } from './store'
@@ -53,7 +54,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
 
     const getters = new this.Getters(this, store)
 
-    forEachDescriptor(this.Getters, (desc, key) => {
+    traverseDescriptors(this.Getters.prototype, BG, (desc, key) => {
       if (process.env.NODE_ENV !== 'production') {
         assert(desc.set === undefined, 'Getters should not have any setters')
       }
@@ -83,7 +84,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
 
     const mutations = new this.Mutations(this, store)
 
-    forEachDescriptor(this.Mutations, (desc, key) => {
+    traverseDescriptors(this.Mutations.prototype, BM, (desc, key) => {
       if (process.env.NODE_ENV !== 'production') {
         assert(typeof desc.value === 'function', 'Mutations should only have functions')
       }
@@ -107,7 +108,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
 
     const actions = new this.Actions(this, store)
 
-    forEachDescriptor(this.Actions, (desc, key) => {
+    traverseDescriptors(this.Actions.prototype, BA, (desc, key) => {
       if (process.env.NODE_ENV !== 'production') {
         assert(typeof desc.value === 'function', 'Actions should only have functions')
       }
@@ -170,14 +171,21 @@ export function module<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G,
   return new ModuleImpl(++uid, options)
 }
 
-function forEachDescriptor<T extends Class<{}>> (
-  Class: T,
+function traverseDescriptors (
+  proto: Object,
+  Base: Function,
   fn: (desc: PropertyDescriptor, key: string) => void
 ): void {
-  Object.getOwnPropertyNames(Class.prototype).forEach(key => {
+  if (proto.constructor === Base) {
+    return
+  }
+
+  Object.getOwnPropertyNames(proto).forEach(key => {
     if (key === 'constructor') return
 
-    const desc = Object.getOwnPropertyDescriptor(Class.prototype, key)
+    const desc = Object.getOwnPropertyDescriptor(proto, key)
     fn(desc, key)
   })
+
+  traverseDescriptors(Object.getPrototypeOf(proto), Base, fn)
 }
