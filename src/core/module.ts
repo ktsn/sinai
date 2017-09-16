@@ -171,8 +171,8 @@ export function module<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G,
   return new ModuleImpl(++uid, options)
 }
 
-function traverseDescriptors<T extends Class<{}>> (
-  proto: T,
+function traverseDescriptors (
+  proto: Object,
   Base: Function,
   fn: (desc: PropertyDescriptor, key: string) => void
 ): void {
