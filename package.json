@@ -26,7 +26,6 @@
     "url": "https://github.com/ktsn/sinai.git"
   },
   "scripts": {
-    "prepublishOnly": "npm run test && npm run clean && npm run build",
     "clean": "rm -rf lib dist .tmp",
     "dev": "node scripts/test-dev.js",
     "build": "npm run build:ts && npm run build:bundle",
