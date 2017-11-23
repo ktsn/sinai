@@ -1,6 +1,6 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
-import Vue from 'vue'
+import Vue, { ComponentOptions, VNode } from 'vue'
 import { module, store, Getters, Mutations } from '../../src'
 
 describe('Vue integration', () => {
@@ -22,7 +22,7 @@ describe('Vue integration', () => {
     const c: any = new Vue({
       store: s,
       computed: {
-        test () {
+        test (): number {
           return this.$store.state.value
         }
       }
@@ -57,7 +57,7 @@ describe('Vue integration', () => {
     const c: any = new Vue({
       store: s,
       computed: {
-        test () {
+        test (): number {
           return this.$store.getters.twice
         }
       }
@@ -79,20 +79,20 @@ describe('Vue integration', () => {
     }))
 
     const Grandchild = {
-      created () {
+      created (this: Vue) {
         assert(this.$store.state.value === 123)
         spy1()
       },
-      render: h => h('div', 'test')
-    } as Vue.ComponentOptions<Vue>
+      render: h => h('div', 'test') as VNode
+    } as ComponentOptions<Vue>
 
     const Child = {
-      created () {
+      created (this: Vue) {
         assert(this.$store.state.value === 123)
         spy2()
       },
-      render: h => h(Grandchild)
-    } as Vue.ComponentOptions<Vue>
+      render: h => h(Grandchild) as VNode
+    } as ComponentOptions<Vue>
 
     new Vue({
       store: s,
@@ -226,10 +226,19 @@ describe('Vue integration', () => {
 
     // Should throw
     Vue.config.silent = true
-    assert.throws(() => {
+    const orgHandler = Vue.config.errorHandler
+    try {
+      const spy1 = Vue.config.errorHandler = sinon.spy()
       s.state.value += 10
-    }, /Must not update state out of mutations when strict mode is enabled/)
-    Vue.config.silent = false
+      assert(spy1.called)
+      const expected = /Must not update state out of mutations when strict mode is enabled/
+      const msg = spy1.firstCall.args[0].toString()
+      assert(expected.test(msg))
+    }
+    finally {
+      Vue.config.errorHandler = orgHandler
+      Vue.config.silent = false
+    }
   })
 
   it('should not throw on hmr even if strict mode is enabled', () => {
