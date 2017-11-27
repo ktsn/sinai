@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue, { WatchOptions, ComponentOptions as _ComponentOptions } from 'vue'
 import { BG0, BM0, BA0 } from './core/base'
 import { Module, ModuleImpl } from './core/module'
 import { Store, StoreImpl, Subscriber } from './core/store'
@@ -18,7 +18,7 @@ export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extend
   watch<R> (
     getter: (state: S, getters: G) => R,
     cb: (newState: R, oldState: R) => void,
-    options?: Vue.WatchOptions
+    options?: WatchOptions
   ): () => void
 }
 
@@ -62,7 +62,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
             'Must not update state out of mutations when strict mode is enabled.'
           )
         },
-        { deep: true, sync: true } as Vue.WatchOptions
+        { deep: true, sync: true } as WatchOptions
       )
     }
 
@@ -102,7 +102,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   watch<R> (
     getter: (state: {}, getters: BG0) => R,
     cb: (newState: R, oldState: R) => void,
-    options?: Vue.WatchOptions
+    options?: WatchOptions
   ): () => void {
     return this.watcher.$watch(
       () => getter(this.state, this.getters),
@@ -190,7 +190,7 @@ export function install (InjectedVue: typeof Vue): void {
 
 function sinaiInit (this: Vue): void {
   type Component = Vue & { $store: VueStore<{}, BG0, BM0, BA0>, $parent: Component }
-  type ComponentOptions = Vue.ComponentOptions<Vue> & { store?: VueStore<{}, BG0, BM0, BA0> }
+  type ComponentOptions = _ComponentOptions<Vue> & { store?: VueStore<{}, BG0, BM0, BA0> }
 
   const vm = this as Component
   const { store } = vm.$options as ComponentOptions
