@@ -78,21 +78,21 @@ describe('Vue integration', () => {
       }
     }))
 
-    const Grandchild = {
+    const Grandchild = Vue.extend({
       created (this: Vue) {
         assert(this.$store.state.value === 123)
         spy1()
       },
-      render: h => h('div', 'test') as VNode
-    } as ComponentOptions<Vue>
+      render: h => h('div', 'test')
+    })
 
-    const Child = {
+    const Child = Vue.extend({
       created (this: Vue) {
         assert(this.$store.state.value === 123)
         spy2()
       },
-      render: h => h(Grandchild) as VNode
-    } as ComponentOptions<Vue>
+      render: h => h(Grandchild)
+    })
 
     new Vue({
       store: s,

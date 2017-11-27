@@ -183,7 +183,7 @@ function traverseDescriptors (
   Object.getOwnPropertyNames(proto).forEach(key => {
     if (key === 'constructor') return
 
-    const desc = Object.getOwnPropertyDescriptor(proto, key)
+    const desc = Object.getOwnPropertyDescriptor(proto, key)!
     fn(desc, key)
   })
 

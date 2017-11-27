@@ -174,7 +174,7 @@ export function store<S, G extends BG0, M extends BM0, A extends BA0> (
 ): VueStore<S, G, M, A> {
   return new VueStoreImpl(
     module as ModuleImpl,
-    options
+    options as VueStoreOptions<{}, BG0, BM0, BA0>
   ) as VueStore<any, any, any, any>
 }
 
