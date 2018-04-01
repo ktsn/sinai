@@ -38,10 +38,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
   private transformMutation: Transformer
   private transformAction: Transformer
 
-  state: {}
-  getters: BG0
-  mutations: BM0
-  actions: BA0
+  state!: {}
+  getters!: BG0
+  mutations!: BM0
+  actions!: BA0
 
   constructor (module: ModuleImpl, options: StoreOptions = {}) {
     this.transformGetter = options.transformGetter || identity

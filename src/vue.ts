@@ -24,7 +24,7 @@ export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extend
 
 export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private innerStore: StoreImpl
-  private vm: Vue & { $data: { state: {} }}
+  private vm!: Vue & { $data: { state: {} }}
   private watcher: Vue
   private gettersForComputed: Dictionary<() => any> = {}
   private strict: boolean

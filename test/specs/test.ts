@@ -40,8 +40,8 @@ describe('Testing utility', () => {
 
   it('tests getters class with injecting depending modules', () => {
     class FooState {
-      value: 'foo'
-      foo: 'test'
+      value = 'foo'
+      foo = 'test'
     }
     class FooGetters extends Getters<FooState>() {
       get test () {
@@ -56,8 +56,8 @@ describe('Testing utility', () => {
     const { Getters: GettersI } = inject('foo', foo)
 
     class BarState {
-      value: 'bar'
-      bar: 'test'
+      value = 'bar'
+      bar = 'test'
     }
     class BarGetters extends GettersI<BarState>() {
       get combine () {
@@ -85,8 +85,8 @@ describe('Testing utility', () => {
 
   it('tests mutations with injecting state', () => {
     class FooState {
-      value: 1
-      test: 'foo'
+      value = 1
+      test = 'foo'
     }
     class FooMutations extends Mutations<FooState>() {
       inc (n: number) {
@@ -105,8 +105,8 @@ describe('Testing utility', () => {
     const spy = sinon.spy()
 
     class FooState {
-      value: 1
-      test: 'foo'
+      value = 1
+      test = 'foo'
     }
     class FooGetters extends Getters<FooState>() {
       computed () {
@@ -143,8 +143,8 @@ describe('Testing utility', () => {
 
   it('tests actions with injecting depending modules', () => {
     class FooState {
-      value: 1
-      foo: 'test'
+      value = 1
+      foo = 'test'
     }
     class FooGetters extends Getters<FooState>() {
       get test () {
