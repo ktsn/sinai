@@ -13,21 +13,21 @@ import Vue from 'vue'
 
 export default Vue.extend({
   computed: {
-    value () {
+    value (): number {
       return this.$store.state.count
     },
-    doubleValue () {
+    doubleValue (): number {
       return this.$store.getters.double
     },
-    tripleValue () {
+    tripleValue (): number {
       return this.$store.getters.times(3)
     }
   },
   methods: {
-    increment () {
+    increment (): void {
       this.$store.mutations.increment()
     },
-    asyncIncrement () {
+    asyncIncrement (): void {
       this.$store.actions.asyncIncrement(1000)
     }
   }

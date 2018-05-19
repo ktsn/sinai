@@ -1,4 +1,7 @@
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+
 module.exports = {
+  mode: 'development',
   context: __dirname,
   entry: './main.ts',
   output: {
@@ -19,13 +22,13 @@ module.exports = {
       },
       {
         test: /\.vue$/,
-        loader: 'vue-loader',
-        options: {
-          esModule: true
-        }
+        loader: 'vue-loader'
       }
     ]
   },
+  plugins: [
+    new VueLoaderPlugin()
+  ],
   devtool: 'inline-source-map',
   devServer: {
     contentBase: __dirname,
