@@ -129,15 +129,15 @@ export function flattenGetters (getters: BG0, sep: string): Dictionary<any> {
         return
       }
 
-      const desc = Object.getOwnPropertyDescriptor(getters, key)
-      if (!(getters[key].__proto__ instanceof BG)) {
+      const value = getters[key]
+      if (!value || !(value.__proto__ instanceof BG)) {
         Object.defineProperty(acc, path.concat(key).join(sep), {
-          get: () => getters[key],
+          get: () => getters[key], // `getters[key]` should be evaluated in `get` function
           enumerable: true,
           configurable: true
         })
       } else {
-        loop(acc, path.concat(key), getters[key])
+        loop(acc, path.concat(key), value)
       }
     })
     return acc
