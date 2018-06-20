@@ -303,26 +303,6 @@ describe('Vue integration', () => {
     assert(vm.test === s.state.value)
   })
 
-  it('binds nested store state to component', () => {
-    class FooState {
-      value = 123
-    }
-
-    const foo = module({
-      state: FooState
-    })
-    const m = module().child('test', foo)
-    const s = store(m)
-    const binder = createVueBinder<typeof s>()
-
-    const vm = new Vue({
-      store: s,
-      computed: binder.module('test').mapState(['value'])
-    })
-
-    assert(vm.value === s.state.test.value)
-  })
-
   it('binds a getter to a component', () => {
     class FooState {
       value = 10
@@ -495,6 +475,67 @@ describe('Vue integration', () => {
 
     await vm.inc()
     assert(s.state.value === 11)
+  })
+
+  it('binds child store state to component', () => {
+    class FooState {
+      value = 123
+    }
+
+    const foo = module({
+      state: FooState
+    })
+    const m = module().child('test', foo)
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.module('test').mapState(['value'])
+    })
+
+    assert(vm.value === s.state.test.value)
+  })
+
+  it('binds nested store mutation to component', () => {
+    class FooState {
+      value = 123
+    }
+    const foo = module({
+      state: FooState
+    })
+
+    class BarState {
+      test = 'value'
+    }
+    class BarMutations extends Mutations<BarState>() {
+      update(value: string): void {
+        this.state.test = value
+      }
+    }
+    const bar = module({
+      state: BarState,
+      mutations: BarMutations
+    })
+
+    const m = module().child(
+      'foo',
+      foo.child(
+        'bar',
+        bar
+      )
+    )
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.module('foo').module('bar').mapMutations({
+        assign: 'update'
+      })
+    })
+    vm.assign('updated')
+    assert(s.state.foo.bar.test === 'updated')
   })
 })
 
