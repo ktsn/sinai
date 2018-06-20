@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue, { ComponentOptions, VNode } from 'vue'
-import { module, store, Getters, Mutations } from '../../src'
+import { module, store, Getters, Mutations, createVueBinder } from '../../src'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -260,5 +260,25 @@ describe('Vue integration', () => {
     assert.doesNotThrow(() => {
       s.hotUpdate(m)
     })
+  })
+
+  it('binds store state to component', () => {
+    class FootState {
+      value = 123
+    }
+
+    const m = module({
+      state: FootState
+    })
+
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapState(['value'])
+    })
+
+    assert(vm.value === s.state.value)
   })
 })
