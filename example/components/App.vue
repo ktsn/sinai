@@ -10,25 +10,33 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapper } from '../store'
 
 export default Vue.extend({
   computed: {
-    value (): number {
-      return this.$store.state.count
-    },
-    doubleValue (): number {
-      return this.$store.getters.double
-    },
+    ...mapper.mapState({
+      value: 'count'
+    }),
+
+    ...mapper.mapGetters({
+      doubleValue: 'double',
+      times: 'times'
+    }),
+
     tripleValue (): number {
-      return this.$store.getters.times(3)
+      return this.times(3)
     }
   },
+
   methods: {
-    increment (): void {
-      this.$store.mutations.increment()
-    },
+    ...mapper.mapMutations(['increment']),
+
+    ...mapper.mapActions({
+      _asyncIncrement: 'asyncIncrement'
+    }),
+
     asyncIncrement (): void {
-      this.$store.actions.asyncIncrement(1000)
+      this._asyncIncrement(1000)
     }
   }
 })
