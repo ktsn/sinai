@@ -7,13 +7,10 @@ type Mutations<ST extends VueStore<any, any, any, any>> = ST extends VueStore<an
 type Actions<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, any, any, infer A> ? A : never
 type Module<S, G, M, A> = keyof S & keyof G & keyof M & keyof A
 
-function createMapper(module: string[], name: string, key: string): Function {
-  return function (this: any) {
-    const target = this.$store[name]
-    return module.concat(key).reduce<any>((acc, key) => {
-      return acc[key]
-    }, target)
-  }
+function getPath(target: any, path: string[]): any {
+  return path.reduce<any>((acc, key) => {
+    return acc[key]
+  }, target)
 }
 
 function normalizeMap<R>(map: string[] | Record<string, string>, fn: (value: string, key: string) => R): Record<string, R> {
@@ -42,7 +39,10 @@ export class VueBinder<S, G, M, A> {
   mapState<T extends Record<string, keyof S>>(map: T): { [K in keyof T]: () => S[T[K]] }
   mapState(map: string[] | Record<string, string>): Record<string, Function> {
     return normalizeMap(map, value => {
-      return createMapper(this._module, 'state', value)
+      const path = this._module.concat(value)
+      return function stateMapper(this: any) {
+        return getPath(this.$store.state, path)
+      }
     })
   }
 
@@ -50,7 +50,21 @@ export class VueBinder<S, G, M, A> {
   mapGetters<T extends Record<string, keyof G>>(map: T): { [K in keyof T]: () => G[T[K]] }
   mapGetters(map: string[] | Record<string, string>): Record<string, Function> {
     return normalizeMap(map, value => {
-      return createMapper(this._module, 'getters', value)
+      const path = this._module.concat(value)
+      return function getterMapper(this: any) {
+        return getPath(this.$store.getters, path)
+      }
+    })
+  }
+
+  mapMutations<Key extends keyof M>(keys: Key[]): { [K in Key]: M[K] }
+  mapMutations<T extends Record<string, keyof M>>(map: T): { [K in keyof T]: M[T[K]] }
+  mapMutations(map: string[] | Record<string, string>): Record<string, any> {
+    return normalizeMap(map, value => {
+      const path = this._module.concat(value)
+      return function mutationMapper(this: any, ...args: any[]) {
+        return getPath(this.$store.mutations, path)(...args)
+      }
     })
   }
 }

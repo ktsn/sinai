@@ -374,4 +374,58 @@ describe('Vue integration', () => {
 
     assert(vm.test === s.getters.double)
   })
+
+  it('binds a mutation to a component', () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutation extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutation
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapMutations(['inc'])
+    })
+
+    vm.inc()
+    assert(s.state.value === 11)
+  })
+
+  it('binds a mutation with object syntax', () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutation extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutation
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapMutations({
+        add: 'inc'
+      })
+    })
+
+    vm.add()
+    assert(s.state.value === 11)
+  })
 })
