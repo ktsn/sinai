@@ -45,6 +45,14 @@ export class VueBinder<S, G, M, A> {
       return createMapper(this._module, 'state', value)
     })
   }
+
+  mapGetters<Key extends keyof G>(keys: Key[]): { [K in Key]: () => G[K] }
+  mapGetters<T extends Record<string, keyof G>>(map: T): { [K in keyof T]: () => G[T[K]] }
+  mapGetters(map: string[] | Record<string, string>): Record<string, Function> {
+    return normalizeMap(map, value => {
+      return createMapper(this._module, 'getters', value)
+    })
+  }
 }
 
 export function createVueBinder<ST extends VueStore<{}, BG0, BM0, BA0>>(): VueBinder<State<ST>, Getters<ST>, Mutations<ST>, Actions<ST>> {

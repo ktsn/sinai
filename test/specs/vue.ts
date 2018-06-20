@@ -282,7 +282,7 @@ describe('Vue integration', () => {
     assert(vm.value === s.state.value)
   })
 
-  it('binds store state with object mapping', () => {
+  it('binds store state with object syntax', () => {
     class FooState {
       value = 123
     }
@@ -321,5 +321,57 @@ describe('Vue integration', () => {
     })
 
     assert(vm.value === s.state.test.value)
+  })
+
+  it('binds a getter to a component', () => {
+    class FooState {
+      value = 10
+    }
+    class FooGetters extends Getters<FooState>() {
+      get double(): number {
+        return this.state.value * 2
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      getters: FooGetters
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapGetters(['double'])
+    })
+
+    assert(vm.double === s.getters.double)
+  })
+
+  it('binds a getter with object syntax', () => {
+    class FooState {
+      value = 10
+    }
+    class FooGetters extends Getters<FooState>() {
+      get double(): number {
+        return this.state.value * 2
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      getters: FooGetters
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapGetters({
+        test: 'double'
+      })
+    })
+
+    assert(vm.test === s.getters.double)
   })
 })
