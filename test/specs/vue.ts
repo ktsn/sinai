@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue, { ComponentOptions, VNode } from 'vue'
-import { module, store, Getters, Mutations } from '../../src'
+import { module, store, Getters, Mutations, createMapper, Actions } from '../../src'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -261,4 +261,286 @@ describe('Vue integration', () => {
       s.hotUpdate(m)
     })
   })
+
+  it('binds store state to component', () => {
+    class FooState {
+      value = 123
+    }
+
+    const m = module({
+      state: FooState
+    })
+
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapState(['value'])
+    })
+
+    assert(vm.value === s.state.value)
+  })
+
+  it('binds store state with object syntax', () => {
+    class FooState {
+      value = 123
+    }
+    const m = module({
+      state: FooState
+    })
+
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapState({
+        test: 'value'
+      })
+    })
+
+    assert(vm.test === s.state.value)
+  })
+
+  it('binds a getter to a component', () => {
+    class FooState {
+      value = 10
+    }
+    class FooGetters extends Getters<FooState>() {
+      get double(): number {
+        return this.state.value * 2
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      getters: FooGetters
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapGetters(['double'])
+    })
+
+    assert(vm.double === s.getters.double)
+  })
+
+  it('binds a getter with object syntax', () => {
+    class FooState {
+      value = 10
+    }
+    class FooGetters extends Getters<FooState>() {
+      get double(): number {
+        return this.state.value * 2
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      getters: FooGetters
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapGetters({
+        test: 'double'
+      })
+    })
+
+    assert(vm.test === s.getters.double)
+  })
+
+  it('binds a mutation to a component', () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapMutations(['inc'])
+    })
+
+    vm.inc()
+    assert(s.state.value === 11)
+  })
+
+  it('binds a mutation with object syntax', () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapMutations({
+        add: 'inc'
+      })
+    })
+
+    vm.add()
+    assert(s.state.value === 11)
+  })
+
+  it('binds an action to a component', async () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+    class FooActions extends Actions<FooState, FooMutations>() {
+      async asyncInc(): Promise<void> {
+        await wait(0)
+        this.mutations.inc()
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations,
+      actions: FooActions
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapActions(['asyncInc'])
+    })
+
+    await vm.asyncInc()
+    assert(s.state.value === 11)
+  })
+
+  it('binds an action with object syntax', async () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+    class FooActions extends Actions<FooState, FooMutations>() {
+      async asyncInc(): Promise<void> {
+        await wait(0)
+        this.mutations.inc()
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations,
+      actions: FooActions
+    })
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapActions({
+        inc: 'asyncInc'
+      })
+    })
+
+    await vm.inc()
+    assert(s.state.value === 11)
+  })
+
+  it('binds child store state to component', () => {
+    class FooState {
+      value = 123
+    }
+
+    const foo = module({
+      state: FooState
+    })
+    const m = module().child('test', foo)
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.module('test').mapState(['value'])
+    })
+
+    assert(vm.value === s.state.test.value)
+  })
+
+  it('binds nested store mutation to component', () => {
+    class FooState {
+      value = 123
+    }
+    const foo = module({
+      state: FooState
+    })
+
+    class BarState {
+      test = 'value'
+    }
+    class BarMutations extends Mutations<BarState>() {
+      update(value: string): void {
+        this.state.test = value
+      }
+    }
+    const bar = module({
+      state: BarState,
+      mutations: BarMutations
+    })
+
+    const m = module().child(
+      'foo',
+      foo.child(
+        'bar',
+        bar
+      )
+    )
+    const s = store(m)
+    const binder = createMapper<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.module('foo').module('bar').mapMutations({
+        assign: 'update'
+      })
+    })
+    vm.assign('updated')
+    assert(s.state.foo.bar.test === 'updated')
+  })
 })
+
+function wait(ms: number): Promise<void> {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
