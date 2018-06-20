@@ -1,17 +1,12 @@
 import { VueStore } from './store'
 import { BG0, BM0, BA0 } from '../core/base'
+import { getByPath } from '../utils'
 
 type State<ST extends VueStore<any, any, any, any>> = ST extends VueStore<infer S, any, any, any> ? S : never
 type Getters<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, infer G, any, any> ? G : never
 type Mutations<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, any, infer M, any> ? M : never
 type Actions<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, any, any, infer A> ? A : never
 type Module<S, G, M, A> = keyof S & keyof G & keyof M & keyof A
-
-function getPath(target: any, path: string[]): any {
-  return path.reduce<any>((acc, key) => {
-    return acc[key]
-  }, target)
-}
 
 function normalizeMap<R>(map: string[] | Record<string, string>, fn: (value: string, key: string) => R): Record<string, R> {
   const res: Record<string, R> = {}
@@ -27,12 +22,12 @@ function normalizeMap<R>(map: string[] | Record<string, string>, fn: (value: str
   return res
 }
 
-export class VueBinder<S, G, M, A> {
+export class VueMapper<S, G, M, A> {
   constructor(private _module: string[]) {}
 
-  module<T extends Module<S, G, M, A>>(module: T): VueBinder<S[T], G[T], M[T], A[T]>
-  module(module: string): VueBinder<any, any, any, any> {
-    return new VueBinder(this._module.concat(module))
+  module<T extends Module<S, G, M, A>>(module: T): VueMapper<S[T], G[T], M[T], A[T]>
+  module(module: string): VueMapper<any, any, any, any> {
+    return new VueMapper(this._module.concat(module))
   }
 
   mapState<Key extends keyof S>(keys: Key[]): { [K in Key]: () => S[K] }
@@ -41,7 +36,7 @@ export class VueBinder<S, G, M, A> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
       return function stateMapper(this: any) {
-        return getPath(this.$store.state, path)
+        return getByPath(path, this.$store.state)
       }
     })
   }
@@ -52,7 +47,7 @@ export class VueBinder<S, G, M, A> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
       return function getterMapper(this: any) {
-        return getPath(this.$store.getters, path)
+        return getByPath(path, this.$store.getters)
       }
     })
   }
@@ -64,7 +59,7 @@ export class VueBinder<S, G, M, A> {
       const path = this._module.concat(value)
       return function mutationMapper(this: any, ...args: any[]) {
         // It never return non-callable value since we have runtime assertion in the module
-        return getPath(this.$store.mutations, path)(...args)
+        return getByPath<Function>(path, this.$store.mutations)(...args)
       }
     })
   }
@@ -76,12 +71,12 @@ export class VueBinder<S, G, M, A> {
       const path = this._module.concat(value)
       return function actionMapper(this: any, ...args: any[]) {
         // It never return non-callable value since we have runtime assertion in the module
-        return getPath(this.$store.actions, path)(...args)
+        return getByPath<Function>(path, this.$store.actions)(...args)
       }
     })
   }
 }
 
-export function createVueBinder<ST extends VueStore<{}, BG0, BM0, BA0>>(): VueBinder<State<ST>, Getters<ST>, Mutations<ST>, Actions<ST>> {
-  return new VueBinder([])
+export function createMapper<ST extends VueStore<{}, BG0, BM0, BA0>>(): VueMapper<State<ST>, Getters<ST>, Mutations<ST>, Actions<ST>> {
+  return new VueMapper([])
 }

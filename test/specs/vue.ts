@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue, { ComponentOptions, VNode } from 'vue'
-import { module, store, Getters, Mutations, createVueBinder, Actions } from '../../src'
+import { module, store, Getters, Mutations, createMapper, Actions } from '../../src'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -272,7 +272,7 @@ describe('Vue integration', () => {
     })
 
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -291,7 +291,7 @@ describe('Vue integration', () => {
     })
 
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -318,7 +318,7 @@ describe('Vue integration', () => {
       getters: FooGetters
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -343,7 +343,7 @@ describe('Vue integration', () => {
       getters: FooGetters
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -370,7 +370,7 @@ describe('Vue integration', () => {
       mutations: FooMutations
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -396,7 +396,7 @@ describe('Vue integration', () => {
       mutations: FooMutations
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -431,7 +431,7 @@ describe('Vue integration', () => {
       actions: FooActions
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -464,7 +464,7 @@ describe('Vue integration', () => {
       actions: FooActions
     })
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -487,7 +487,7 @@ describe('Vue integration', () => {
     })
     const m = module().child('test', foo)
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
@@ -526,7 +526,7 @@ describe('Vue integration', () => {
       )
     )
     const s = store(m)
-    const binder = createVueBinder<typeof s>()
+    const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
