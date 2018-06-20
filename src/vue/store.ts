@@ -1,9 +1,9 @@
 import Vue, { WatchOptions, ComponentOptions as _ComponentOptions } from 'vue'
-import { BG0, BM0, BA0 } from './core/base'
-import { Module, ModuleImpl } from './core/module'
-import { Store, StoreImpl, Subscriber } from './core/store'
-import { devtoolPlugin } from './adapters/devtool-plugin'
-import { Dictionary, assert, bind } from './utils'
+import { BG0, BM0, BA0 } from '../core/base'
+import { Module, ModuleImpl } from '../core/module'
+import { Store, StoreImpl, Subscriber } from '../core/store'
+import { devtoolPlugin } from '../adapters/devtool-plugin'
+import { Dictionary, assert, bind } from '../utils'
 
 let _Vue: typeof Vue
 

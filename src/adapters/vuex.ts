@@ -1,5 +1,5 @@
 import { WatchOptions } from 'vue'
-import { Plugin } from '../vue'
+import { Plugin } from '../vue/store'
 import { BG0, BG, BA0, BM0 } from '../core/base'
 import { Dictionary, isPromise } from '../utils'
 
