@@ -63,7 +63,20 @@ export class VueBinder<S, G, M, A> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
       return function mutationMapper(this: any, ...args: any[]) {
+        // It never return non-callable value since we have runtime assertion in the module
         return getPath(this.$store.mutations, path)(...args)
+      }
+    })
+  }
+
+  mapActions<Key extends keyof A>(keys: Key[]): { [K in Key]: A[K] }
+  mapActions<T extends Record<string, keyof A>>(map: T): { [K in keyof T]: A[T[K]] }
+  mapActions(map: string[] | Record<string, string>): Record<string, any> {
+    return normalizeMap(map, value => {
+      const path = this._module.concat(value)
+      return function actionMapper(this: any, ...args: any[]) {
+        // It never return non-callable value since we have runtime assertion in the module
+        return getPath(this.$store.actions, path)(...args)
       }
     })
   }

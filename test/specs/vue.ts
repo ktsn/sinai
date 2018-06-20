@@ -1,7 +1,7 @@
 import assert = require('power-assert')
 import sinon = require('sinon')
 import Vue, { ComponentOptions, VNode } from 'vue'
-import { module, store, Getters, Mutations, createVueBinder } from '../../src'
+import { module, store, Getters, Mutations, createVueBinder, Actions } from '../../src'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -379,7 +379,7 @@ describe('Vue integration', () => {
     class FooState {
       value = 10
     }
-    class FooMutation extends Mutations<FooState>() {
+    class FooMutations extends Mutations<FooState>() {
       inc(): void {
         this.state.value++
       }
@@ -387,7 +387,7 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      mutations: FooMutation
+      mutations: FooMutations
     })
     const s = store(m)
     const binder = createVueBinder<typeof s>()
@@ -405,7 +405,7 @@ describe('Vue integration', () => {
     class FooState {
       value = 10
     }
-    class FooMutation extends Mutations<FooState>() {
+    class FooMutations extends Mutations<FooState>() {
       inc(): void {
         this.state.value++
       }
@@ -413,7 +413,7 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      mutations: FooMutation
+      mutations: FooMutations
     })
     const s = store(m)
     const binder = createVueBinder<typeof s>()
@@ -428,4 +428,78 @@ describe('Vue integration', () => {
     vm.add()
     assert(s.state.value === 11)
   })
+
+  it('binds an action to a component', async () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+    class FooActions extends Actions<FooState, FooMutations>() {
+      async asyncInc(): Promise<void> {
+        await wait(0)
+        this.mutations.inc()
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations,
+      actions: FooActions
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapActions(['asyncInc'])
+    })
+
+    await vm.asyncInc()
+    assert(s.state.value === 11)
+  })
+
+  it('binds an action with object syntax', async () => {
+    class FooState {
+      value = 10
+    }
+    class FooMutations extends Mutations<FooState>() {
+      inc(): void {
+        this.state.value++
+      }
+    }
+    class FooActions extends Actions<FooState, FooMutations>() {
+      async asyncInc(): Promise<void> {
+        await wait(0)
+        this.mutations.inc()
+      }
+    }
+
+    const m = module({
+      state: FooState,
+      mutations: FooMutations,
+      actions: FooActions
+    })
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      methods: binder.mapActions({
+        inc: 'asyncInc'
+      })
+    })
+
+    await vm.inc()
+    assert(s.state.value === 11)
+  })
 })
+
+function wait(ms: number): Promise<void> {
+  return new Promise<void>(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
