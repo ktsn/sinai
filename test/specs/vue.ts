@@ -263,12 +263,12 @@ describe('Vue integration', () => {
   })
 
   it('binds store state to component', () => {
-    class FootState {
+    class FooState {
       value = 123
     }
 
     const m = module({
-      state: FootState
+      state: FooState
     })
 
     const s = store(m)
@@ -280,5 +280,46 @@ describe('Vue integration', () => {
     })
 
     assert(vm.value === s.state.value)
+  })
+
+  it('binds store state with object mapping', () => {
+    class FooState {
+      value = 123
+    }
+    const m = module({
+      state: FooState
+    })
+
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.mapState({
+        test: 'value'
+      })
+    })
+
+    assert(vm.test === s.state.value)
+  })
+
+  it('binds nested store state to component', () => {
+    class FooState {
+      value = 123
+    }
+
+    const foo = module({
+      state: FooState
+    })
+    const m = module().child('test', foo)
+    const s = store(m)
+    const binder = createVueBinder<typeof s>()
+
+    const vm = new Vue({
+      store: s,
+      computed: binder.module('test').mapState(['value'])
+    })
+
+    assert(vm.value === s.state.test.value)
   })
 })

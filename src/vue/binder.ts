@@ -5,11 +5,12 @@ type State<ST extends VueStore<any, any, any, any>> = ST extends VueStore<infer 
 type Getters<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, infer G, any, any> ? G : never
 type Mutations<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, any, infer M, any> ? M : never
 type Actions<ST extends VueStore<any, any, any, any>> = ST extends VueStore<any, any, any, infer A> ? A : never
+type Module<S, G, M, A> = keyof S & keyof G & keyof M & keyof A
 
-function createMapper(namespace: string[], name: string, key: string): Function {
+function createMapper(module: string[], name: string, key: string): Function {
   return function (this: any) {
     const target = this.$store[name]
-    return namespace.concat(key).reduce<any>((acc, key) => {
+    return module.concat(key).reduce<any>((acc, key) => {
       return acc[key]
     }, target)
   }
@@ -29,14 +30,19 @@ function normalizeMap<R>(map: string[] | Record<string, string>, fn: (value: str
   return res
 }
 
-export class VueBinder<S, G extends BG0, M extends BM0, A extends BA0> {
-  constructor(private namespace: string[]) {}
+export class VueBinder<S, G, M, A> {
+  constructor(private _module: string[]) {}
+
+  module<T extends Module<S, G, M, A>>(module: T): VueBinder<S[T], G[T], M[T], A[T]>
+  module(module: string): VueBinder<any, any, any, any> {
+    return new VueBinder(this._module.concat(module))
+  }
 
   mapState<Key extends keyof S>(keys: Key[]): { [K in Key]: () => S[K] }
   mapState<T extends Record<string, keyof S>>(map: T): { [K in keyof T]: () => S[T[K]] }
   mapState(map: string[] | Record<string, string>): Record<string, Function> {
     return normalizeMap(map, value => {
-      return createMapper(this.namespace, 'state', value)
+      return createMapper(this._module, 'state', value)
     })
   }
 }
