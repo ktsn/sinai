@@ -375,6 +375,31 @@ describe('Basic', () => {
     unsubscribe()
   })
 
+  it('properly choose inherited methods', () => {
+    const spyParent = sinon.spy()
+    const spyChild = sinon.spy()
+
+    class ParentMutations extends Mutations() {
+      foo(): void {
+        spyParent()
+      }
+    }
+
+    class ChildMutations extends ParentMutations {
+      foo(): void {
+        super.foo()
+        spyChild()
+      }
+    }
+
+    const s = store(module({
+      mutations: ChildMutations
+    }))
+    s.mutations.foo()
+    assert(spyParent.called)
+    assert(spyChild.called)
+  })
+
   it('receives plugins', () => {
     const spy = sinon.spy()
 

@@ -174,18 +174,21 @@ export function module<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G,
 function traverseDescriptors (
   proto: Object,
   Base: Function,
-  fn: (desc: PropertyDescriptor, key: string) => void
+  fn: (desc: PropertyDescriptor, key: string) => void,
+  exclude: Record<string, boolean> = { constructor: true }
 ): void {
   if (proto.constructor === Base) {
     return
   }
 
   Object.getOwnPropertyNames(proto).forEach(key => {
-    if (key === 'constructor') return
+    // Ensure to only choose most extended properties
+    if (exclude[key]) return
+    exclude[key] = true
 
     const desc = Object.getOwnPropertyDescriptor(proto, key)!
     fn(desc, key)
   })
 
-  traverseDescriptors(Object.getPrototypeOf(proto), Base, fn)
+  traverseDescriptors(Object.getPrototypeOf(proto), Base, fn, exclude)
 }
