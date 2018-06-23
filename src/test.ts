@@ -1,27 +1,45 @@
 import { Class } from './utils'
 import { BG, BM, BA, BG0, BM0 } from './core/base'
 
+export type PartialModule<T> = {
+  [K in keyof T]?: Partial<T[K]>
+}
+
+// Make each module and its assets optional
+// e.g. { foo: Module } -> { foo?: Partial<Module> }
+export type PartialModules<T> = {
+  [K in keyof T]?: PartialModule<T[K]>
+}
+
 export interface Injection<S, G, M, MD> {
   state?: Partial<S>
   getters?: Partial<G>
   mutations?: Partial<M>
-  modules?: Partial<MD>
+  modules?: PartialModules<MD>
 }
 
-export function stub<S, SG, T extends BG<S, {}>> (
+type GetterState<G extends BG<any, any>> = G extends BG<infer S, any> ? S : never
+type GetterModules<G extends BG<any, any>> = G extends BG<any, infer SG> ? SG : never
+type MutationState<M extends BM<any>> = M extends BM<infer S> ? S : never
+type ActionState<A extends BA<any, any, any, any>> = A extends BA<infer S, any, any, any> ? S : never
+type ActionGetters<A extends BA<any, any, any, any>> = A extends BA<any, infer G, any, any> ? G : never
+type ActionMutations<A extends BA<any, any, any, any>> = A extends BA<any, any, infer M, any> ? M : never
+type ActionModules<A extends BA<any, any, any, any>> = A extends BA<any, any, any, infer SGMA> ? SGMA : never
+
+export function stub<T extends BG<{}, {}>> (
   Getters: Class<T>,
-  injection?: Injection<S, never, never, SG>
-): T & { state: S, modules: SG }
+  injection?: Injection<GetterState<T>, never, never, GetterModules<T>>
+): T & { state: GetterState<T>, modules: GetterModules<T> }
 
-export function stub<S, T extends BM<S>> (
+export function stub<T extends BM<{}>> (
   Mutations: Class<T>,
-  injection?: Injection<S, never, never, never>
-): T & { state: S }
+  injection?: Injection<MutationState<T>, never, never, never>
+): T & { state: MutationState<T> }
 
-export function stub<S, G, M, SGMA, T extends BA<S, G & BG0, M & BM0, {}>> (
+export function stub<T extends BA<{}, BG0, BM0, {}>> (
   Actions: Class<T>,
-  injection?: Injection<S, G, M, SGMA>
-): T & { state: S, getters: G, mutations: M, modules: SGMA }
+  injection?: Injection<ActionState<T>, ActionGetters<T>, ActionMutations<T>, ActionModules<T>>
+): T & { state: ActionState<T>, getters: ActionGetters<T>, mutations: ActionMutations<T>, modules: ActionModules<T> }
 
 export function stub (Class: Class<{}>, injection: Injection<{}, {}, {}, {}> = {}): {} {
   const instance = Object.create(Class.prototype)
