@@ -2,14 +2,6 @@ export interface Class<R> {
   new (...args: any[]): R
 }
 
-export interface Dictionary<T> {
-  [key: string]: T
-}
-
-export type CHD<K extends string, T> = {
-  [_ in K]: T
-}
-
 export function assert (condition: any, message: string): void {
   if (!condition) {
     throw new Error('[sinai] ' + message)
@@ -21,7 +13,7 @@ export function identity<T> (value: T): T {
 }
 
 export function forEachValues<T> (
-  t: Dictionary<T>,
+  t: Record<string, T>,
   fn: (t: T, key: string) => void
 ): void {
   Object.keys(t).forEach(key => {

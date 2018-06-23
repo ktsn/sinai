@@ -3,7 +3,7 @@ import { BG0, BM0, BA0 } from '../core/base'
 import { Module, ModuleImpl } from '../core/module'
 import { Store, StoreImpl, Subscriber } from '../core/store'
 import { devtoolPlugin } from '../adapters/devtool-plugin'
-import { Dictionary, assert, bind } from '../utils'
+import { assert, bind } from '../utils'
 
 let _Vue: typeof Vue
 
@@ -26,7 +26,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
   private innerStore: StoreImpl
   private vm!: Vue & { $data: { state: {} }}
   private watcher: Vue
-  private gettersForComputed: Dictionary<() => any> = {}
+  private gettersForComputed: Record<string, () => any> = {}
   private strict: boolean
 
   constructor (module: ModuleImpl, options: VueStoreOptions<{}, BG0, BM0, BA0>) {

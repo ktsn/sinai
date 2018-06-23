@@ -8,7 +8,7 @@ import {
 import { StoreImpl } from './store'
 
 import {
-  Class, Dictionary, CHD,
+  Class,
   assert, identity, getByPath, bind, isPromise
 } from '../utils'
 
@@ -25,11 +25,11 @@ export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
   child<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0> (
     key: K,
     module: Module<S1, G1, M1, A1>
-  ): Module<S & CHD<K, S1>, G & CHD<K, G1>, M & CHD<K, M1>, A & CHD<K, A1>>
+  ): Module<S & Record<K, S1>, G & Record<K, G1>, M & Record<K, M1>, A & Record<K, A1>>
 }
 
 export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
-  children: Dictionary<ModuleImpl> = {}
+  children: Record<string, ModuleImpl> = {}
   State: Class<{}> | undefined
   Getters: BaseClass<BG0> | undefined
   Mutations: BaseClass<BM0> | undefined

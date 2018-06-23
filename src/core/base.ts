@@ -1,4 +1,4 @@
-import { Class, Dictionary, CHD } from '../utils'
+import { Class } from '../utils'
 import { Module, ModuleImpl, ModuleProxy } from './module'
 import { StoreImpl } from './store'
 import { assert } from '../utils'
@@ -31,7 +31,7 @@ export interface Injected<SG, SGMA> {
   and<K extends string, S, G extends BG0, M extends BM0, A extends BA0> (
     key: K,
     module: Module<S, G, M, A>
-  ): Injected<SG & CHD<K, GI<S, G>>, SGMA & CHD<K, AI<S, G, M, A>>>
+  ): Injected<SG & Record<K, GI<S, G>>, SGMA & Record<K, AI<S, G, M, A>>>
 }
 
 export function makeInjected (
@@ -149,6 +149,6 @@ export function Actions (): Class<BA0> {
 export function inject<K extends string, S, G extends BG0, M extends BM0, A extends BA0> (
   key: K,
   module: Module<S, G, M, A>
-): Injected<CHD<K, GI<S, G>>, CHD<K, AI<S, G, M, A>>> {
+): Injected<Record<K, GI<S, G>>, Record<K, AI<S, G, M, A>>> {
   return makeInjected(BG, BM, BA).and(key, module)
 }

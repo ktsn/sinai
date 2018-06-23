@@ -1,7 +1,7 @@
 import { WatchOptions } from 'vue'
 import { Plugin } from '../vue/store'
 import { BG0, BG, BA0, BM0 } from '../core/base'
-import { Dictionary, isPromise } from '../utils'
+import { isPromise } from '../utils'
 
 /**
  * We cannot use original Vuex typings because
@@ -122,8 +122,8 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
   }
 }
 
-export function flattenGetters (getters: BG0, sep: string): Dictionary<any> {
-  function loop (acc: Dictionary<any>, path: string[], getters: BG0): Dictionary<any> {
+export function flattenGetters (getters: BG0, sep: string): Record<string, any> {
+  function loop (acc: Record<string, any>, path: string[], getters: BG0): Record<string, any> {
     Object.keys(getters).forEach(key => {
       if (key === '__proxy__' || key === 'modules') {
         return

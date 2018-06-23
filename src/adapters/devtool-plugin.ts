@@ -1,6 +1,5 @@
 import { BA0, BG, BG0, BM0 } from '../core/base'
 
-import { Dictionary } from '../utils'
 import { VueStore } from '../vue/store'
 import { flattenGetters } from './vuex'
 
