@@ -134,7 +134,7 @@ describe('Testing utility', () => {
         computed: () => 100
       },
       mutations: {
-        inc: spy as Function
+        inc: spy as never
       }
     })
     actions.test()
@@ -185,8 +185,8 @@ describe('Testing utility', () => {
         foo: {
           state: { value: 100 },
           getters: { test: 200 },
-          mutations: { test: mutationSpy as Function },
-          actions: { test: actionSpy as Function }
+          mutations: { test: mutationSpy as never },
+          actions: { test: actionSpy as never }
         }
       }
     })
