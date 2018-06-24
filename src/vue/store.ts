@@ -3,7 +3,7 @@ import { BG0, BM0, BA0 } from '../core/base'
 import { Module, ModuleImpl } from '../core/module'
 import { Store, StoreImpl, Subscriber } from '../core/store'
 import { devtoolPlugin } from '../adapters/devtool-plugin'
-import { assert, bind } from '../utils'
+import { assert } from '../utils'
 
 let _Vue: typeof Vue
 
@@ -37,8 +37,8 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     this.strict = Boolean(options.strict)
 
     this.innerStore = new StoreImpl(module, {
-      transformGetter: bind(this, this.transformGetter),
-      transformMutation: bind(this, this.transformMutation)
+      transformGetter: this.transformGetter.bind(this),
+      transformMutation: this.transformMutation.bind(this)
     })
 
     this.setupStoreVM()

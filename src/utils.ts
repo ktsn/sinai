@@ -25,12 +25,6 @@ export function getByPath<T> (path: string[], obj: any): T {
   return path.reduce((acc, key) => acc[key], obj)
 }
 
-export function bind<T extends Function> (obj: any, fn: T): T {
-  return function boundFn () {
-    return fn.apply(obj, arguments)
-  } as any
-}
-
 export function isPromise (p: any): p is Promise<any> {
   return p != null && typeof p.then === 'function'
 }

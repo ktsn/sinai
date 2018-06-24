@@ -1,6 +1,6 @@
 import { BG0, BM0, BA0 } from './base'
 import { Module, ModuleImpl, ModuleProxy } from './module'
-import { assert, identity, bind, forEachValues } from '../utils'
+import { assert, identity, forEachValues } from '../utils'
 
 interface ModuleMap {
   [key: string]: {
@@ -124,7 +124,7 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
       ),
       mutations: module.initMutations(
         this,
-        chainTransformer(path, bind(this, this.hookMutation))
+        chainTransformer(path, this.hookMutation.bind(this))
       ),
       actions: module.initActions(
         this,

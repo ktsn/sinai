@@ -9,7 +9,7 @@ import { StoreImpl } from './store'
 
 import {
   Class,
-  assert, identity, getByPath, bind, isPromise
+  assert, identity, getByPath, isPromise
 } from '../utils'
 
 export type Transformer = (desc: PropertyDescriptor, key: string) => PropertyDescriptor
