@@ -14,7 +14,7 @@ Type safe state management inspired by Vuex.
 ## Examples
 
 ```ts
-import { store, module, Getters, Mutations, Actions } from 'sinai'
+import { store as createStore, module, Getters, Mutations, Actions } from 'sinai'
 
 // Declare the module state and its initial value
 class CounterState {
@@ -66,7 +66,7 @@ const counter = module({
 const root = module().child('counter', counter)
 
 // Create store
-const store = store(root, {
+const store = createStore(root, {
   strict: process.env.NODE_ENV !== 'production'
 })
 
