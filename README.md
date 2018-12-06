@@ -1,6 +1,7 @@
 # Sinai
 [![npm version](https://badge.fury.io/js/sinai.svg)](https://badge.fury.io/js/sinai)
 [![Build Status](https://travis-ci.org/ktsn/sinai.svg?branch=master)](https://travis-ci.org/ktsn/sinai)
+[![sinai Dev Token](https://badge.devtoken.rocks/sinai)](https://devtoken.rocks/package/sinai)
 
 Type safe state management inspired by Vuex.
 
