@@ -31,7 +31,7 @@ export class VueMapper<S, G, M, A> {
   }
 
   mapState<Key extends keyof S>(keys: Key[]): { [K in Key]: () => S[K] }
-  mapState<T extends Record<string, keyof S>>(map: T): { [K in keyof T]: () => S[T[K]] }
+  mapState<T extends Record<string, keyof S>>(map: T): { [K in keyof T]: () => S[T[K] & keyof S] }
   mapState(map: string[] | Record<string, string>): Record<string, Function> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
@@ -42,7 +42,7 @@ export class VueMapper<S, G, M, A> {
   }
 
   mapGetters<Key extends keyof G>(keys: Key[]): { [K in Key]: () => G[K] }
-  mapGetters<T extends Record<string, keyof G>>(map: T): { [K in keyof T]: () => G[T[K]] }
+  mapGetters<T extends Record<string, keyof G>>(map: T): { [K in keyof T]: () => G[T[K] & keyof G] }
   mapGetters(map: string[] | Record<string, string>): Record<string, Function> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
@@ -53,7 +53,7 @@ export class VueMapper<S, G, M, A> {
   }
 
   mapMutations<Key extends keyof M>(keys: Key[]): { [K in Key]: M[K] }
-  mapMutations<T extends Record<string, keyof M>>(map: T): { [K in keyof T]: M[T[K]] }
+  mapMutations<T extends Record<string, keyof M>>(map: T): { [K in keyof T]: M[T[K] & keyof M] }
   mapMutations(map: string[] | Record<string, string>): Record<string, any> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
@@ -65,7 +65,7 @@ export class VueMapper<S, G, M, A> {
   }
 
   mapActions<Key extends keyof A>(keys: Key[]): { [K in Key]: A[K] }
-  mapActions<T extends Record<string, keyof A>>(map: T): { [K in keyof T]: A[T[K]] }
+  mapActions<T extends Record<string, keyof A>>(map: T): { [K in keyof T]: A[T[K] & keyof A] }
   mapActions(map: string[] | Record<string, string>): Record<string, any> {
     return normalizeMap(map, value => {
       const path = this._module.concat(value)
