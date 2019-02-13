@@ -339,9 +339,13 @@ describe('Basic', () => {
 
     const unsubscribe = s.subscribe(spy)
     s.mutations.foo.test('bar')
-    assert(spy.calledWith(['foo', 'test'], ['bar'], { foo: { value: 'bar' }}))
+
+    const first = spy.lastCall
+    assert.deepEqual(first.args, [['foo', 'test'], ['bar'], { foo: { value: 'bar' }}])
     s.mutations.foo.test('baz', 1, true, null)
-    assert(spy.calledWith(['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}))
+
+    const second = spy.lastCall
+    assert.deepEqual(second.args, [['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}])
 
     assert(spy.callCount === 2)
     unsubscribe()
@@ -371,7 +375,9 @@ describe('Basic', () => {
 
     const unsubscribe = s.subscribe(spy)
     s.mutations.update('updated')
-    assert(spy.calledWith(['update'], ['updated'], { value: 'updated' }))
+
+    const first = spy.lastCall
+    assert.deepEqual(first.args, [['update'], ['updated'], { value: 'updated' }])
     unsubscribe()
   })
 
