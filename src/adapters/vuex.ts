@@ -67,7 +67,7 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
           type = payload.type as string
         }
         const path = type.split('/')
-        const action = path.reduce((action, key) => {
+        const action = path.reduce<any>((action, key) => {
           return action[key]
         }, store.actions)
 
@@ -85,7 +85,7 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
           type = payload.type as string
         }
         const path = type.split('/')
-        const mutation = path.reduce((mutation, key) => {
+        const mutation = path.reduce<any>((mutation, key) => {
           return mutation[key]
         }, store.mutations)
 
