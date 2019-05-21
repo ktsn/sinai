@@ -2,7 +2,7 @@ import { WatchOptions } from 'vue'
 import { Plugin } from '../vue/store'
 import { BG0, BG, BA0, BM0 } from '../core/base'
 import { isPromise } from '../utils'
-import { flattenGetters } from './devtool-plugin';
+import { flattenGetters } from './devtool-plugin'
 
 /**
  * We cannot use original Vuex typings because
