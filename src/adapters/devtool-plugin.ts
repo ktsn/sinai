@@ -35,6 +35,19 @@ function proxyStore (store: VueStore<{}, BG0, BM0, BA0>) {
     get state () {
       return store.state
     },
-    getters: flattenGetters(store.getters, '.')
+
+    getters: flattenGetters(store.getters, '.'),
+
+    replaceState (state: {}) {
+      store.replaceState(state)
+    },
+
+    get _vm() {
+      return (store as any).vm
+    },
+
+    get _mutations() {
+      return (store as any).mutations
+    }
   }
 }
