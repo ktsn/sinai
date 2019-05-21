@@ -1,7 +1,5 @@
-import { BA0, BG, BG0, BM0 } from '../core/base'
-
+import { BA0, BG, BG0, BM0, BM } from '../core/base'
 import { VueStore } from '../vue/store'
-import { flattenGetters } from './vuex'
 
 const devtoolHook =
   typeof window !== 'undefined' &&
@@ -42,12 +40,54 @@ function proxyStore (store: VueStore<{}, BG0, BM0, BA0>) {
       store.replaceState(state)
     },
 
-    get _vm() {
-      return (store as any).vm
-    },
+    _vm: (store as any).vm,
 
-    get _mutations() {
-      return (store as any).mutations
-    }
+    _mutations: flattenMutations((store as any).mutations)
   }
+}
+
+function flattenMutations (mutations: any): Record<string, Function> {
+  function loop (acc: Record<string, any>, path: string[], mutations: any): Record<string, any> {
+    Object.keys(mutations).forEach(key => {
+      if (key === '__proxy__') {
+        return
+      }
+
+      const value = mutations[key]
+      if (!value || !(value.__proto__ instanceof BM)) {
+        Object.defineProperty(acc, path.concat(key).join('.'), {
+          get: () => mutations[key], // `mutations[key]` should be evaluated in `get` function
+          enumerable: true,
+          configurable: true
+        })
+      } else {
+        loop(acc, path.concat(key), value)
+      }
+    })
+    return acc
+  }
+  return loop({}, [], mutations)
+}
+
+export function flattenGetters (getters: BG0, sep: string): Record<string, any> {
+  function loop (acc: Record<string, any>, path: string[], getters: BG0): Record<string, any> {
+    Object.keys(getters).forEach(key => {
+      if (key === '__proxy__' || key === 'modules') {
+        return
+      }
+
+      const value = getters[key]
+      if (!value || !(value.__proto__ instanceof BG)) {
+        Object.defineProperty(acc, path.concat(key).join(sep), {
+          get: () => getters[key], // `getters[key]` should be evaluated in `get` function
+          enumerable: true,
+          configurable: true
+        })
+      } else {
+        loop(acc, path.concat(key), value)
+      }
+    })
+    return acc
+  }
+  return loop({}, [], getters)
 }
