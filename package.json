@@ -1,6 +1,6 @@
 {
   "name": "sinai",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": "katashin",
   "description": "Type safe state management inspired by Vuex",
   "keywords": [
