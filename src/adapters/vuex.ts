@@ -2,6 +2,7 @@ import { WatchOptions } from 'vue'
 import { Plugin } from '../vue/store'
 import { BG0, BG, BA0, BM0 } from '../core/base'
 import { isPromise } from '../utils'
+import { flattenGetters } from './devtool-plugin'
 
 /**
  * We cannot use original Vuex typings because
@@ -120,27 +121,4 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
     }
     plugin(storeAdapter)
   }
-}
-
-export function flattenGetters (getters: BG0, sep: string): Record<string, any> {
-  function loop (acc: Record<string, any>, path: string[], getters: BG0): Record<string, any> {
-    Object.keys(getters).forEach(key => {
-      if (key === '__proxy__' || key === 'modules') {
-        return
-      }
-
-      const value = getters[key]
-      if (!value || !(value.__proto__ instanceof BG)) {
-        Object.defineProperty(acc, path.concat(key).join(sep), {
-          get: () => getters[key], // `getters[key]` should be evaluated in `get` function
-          enumerable: true,
-          configurable: true
-        })
-      } else {
-        loop(acc, path.concat(key), value)
-      }
-    })
-    return acc
-  }
-  return loop({}, [], getters)
 }
