@@ -38,7 +38,7 @@
     "release": "./scripts/release.sh"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.5",
+    "@types/mocha": "^7.0.1",
     "@types/node": "^13.1.0",
     "@types/power-assert": "1.5.3",
     "@types/sinon": "^7.0.5",
