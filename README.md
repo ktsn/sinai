@@ -5,7 +5,9 @@
 
 Type safe state management inspired by Vuex.
 
-**This library includes many type level hacks. Use at your own risk.**
+**This library includes many type level hacks. Use at your own risk and do not use if you are unsure about the mechanism under the hood.**
+
+**If you search a production ready state management solution, take a look [vuex-smart-module](https://github.com/ktsn/vuex-smart-module)**
 
 ## Requirements
 
