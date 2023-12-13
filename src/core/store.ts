@@ -31,14 +31,14 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   hotUpdate (module: Module<S, G, M, A>): void
 }
 
-export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
+export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
   private moduleMap: ModuleMap = {}
-  private subscribers: Subscriber<{}>[] = []
+  private subscribers: Subscriber<unknown>[] = []
   private transformGetter: Transformer
   private transformMutation: Transformer
   private transformAction: Transformer
 
-  state!: {}
+  state!: unknown
   getters!: BG0
   mutations!: BM0
   actions!: BA0
@@ -55,7 +55,7 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     this.state = state
   }
 
-  subscribe (fn: Subscriber<{}>): () => void {
+  subscribe (fn: Subscriber<unknown>): () => void {
     this.subscribers.push(fn)
     return () => {
       this.subscribers.splice(this.subscribers.indexOf(fn), 1)
@@ -111,7 +111,7 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
     path: string[],
     module: ModuleImpl
   ): {
-    state: {},
+    state: unknown,
     getters: BG0,
     mutations: BM0,
     actions: BA0
@@ -134,10 +134,10 @@ export class StoreImpl implements Store<{}, BG0, BM0, BA0> {
 
     forEachValues(module.children, (childModule, key) => {
       const child = this.initModuleAssets(path.concat(key), childModule)
-      assets.state[key] = child.state
-      assets.getters[key] = child.getters
-      assets.mutations[key] = child.mutations
-      assets.actions[key] = child.actions
+      ;(assets.state as any)[key] = child.state
+      ;(assets.getters as any)[key] = child.getters
+      ;(assets.mutations as any)[key] = child.mutations
+      ;(assets.actions as any)[key] = child.actions
     })
 
     return assets

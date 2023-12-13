@@ -26,26 +26,26 @@ type ActionGetters<A extends BA<any, any, any, any>> = A extends BA<any, infer G
 type ActionMutations<A extends BA<any, any, any, any>> = A extends BA<any, any, infer M, any> ? M : never
 type ActionModules<A extends BA<any, any, any, any>> = A extends BA<any, any, any, infer SGMA> ? SGMA : never
 
-export function stub<T extends BG<{}, {}>> (
+export function stub<T extends BG<unknown, unknown>> (
   Getters: Class<T>,
   injection?: Injection<GetterState<T>, never, never, GetterModules<T>>
 ): T & { state: GetterState<T>, modules: GetterModules<T> }
 
-export function stub<T extends BM<{}>> (
+export function stub<T extends BM<unknown>> (
   Mutations: Class<T>,
   injection?: Injection<MutationState<T>, never, never, never>
 ): T & { state: MutationState<T> }
 
-export function stub<T extends BA<{}, BG0, BM0, {}>> (
+export function stub<T extends BA<unknown, BG0, BM0, unknown>> (
   Actions: Class<T>,
   injection?: Injection<ActionState<T>, ActionGetters<T>, ActionMutations<T>, ActionModules<T>>
 ): T & { state: ActionState<T>, getters: ActionGetters<T>, mutations: ActionMutations<T>, modules: ActionModules<T> }
 
-export function stub (Class: Class<{}>, injection: Injection<{}, {}, {}, {}> = {}): {} {
+export function stub (Class: Class<unknown>, injection: Injection<{}, {}, {}, {}> = {}): {} {
   const instance = Object.create(Class.prototype)
   Object.keys(injection).forEach(key => {
     Object.defineProperty(instance, key, {
-      value: injection[key]
+      value: (injection as any)[key]
     })
   })
   return instance

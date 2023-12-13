@@ -22,14 +22,14 @@ export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0> extend
   ): () => void
 }
 
-export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
+export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
   private innerStore: StoreImpl
   private vm!: Vue & { $data: { state: {} }}
   private watcher: Vue
   private gettersForComputed: Record<string, () => any> = {}
   private strict: boolean
 
-  constructor (module: ModuleImpl, options: VueStoreOptions<{}, BG0, BM0, BA0>) {
+  constructor (module: ModuleImpl, options: VueStoreOptions<unknown, BG0, BM0, BA0>) {
     if (process.env.NODE_ENV !== 'production') {
       assert(_Vue, 'Must install Sinai by Vue.use before instantiate a store')
     }
@@ -95,7 +95,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     })
   }
 
-  subscribe (fn: Subscriber<{}>): () => void {
+  subscribe (fn: Subscriber<unknown>): () => void {
     return this.innerStore.subscribe(fn)
   }
 
@@ -123,7 +123,7 @@ export class VueStoreImpl implements VueStore<{}, BG0, BM0, BA0> {
     const name = path.join('.')
     this.gettersForComputed[name] = desc.get
 
-    desc.get = () => this.vm[name]
+    desc.get = () => (this.vm as any)[name]
 
     return desc
   }
@@ -174,7 +174,7 @@ export function store<S, G extends BG0, M extends BM0, A extends BA0> (
 ): VueStore<S, G, M, A> {
   return new VueStoreImpl(
     module as ModuleImpl,
-    options as VueStoreOptions<{}, BG0, BM0, BA0>
+    options as VueStoreOptions<unknown, BG0, BM0, BA0>
   ) as VueStore<any, any, any, any>
 }
 

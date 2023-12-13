@@ -66,7 +66,7 @@ function injectModule<I> (
       if (process.env.NODE_ENV !== 'production') {
         assert(proxy !== null, 'The dependent module is not found in the store')
       }
-      this.modules[key] = proxy
+      (this.modules as any)[key] = proxy
     }
   }
 }
@@ -120,11 +120,11 @@ export class BA<S, G extends BG0, M extends BM0, SGMA> extends BaseInjectable<SG
   }
 }
 
-export interface BG0 extends BG<{}, {}> {}
-export interface BG1<S> extends BG<S, {}> {}
-export interface BM0 extends BM<{}> {}
-export interface BA0 extends BA<{}, BG0, BM0, {}> {}
-export interface BA1<S, G extends BG0, M extends BM0> extends BA<S, G, M, {}> {}
+export interface BG0 extends BG<unknown, unknown> {}
+export interface BG1<S> extends BG<S, unknown> {}
+export interface BM0 extends BM<unknown> {}
+export interface BA0 extends BA<unknown, BG0, BM0, unknown> {}
+export interface BA1<S, G extends BG0, M extends BM0> extends BA<S, G, M, unknown> {}
 
 export function Getters<S> (): Class<BG1<S>>
 export function Getters (): Class<BG0> {
@@ -136,8 +136,8 @@ export function Mutations (): Class<BM0> {
   return BM
 }
 
-export function Actions<G extends BG0> (): Class<BA1<{}, G, BM0>>
-export function Actions<M extends BM0> (): Class<BA1<{}, BG0, M>>
+export function Actions<G extends BG0> (): Class<BA1<unknown, G, BM0>>
+export function Actions<M extends BM0> (): Class<BA1<unknown, BG0, M>>
 export function Actions<S> (): Class<BA1<S, BG0, BM0>>
 export function Actions<S, G extends BG0> (): Class<BA1<S, G, BM<S>>>
 export function Actions<S, M extends BM0> (): Class<BA1<S, BG1<S>, M>>

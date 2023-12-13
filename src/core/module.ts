@@ -28,16 +28,16 @@ export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
   ): Module<S & Record<K, S1>, G & Record<K, G1>, M & Record<K, M1>, A & Record<K, A1>>
 }
 
-export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
+export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
   children: Record<string, ModuleImpl> = {}
-  State: Class<{}> | undefined
+  State: Class<unknown> | undefined
   Getters: BaseClass<BG0> | undefined
   Mutations: BaseClass<BM0> | undefined
   Actions: BaseClass<BA0> | undefined
 
   constructor (
     public uid: number,
-    { state, getters, mutations, actions }: ModuleOptions<{}, BG0, BM0, BA0>
+    { state, getters, mutations, actions }: ModuleOptions<unknown, BG0, BM0, BA0>
   ) {
     this.State = state
     this.Getters = getters
@@ -45,7 +45,7 @@ export class ModuleImpl implements Module<{}, BG0, BM0, BA0> {
     this.Actions = actions
   }
 
-  initState (): {} {
+  initState (): unknown {
     return this.State ? new this.State() : {}
   }
 

@@ -9,7 +9,6 @@
       "es2015"
     ],
     "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
     "importHelpers": true,
     "allowSyntheticDefaultImports": true
   }

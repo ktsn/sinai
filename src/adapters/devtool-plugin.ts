@@ -8,7 +8,7 @@ const devtoolHook =
 /**
  * Mimic Vuex to use the vue-devtools feature
  */
-export function devtoolPlugin (store: VueStore<{}, BG0, BM0, BA0>) {
+export function devtoolPlugin (store: VueStore<unknown, BG0, BM0, BA0>) {
   if (!devtoolHook) {
     return
   }
@@ -28,7 +28,7 @@ export function devtoolPlugin (store: VueStore<{}, BG0, BM0, BA0>) {
   })
 }
 
-function proxyStore (store: VueStore<{}, BG0, BM0, BA0>) {
+function proxyStore (store: VueStore<unknown, BG0, BM0, BA0>) {
   return {
     get state () {
       return store.state
@@ -76,10 +76,10 @@ export function flattenGetters (getters: BG0, sep: string): Record<string, any> 
         return
       }
 
-      const value = getters[key]
+      const value = (getters as any)[key]
       if (!value || !(value.__proto__ instanceof BG)) {
         Object.defineProperty(acc, path.concat(key).join(sep), {
-          get: () => getters[key], // `getters[key]` should be evaluated in `get` function
+          get: () => (getters as any)[key], // `getters[key]` should be evaluated in `get` function
           enumerable: true,
           configurable: true
         })
