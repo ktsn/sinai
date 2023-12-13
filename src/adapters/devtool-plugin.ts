@@ -71,7 +71,7 @@ function flattenMutations (mutations: any): Record<string, Function> {
 
 export function flattenGetters (getters: BG0, sep: string): Record<string, any> {
   function loop (acc: Record<string, any>, path: string[], getters: BG0): Record<string, any> {
-    Object.keys(getters).forEach(key => {
+    Object.getOwnPropertyNames(getters).forEach(key => {
       if (key === '__proxy__' || key === 'modules') {
         return
       }

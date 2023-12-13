@@ -32,9 +32,9 @@
     "build:ts": "tsc -p src",
     "build:bundle": "node scripts/build.js",
     "example": "webpack-dev-server --hot --config example/webpack.config.js",
-    "watch:test": "webpack --watch --config scripts/webpack.config.test.js",
+    "watch:test": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch --config scripts/webpack.config.test.js",
     "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
-    "test": "npm run lint && webpack --config scripts/webpack.config.test.js && testem ci",
+    "test": "npm run lint && NODE_OPTIONS=--openssl-legacy-provider webpack --config scripts/webpack.config.test.js && testem ci",
     "release": "./scripts/release.sh"
   },
   "devDependencies": {
