@@ -5,7 +5,7 @@ set -eu
 echo -n "Enter bump type: "
 read type
 
-npm test -s
+npm run test -s -- --run
 npm run build -s
 
 npm version $type
