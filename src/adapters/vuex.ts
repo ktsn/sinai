@@ -18,7 +18,11 @@ interface VuexStore<S> {
   commit: Commit
 
   subscribe(fn: (mutation: MutationPayload, state: S) => any): () => void
-  watch<T>(getter: (state: S, getters: any) => T, cb: (value: T, oldValue: T) => void, options?: WatchOptions): () => void
+  watch<T>(
+    getter: (state: S, getters: any) => T,
+    cb: (value: T, oldValue: T) => void,
+    options?: WatchOptions,
+  ): () => void
 
   registerModule(...args: any[]): void
   unregisterModule(...args: any[]): void
@@ -45,10 +49,13 @@ interface Commit {
 /**
  * Convert Vuex plugin to Sinai plugin
  */
-export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0>(
-  plugin: (store: any) => void
-): Plugin<S, G, M, A> {
-  return store => {
+export function convertVuexPlugin<
+  S,
+  G extends BG0,
+  M extends BM0,
+  A extends BA0,
+>(plugin: (store: any) => void): Plugin<S, G, M, A> {
+  return (store) => {
     const storeAdapter: VuexStore<any> = {
       get state() {
         return store.state
@@ -62,7 +69,10 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
         store.replaceState(state)
       },
 
-      dispatch<P extends Payload>(type: string | P, payload?: any): Promise<any> {
+      dispatch<P extends Payload>(
+        type: string | P,
+        payload?: any,
+      ): Promise<any> {
         if (typeof type !== 'string') {
           payload = type
           type = payload.type as string
@@ -96,28 +106,31 @@ export function convertVuexPlugin<S, G extends BG0, M extends BM0, A extends BA0
       subscribe(fn) {
         return store.subscribe((path, payload, state) => {
           const type = path.join('/')
-          fn({
-            type,
-            payload: payload[0]
-          }, state)
+          fn(
+            {
+              type,
+              payload: payload[0],
+            },
+            state,
+          )
         })
       },
 
       watch(getter, cb, options) {
-        return store.watch(
-          () => getter(this.state, this.getters),
-          cb,
-          options
-        )
+        return store.watch(() => getter(this.state, this.getters), cb, options)
       },
 
       registerModule() {
-        throw new Error('[sinai:vuex-plugin-adapter] registerModule is not supported')
+        throw new Error(
+          '[sinai:vuex-plugin-adapter] registerModule is not supported',
+        )
       },
 
       unregisterModule() {
-        throw new Error('[sinai:vuex-plugin-adapter] unregisterModule is not supported')
-      }
+        throw new Error(
+          '[sinai:vuex-plugin-adapter] unregisterModule is not supported',
+        )
+      },
     }
     plugin(storeAdapter)
   }

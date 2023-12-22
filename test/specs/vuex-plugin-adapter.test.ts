@@ -33,7 +33,7 @@ describe('Vuex Plugin Adapter', () => {
     state: FooState,
     getters: FooGetters,
     mutations: FooMutations,
-    actions: FooActions
+    actions: FooActions,
   })
 
   it('returns store state', () => {
@@ -44,7 +44,7 @@ describe('Vuex Plugin Adapter', () => {
       }
 
       store(foo, {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
     })
   })
@@ -53,13 +53,13 @@ describe('Vuex Plugin Adapter', () => {
     return new Promise<void>((done) => {
       function vuexPlugin(store: any) {
         assert.deepStrictEqual(store.getters, {
-          'foo/testGetter': 'barfoo'
+          'foo/testGetter': 'barfoo',
         })
         done()
       }
 
       store(module().child('foo', foo), {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
     })
   })
@@ -73,7 +73,7 @@ describe('Vuex Plugin Adapter', () => {
       }
 
       store(module().child('foo', foo), {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
     })
   })
@@ -83,14 +83,14 @@ describe('Vuex Plugin Adapter', () => {
       function vuexPlugin(store: any) {
         store.dispatch({
           type: 'foo/objAction',
-          str: 'object action'
+          str: 'object action',
         })
         assert(store.state.foo.value === 'bar object action')
         done()
       }
 
       store(module().child('foo', foo), {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
     })
   })
@@ -104,7 +104,7 @@ describe('Vuex Plugin Adapter', () => {
       }
 
       store(module().child('foo', foo), {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
     })
   })
@@ -115,7 +115,7 @@ describe('Vuex Plugin Adapter', () => {
         store.subscribe((mutation: any, state: any) => {
           assert.deepStrictEqual(mutation, {
             type: 'testMutation',
-            payload: 'mutation'
+            payload: 'mutation',
           })
 
           assert.deepStrictEqual(state, s.state)
@@ -124,7 +124,7 @@ describe('Vuex Plugin Adapter', () => {
       }
 
       const s = store(foo, {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
       s.mutations.testMutation('mutation')
     })
@@ -139,12 +139,12 @@ describe('Vuex Plugin Adapter', () => {
             assert(newState === 'test')
             assert(oldState === 'bar')
             done()
-          }
+          },
         )
       }
 
       const s = store(foo, {
-        plugins: [convertVuexPlugin(vuexPlugin)]
+        plugins: [convertVuexPlugin(vuexPlugin)],
       })
       s.state.value = 'test'
     })

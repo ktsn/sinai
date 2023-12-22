@@ -2,13 +2,12 @@ import { BA0, BG, BG0, BM0, BM } from '../core/base'
 import { VueStore } from '../vue/store'
 
 const devtoolHook =
-  typeof window !== 'undefined' &&
-  (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__
+  typeof window !== 'undefined' && (window as any).__VUE_DEVTOOLS_GLOBAL_HOOK__
 
 /**
  * Mimic Vuex to use the vue-devtools feature
  */
-export function devtoolPlugin (store: VueStore<unknown, BG0, BM0, BA0>) {
+export function devtoolPlugin(store: VueStore<unknown, BG0, BM0, BA0>) {
   if (!devtoolHook) {
     return
   }
@@ -20,35 +19,35 @@ export function devtoolPlugin (store: VueStore<unknown, BG0, BM0, BA0>) {
   })
 
   store.subscribe((path, payload, state) => {
-    devtoolHook.emit(
-      'vuex:mutation',
-      { type: path.join('.'), payload },
-      state
-    )
+    devtoolHook.emit('vuex:mutation', { type: path.join('.'), payload }, state)
   })
 }
 
-function proxyStore (store: VueStore<unknown, BG0, BM0, BA0>) {
+function proxyStore(store: VueStore<unknown, BG0, BM0, BA0>) {
   return {
-    get state () {
+    get state() {
       return store.state
     },
 
     getters: flattenGetters(store.getters, '.'),
 
-    replaceState (state: {}) {
+    replaceState(state: {}) {
       store.replaceState(state)
     },
 
     _vm: (store as any).vm,
 
-    _mutations: flattenMutations((store as any).mutations)
+    _mutations: flattenMutations((store as any).mutations),
   }
 }
 
-function flattenMutations (mutations: any): Record<string, Function> {
-  function loop (acc: Record<string, any>, path: string[], mutations: any): Record<string, any> {
-    Object.keys(mutations).forEach(key => {
+function flattenMutations(mutations: any): Record<string, Function> {
+  function loop(
+    acc: Record<string, any>,
+    path: string[],
+    mutations: any,
+  ): Record<string, any> {
+    Object.keys(mutations).forEach((key) => {
       if (key === '__proxy__') {
         return
       }
@@ -58,7 +57,7 @@ function flattenMutations (mutations: any): Record<string, Function> {
         Object.defineProperty(acc, path.concat(key).join('.'), {
           get: () => mutations[key], // `mutations[key]` should be evaluated in `get` function
           enumerable: true,
-          configurable: true
+          configurable: true,
         })
       } else {
         loop(acc, path.concat(key), value)
@@ -69,9 +68,13 @@ function flattenMutations (mutations: any): Record<string, Function> {
   return loop({}, [], mutations)
 }
 
-export function flattenGetters (getters: BG0, sep: string): Record<string, any> {
-  function loop (acc: Record<string, any>, path: string[], getters: BG0): Record<string, any> {
-    Object.getOwnPropertyNames(getters).forEach(key => {
+export function flattenGetters(getters: BG0, sep: string): Record<string, any> {
+  function loop(
+    acc: Record<string, any>,
+    path: string[],
+    getters: BG0,
+  ): Record<string, any> {
+    Object.getOwnPropertyNames(getters).forEach((key) => {
       if (key === '__proxy__' || key === 'modules') {
         return
       }
@@ -81,7 +84,7 @@ export function flattenGetters (getters: BG0, sep: string): Record<string, any> 
         Object.defineProperty(acc, path.concat(key).join(sep), {
           get: () => (getters as any)[key], // `getters[key]` should be evaluated in `get` function
           enumerable: true,
-          configurable: true
+          configurable: true,
         })
       } else {
         loop(acc, path.concat(key), value)

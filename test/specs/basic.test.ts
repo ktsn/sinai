@@ -17,12 +17,9 @@ describe('Basic', () => {
     }
 
     const qux = module({ state: Qux })
-    const baz = module({ state: Baz })
-      .child('qux', qux)
+    const baz = module({ state: Baz }).child('qux', qux)
     const bar = module({ state: Bar })
-    const foo = module({ state: Foo })
-      .child('bar', bar)
-      .child('baz', baz)
+    const foo = module({ state: Foo }).child('bar', bar).child('baz', baz)
 
     const s = store(foo)
     assert(s.state.a === 1)
@@ -36,33 +33,41 @@ describe('Basic', () => {
       a = 1
     }
     class FooGetters extends Getters<FooState>() {
-      get a () { return this.state.a + 1 }
+      get a() {
+        return this.state.a + 1
+      }
     }
     class BarState {
       b = 2
     }
     class BarGetters extends Getters<BarState>() {
-      get b () { return this.state.b + 2 }
-      c (n: number) { return this.state.b + n }
+      get b() {
+        return this.state.b + 2
+      }
+      c(n: number) {
+        return this.state.b + n
+      }
     }
     class BazState {
       c = 3
     }
     class BazGetters extends Getters<BazState>() {
-      get c () { return this.state.c + 3 }
+      get c() {
+        return this.state.c + 3
+      }
     }
 
     const baz = module({
       state: BazState,
-      getters: BazGetters
+      getters: BazGetters,
     })
     const bar = module({
       state: BarState,
-      getters: BarGetters
+      getters: BarGetters,
     }).child('baz', baz)
     const foo = module({
       state: FooState,
-      getters: FooGetters
+      getters: FooGetters,
     }).child('bar', bar)
 
     const s = store(foo)
@@ -73,10 +78,10 @@ describe('Basic', () => {
     s.state.a += 10
     s.state.bar.b += 20
     s.state.bar.baz.c += 30
-    expect(s.getters.a ).toBe(12)
-    expect(s.getters.bar.b ).toBe(24)
-    expect(s.getters.bar.c(3) ).toBe(25)
-    expect(s.getters.bar.baz.c ).toBe(36)
+    expect(s.getters.a).toBe(12)
+    expect(s.getters.bar.b).toBe(24)
+    expect(s.getters.bar.c(3)).toBe(25)
+    expect(s.getters.bar.baz.c).toBe(36)
   })
 
   it('refers other getters in each getter', () => {
@@ -84,16 +89,20 @@ describe('Basic', () => {
       value = 'foo'
     }
     class FooGetters extends Getters<FooState>() {
-      get double () { return this.state.value + this.state.value }
-      get doubleUpper () {
+      get double() {
+        return this.state.value + this.state.value
+      }
+      get doubleUpper() {
         return this.double.toUpperCase()
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+      }),
+    )
     assert(s.getters.doubleUpper === 'FOOFOO')
   })
 
@@ -102,16 +111,20 @@ describe('Basic', () => {
       value = 1
     }
     class FooGetters extends Getters<FooState>() {
-      one () { return this.state.value }
-      two () {
+      one() {
+        return this.state.value
+      }
+      two() {
         const { one } = this
         return one() + 1
       }
     }
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+      }),
+    )
 
     assert(s.getters.two() === 2)
   })
@@ -132,13 +145,13 @@ describe('Basic', () => {
     }
 
     const baz = module({
-      mutations: BazMutations
+      mutations: BazMutations,
     })
     const bar = module({
-      mutations: BarMutations
+      mutations: BarMutations,
     }).child('baz', baz)
     const foo = module({
-      mutations: FooMutations
+      mutations: FooMutations,
     }).child('bar', bar)
 
     const s = store(foo)
@@ -155,20 +168,22 @@ describe('Basic', () => {
       value = 1
     }
     class FooMutations extends Mutations<FooState>() {
-      plus1 () {
+      plus1() {
         this.state.value += 1
       }
-      plus2 () {
+      plus2() {
         const { plus1 } = this
         plus1()
         plus1()
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutations,
+      }),
+    )
 
     assert(s.state.value === 1)
     s.mutations.plus2()
@@ -180,15 +195,17 @@ describe('Basic', () => {
       value = 1
     }
     class FooMutations extends Mutations<FooState>() {
-      inc () {
+      inc() {
         this.state.value += 1
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutations,
+      }),
+    )
 
     assert(s.state.value === 1)
     s.mutations.inc()
@@ -211,13 +228,13 @@ describe('Basic', () => {
     }
 
     const baz = module({
-      actions: BazActions
+      actions: BazActions,
     })
     const bar = module({
-      actions: BarActions
+      actions: BarActions,
     }).child('baz', baz)
     const foo = module({
-      actions: FooActions
+      actions: FooActions,
     }).child('bar', bar)
 
     const s = store(foo)
@@ -237,15 +254,15 @@ describe('Basic', () => {
       value = 1
     }
     class FooMutations extends Mutations<FooState>() {
-      inc () {
+      inc() {
         this.state.value += 1
       }
     }
     class FooActions extends Actions<FooState, FooMutations>() {
-      inc () {
+      inc() {
         this.mutations.inc()
       }
-      test () {
+      test() {
         const { inc } = this
         assert(this.state.value === 1)
         inc()
@@ -254,11 +271,13 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutations,
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutations,
+        actions: FooActions,
+      }),
+    )
 
     s.actions.test()
     expect(spy).toHaveBeenCalled()
@@ -272,13 +291,15 @@ describe('Basic', () => {
       value = 1
     }
     class FooGetters extends Getters<FooState>() {
-      get plus1 () { return this.state.value + 1 }
+      get plus1() {
+        return this.state.value + 1
+      }
     }
     class FooMutations extends Mutations<FooState>() {
       inc: (n: number) => void = mSpy
     }
     class FooActions extends Actions<FooState, FooGetters, FooMutations>() {
-      test () {
+      test() {
         assert(this.state.value === 1)
         assert(this.getters.plus1 === 2)
         this.mutations.inc(1)
@@ -287,12 +308,14 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters,
-      mutations: FooMutations,
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+        mutations: FooMutations,
+        actions: FooActions,
+      }),
+    )
     s.actions.test()
     expect(aSpy).toHaveBeenCalledWith(true)
   })
@@ -302,16 +325,18 @@ describe('Basic', () => {
     const spy2 = vitest.fn()
 
     class FooActions extends Actions() {
-      caller () {
+      caller() {
         this.callee()
         spy1()
       }
       callee = spy2
     }
 
-    const s = store(module({
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        actions: FooActions,
+      }),
+    )
     s.actions.caller()
     expect(spy1).toHaveBeenCalled()
     expect(spy2).toHaveBeenCalled()
@@ -324,27 +349,38 @@ describe('Basic', () => {
       value = 'foo'
     }
     class FooMutations extends Mutations<FooState>() {
-      test (value: string, ..._args: any[]) {
+      test(value: string, ..._args: any[]) {
         this.state.value = value
       }
     }
 
-    const s = store(module()
-      .child('foo', module({
-        state: FooState,
-        mutations: FooMutations
-      }))
+    const s = store(
+      module().child(
+        'foo',
+        module({
+          state: FooState,
+          mutations: FooMutations,
+        }),
+      ),
     )
 
     const unsubscribe = s.subscribe(spy)
     s.mutations.foo.test('bar')
 
     const first = spy.mock.lastCall
-    assert.deepEqual(first, [['foo', 'test'], ['bar'], { foo: { value: 'bar' }}])
+    assert.deepEqual(first, [
+      ['foo', 'test'],
+      ['bar'],
+      { foo: { value: 'bar' } },
+    ])
     s.mutations.foo.test('baz', 1, true, null)
 
     const second = spy.mock.lastCall
-    assert.deepEqual(second, [['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}])
+    assert.deepEqual(second, [
+      ['foo', 'test'],
+      ['baz', 1, true, null],
+      { foo: { value: 'baz' } },
+    ])
 
     assert(spy.mock.calls.length === 2)
     unsubscribe()
@@ -364,13 +400,14 @@ describe('Basic', () => {
         this.state.value = str
       }
     }
-    class FooMutations extends AbstractMutations {
-    }
+    class FooMutations extends AbstractMutations {}
 
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutations,
+      }),
+    )
 
     const unsubscribe = s.subscribe(spy)
     s.mutations.update('updated')
@@ -397,9 +434,11 @@ describe('Basic', () => {
       }
     }
 
-    const s = store(module({
-      mutations: ChildMutations
-    }))
+    const s = store(
+      module({
+        mutations: ChildMutations,
+      }),
+    )
     s.mutations.foo()
     expect(spyParent).toHaveBeenCalled()
     expect(spyChild).toHaveBeenCalled()
@@ -409,7 +448,7 @@ describe('Basic', () => {
     const spy = vitest.fn()
 
     const s = store(module(), {
-      plugins: [spy]
+      plugins: [spy],
     })
 
     expect(spy).toHaveBeenCalledWith(s)
@@ -420,9 +459,11 @@ describe('Basic', () => {
       foo = 'bar'
     }
 
-    const s = store(module({
-      state: State
-    }))
+    const s = store(
+      module({
+        state: State,
+      }),
+    )
 
     assert(s.state.foo === 'bar')
     s.replaceState({ foo: 'baz' })
@@ -439,11 +480,8 @@ describe('Basic', () => {
 
   it('throws if a module is registered in twice or more', () => {
     const foo = module()
-    const bar = module()
-      .child('foo', foo)
-    const baz = module()
-      .child('bar', bar)
-      .child('test', foo)
+    const bar = module().child('foo', foo)
+    const baz = module().child('bar', bar).child('test', foo)
 
     assert.throws(() => {
       store(baz)
@@ -452,10 +490,12 @@ describe('Basic', () => {
 
   it('throws if there is setter in getters', () => {
     class FooGetters extends Getters() {
-      set foo (_value: number) { /* nothing */ }
+      set foo(_value: number) {
+        /* nothing */
+      }
     }
     const foo = module({
-      getters: FooGetters
+      getters: FooGetters,
     })
 
     assert.throws(() => {
@@ -465,10 +505,12 @@ describe('Basic', () => {
 
   it('throws if mutations have setter/getter', () => {
     class FooMutations extends Mutations() {
-      get foo () { return 1 }
+      get foo() {
+        return 1
+      }
     }
     const foo = module({
-      mutations: FooMutations
+      mutations: FooMutations,
     })
 
     assert.throws(() => {
@@ -478,11 +520,15 @@ describe('Basic', () => {
 
   it('throws if a mutation returns something', () => {
     class FooMutations extends Mutations() {
-      foo () { return null }
+      foo() {
+        return null
+      }
     }
-    const s = store(module({
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        mutations: FooMutations,
+      }),
+    )
 
     assert.throws(() => {
       s.mutations.foo()
@@ -491,10 +537,12 @@ describe('Basic', () => {
 
   it('throws if actions have setter/getter', () => {
     class FooActions extends Actions() {
-      get foo () { return 1 }
+      get foo() {
+        return 1
+      }
     }
     const foo = module({
-      actions: FooActions
+      actions: FooActions,
     })
 
     assert.throws(() => {
@@ -504,13 +552,15 @@ describe('Basic', () => {
 
   it('throws if an action returns other than Promise', () => {
     class FooActions extends Actions() {
-      foo () {
+      foo() {
         return 1
       }
     }
-    const s = store(module({
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        actions: FooActions,
+      }),
+    )
 
     assert.throws(() => {
       s.actions.foo()
@@ -519,13 +569,15 @@ describe('Basic', () => {
 
   it('should not throw if an action returns a Promise', () => {
     class FooActions extends Actions() {
-      foo () {
+      foo() {
         return Promise.resolve()
       }
     }
-    const s = store(module({
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        actions: FooActions,
+      }),
+    )
 
     assert.doesNotThrow(() => {
       s.actions.foo()
@@ -533,17 +585,18 @@ describe('Basic', () => {
   })
   it('can get result from an action via Promise', () => {
     class FooActions extends Actions() {
-      foo () {
+      foo() {
         return Promise.resolve(1)
       }
     }
-    const s = store(module({
-      actions: FooActions
-    }))
+    const s = store(
+      module({
+        actions: FooActions,
+      }),
+    )
 
-    return s.actions.foo().then(ret => {
+    return s.actions.foo().then((ret) => {
       assert(ret === 1)
     })
   })
-
 })

@@ -6,39 +6,43 @@ describe('Inject', () => {
     value = 1
   }
   class AGetters extends Getters<AState>() {
-    get a () { return this.state.value + 1 }
+    get a() {
+      return this.state.value + 1
+    }
   }
   class AMutations extends Mutations<AState>() {
-    inc () { this.state.value += 1 }
+    inc() {
+      this.state.value += 1
+    }
   }
   class AActions extends Actions<AState, AGetters, AMutations>() {
-    inc () { this.mutations.inc() }
+    inc() {
+      this.mutations.inc()
+    }
   }
   const counter = module({
     state: AState,
     getters: AGetters,
     mutations: AMutations,
-    actions: AActions
+    actions: AActions,
   })
 
   it('injects other module in getters', () => {
     const { Getters } = inject('counter', counter)
 
     class FooGetters extends Getters() {
-      get stateTest () {
+      get stateTest() {
         return this.modules.counter.state.value
       }
-      get getterTest () {
+      get getterTest() {
         return this.modules.counter.getters.a
       }
     }
 
     const foo = module({
-      getters: FooGetters
+      getters: FooGetters,
     })
-    const root = module()
-      .child('foo', foo)
-      .child('counter', counter)
+    const root = module().child('foo', foo).child('counter', counter)
     const s = store(root)
 
     assert(s.getters.foo.stateTest === 1)
@@ -54,7 +58,7 @@ describe('Inject', () => {
     const { Actions } = inject('counter', counter)
 
     class FooActions extends Actions() {
-      test () {
+      test() {
         const { counter } = this.modules
         assert(counter.state.value === 1)
         assert(counter.getters.a === 2)
@@ -67,11 +71,9 @@ describe('Inject', () => {
     }
 
     const foo = module({
-      actions: FooActions
+      actions: FooActions,
     })
-    const root = module()
-      .child('foo', foo)
-      .child('counter', counter)
+    const root = module().child('foo', foo).child('counter', counter)
     const s = store(root)
 
     s.actions.foo.test()
@@ -85,18 +87,16 @@ describe('Inject', () => {
       value = 1
     }
     class FooMutations extends Mutations<FooState>() {
-      inc () {
+      inc() {
         this.state.value += 1
       }
     }
 
     const foo = module({
       state: FooState,
-      mutations: FooMutations
+      mutations: FooMutations,
     })
-    const root = module()
-      .child('foo', foo)
-      .child('counter', counter)
+    const root = module().child('foo', foo).child('counter', counter)
     const s = store(root)
 
     assert(s.state.foo.value === 1)
@@ -111,22 +111,21 @@ describe('Inject', () => {
       state: AState,
       getters: AGetters,
       mutations: AMutations,
-      actions: AActions
+      actions: AActions,
     })
 
-    const { Getters, Actions } = inject('a', counter)
-      .and('b', anotherCounter)
+    const { Getters, Actions } = inject('a', counter).and('b', anotherCounter)
 
     class FooGetters extends Getters() {
-      get aTest () {
+      get aTest() {
         return this.modules.a.getters.a
       }
-      get bTest () {
+      get bTest() {
         return this.modules.b.getters.a
       }
     }
     class FooActions extends Actions<{}, FooGetters>() {
-      aTest () {
+      aTest() {
         const { state, getters, actions, mutations } = this.modules.a
         assert(state.value === 1)
         assert(getters.a === 2)
@@ -136,7 +135,7 @@ describe('Inject', () => {
         expect(state.value).toBe(3)
         spy()
       }
-      bTest () {
+      bTest() {
         const { state, getters, actions, mutations } = this.modules.b
         assert(state.value === 1)
         assert(getters.a === 2)
@@ -150,13 +149,11 @@ describe('Inject', () => {
 
     const foo = module({
       getters: FooGetters,
-      actions: FooActions
+      actions: FooActions,
     })
     const root = module()
       .child('counter', counter)
-      .child('nested', module()
-        .child('anotherCounter', anotherCounter)
-      )
+      .child('nested', module().child('anotherCounter', anotherCounter))
       .child('foo', foo)
     const s = store(root)
 

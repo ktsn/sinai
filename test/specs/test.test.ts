@@ -5,10 +5,10 @@ import { stub } from '../../src/test'
 describe('Testing utility', () => {
   it('tests getters class', () => {
     class FooGetters extends Getters() {
-      one () {
+      one() {
         return 1
       }
-      get two () {
+      get two() {
         return 2
       }
     }
@@ -24,15 +24,15 @@ describe('Testing utility', () => {
       foo = 2
     }
     class FooGetters extends Getters<FooState>() {
-      getValue () {
+      getValue() {
         return this.state.value
       }
     }
 
     const getters = stub(FooGetters, {
       state: {
-        value: 10
-      }
+        value: 10,
+      },
     })
     assert(getters.getValue() === 10)
   })
@@ -43,13 +43,13 @@ describe('Testing utility', () => {
       foo = 'test'
     }
     class FooGetters extends Getters<FooState>() {
-      get test () {
+      get test() {
         return 'foogetters'
       }
     }
     const foo = module({
       state: FooState,
-      getters: FooGetters
+      getters: FooGetters,
     })
 
     const { Getters: GettersI } = inject('foo', foo)
@@ -59,10 +59,14 @@ describe('Testing utility', () => {
       bar = 'test'
     }
     class BarGetters extends GettersI<BarState>() {
-      get combine () {
-        return this.modules.foo.state.value
-          + ',' + this.modules.foo.getters.test
-          + ',' + this.state.value
+      get combine() {
+        return (
+          this.modules.foo.state.value +
+          ',' +
+          this.modules.foo.getters.test +
+          ',' +
+          this.state.value
+        )
       }
     }
 
@@ -71,13 +75,13 @@ describe('Testing utility', () => {
       modules: {
         foo: {
           state: {
-            value: 'testfoo'
+            value: 'testfoo',
           },
           getters: {
-            test: 'testfoogetters'
-          }
-        }
-      }
+            test: 'testfoogetters',
+          },
+        },
+      },
     })
     assert(getters.combine === 'testfoo,testfoogetters,testbar')
   })
@@ -88,13 +92,13 @@ describe('Testing utility', () => {
       test = 'foo'
     }
     class FooMutations extends Mutations<FooState>() {
-      inc (n: number) {
+      inc(n: number) {
         this.state.value += n
       }
     }
 
     const mutations = stub(FooMutations, {
-      state: { value: 10 }
+      state: { value: 10 },
     })
     mutations.inc(1)
     assert(mutations.state.value === 11)
@@ -108,33 +112,31 @@ describe('Testing utility', () => {
       test = 'foo'
     }
     class FooGetters extends Getters<FooState>() {
-      computed () {
+      computed() {
         return this.state.value + 1
       }
     }
     class FooMutations extends Mutations<FooState>() {
-      inc (n: number) {
+      inc(n: number) {
         this.state.value += n
       }
     }
     class FooActions extends Actions<FooState, FooGetters, FooMutations>() {
-      test () {
-        this.mutations.inc(
-          this.state.value + this.getters.computed()
-        )
+      test() {
+        this.mutations.inc(this.state.value + this.getters.computed())
       }
     }
 
     const actions = stub(FooActions, {
       state: {
-        value: 10
+        value: 10,
       },
       getters: {
-        computed: () => 100
+        computed: () => 100,
       },
       mutations: {
-        inc: spy as never
-      }
+        inc: spy as never,
+      },
     })
     actions.test()
     expect(spy).toHaveBeenCalledWith(110)
@@ -146,17 +148,17 @@ describe('Testing utility', () => {
       foo = 'test'
     }
     class FooGetters extends Getters<FooState>() {
-      get test () {
+      get test() {
         return this.state.value + 1
       }
     }
     class FooMutations extends Mutations<FooState>() {
-      test (_n: number) {
+      test(_n: number) {
         this.state.value += 1
       }
     }
     class FooActions extends Actions<FooState, FooGetters, FooMutations>() {
-      test (n: number) {
+      test(n: number) {
         this.mutations.test(n)
       }
     }
@@ -164,13 +166,13 @@ describe('Testing utility', () => {
       state: FooState,
       getters: FooGetters,
       mutations: FooMutations,
-      actions: FooActions
+      actions: FooActions,
     })
 
     const { Actions: ActionsI } = inject('foo', foo)
 
     class BarActions extends ActionsI() {
-      test () {
+      test() {
         const { foo } = this.modules
         foo.mutations.test(foo.state.value)
         foo.actions.test(foo.getters.test)
@@ -185,9 +187,9 @@ describe('Testing utility', () => {
           state: { value: 100 },
           getters: { test: 200 },
           mutations: { test: mutationSpy as never },
-          actions: { test: actionSpy as never }
-        }
-      }
+          actions: { test: actionSpy as never },
+        },
+      },
     })
     actions.test()
     expect(mutationSpy).toHaveBeenCalledWith(100)

@@ -6,28 +6,32 @@ describe('Hot Update', () => {
   it('supports hot module replacement for getters', () => {
     const m = (num: number) => {
       class FooGetters extends Getters() {
-        get test () { return num }
+        get test() {
+          return num
+        }
       }
 
       return module({
-        getters: FooGetters
+        getters: FooGetters,
       })
     }
 
-    const s = store(m(1)
-      .child('a', m(2)
-        .child('b', m(3)))
-      .child('c', m(4)))
+    const s = store(
+      m(1)
+        .child('a', m(2).child('b', m(3)))
+        .child('c', m(4)),
+    )
 
     assert(s.getters.test === 1)
     assert(s.getters.a.test === 2)
     assert(s.getters.a.b.test === 3)
     assert(s.getters.c.test === 4)
 
-    s.hotUpdate(m(10)
-      .child('a', m(20)
-        .child('b', m(30)))
-      .child('c', m(40)))
+    s.hotUpdate(
+      m(10)
+        .child('a', m(20).child('b', m(30)))
+        .child('c', m(40)),
+    )
 
     expect(s.getters.test).toBe(10)
     expect(s.getters.a.test).toBe(20)
@@ -41,20 +45,21 @@ describe('Hot Update', () => {
         value = 1
       }
       class FooMutations extends Mutations<FooState>() {
-        inc () {
+        inc() {
           this.state.value += num
         }
       }
       return module({
         state: FooState,
-        mutations: FooMutations
+        mutations: FooMutations,
       })
     }
 
-    const s = store(m(1)
-      .child('a', m(2)
-        .child('b', m(3)))
-      .child('c', m(4)))
+    const s = store(
+      m(1)
+        .child('a', m(2).child('b', m(3)))
+        .child('c', m(4)),
+    )
 
     const emit = (store: typeof s) => {
       store.mutations.inc()
@@ -75,10 +80,11 @@ describe('Hot Update', () => {
     expect(s.state.a.b.value).toBe(4)
     expect(s.state.c.value).toBe(5)
 
-    s.hotUpdate(m(10)
-      .child('a', m(20)
-        .child('b', m(30)))
-      .child('c', m(40)))
+    s.hotUpdate(
+      m(10)
+        .child('a', m(20).child('b', m(30)))
+        .child('c', m(40)),
+    )
 
     emit(s)
 
@@ -94,26 +100,27 @@ describe('Hot Update', () => {
         value = 1
       }
       class FooMutations extends Mutations<FooState>() {
-        inc (n: number) {
+        inc(n: number) {
           this.state.value += n
         }
       }
       class FooActions extends Actions<FooState, FooMutations>() {
-        inc () {
+        inc() {
           this.mutations.inc(num)
         }
       }
       return module({
         state: FooState,
         mutations: FooMutations,
-        actions: FooActions
+        actions: FooActions,
       })
     }
 
-    const s = store(m(1)
-      .child('a', m(2)
-        .child('b', m(3)))
-      .child('c', m(4)))
+    const s = store(
+      m(1)
+        .child('a', m(2).child('b', m(3)))
+        .child('c', m(4)),
+    )
 
     const emit = (store: typeof s) => {
       store.actions.inc()
@@ -134,10 +141,11 @@ describe('Hot Update', () => {
     expect(s.state.a.b.value).toBe(4)
     expect(s.state.c.value).toBe(5)
 
-    s.hotUpdate(m(10)
-      .child('a', m(20)
-        .child('b', m(30)))
-      .child('c', m(40)))
+    s.hotUpdate(
+      m(10)
+        .child('a', m(20).child('b', m(30)))
+        .child('c', m(40)),
+    )
 
     emit(s)
 
@@ -156,23 +164,27 @@ describe('Hot Update', () => {
         value = 1
       }
       class FooGetters extends Getters<FooState>() {
-        foo () { return this.state.value + num }
-        get bar () { return this.state.value + num }
+        foo() {
+          return this.state.value + num
+        }
+        get bar() {
+          return this.state.value + num
+        }
       }
       return module({
         state: FooState,
-        getters: FooGetters
+        getters: FooGetters,
       })
     }
 
     const s = store(m(1))
     s.watch(
       (_state, getters) => getters.foo(),
-      value => spyFoo(value)
+      (value) => spyFoo(value),
     )
     s.watch(
       (_state, getters) => getters.bar,
-      value => spyBar(value)
+      (value) => spyBar(value),
     )
 
     s.hotUpdate(m(2))
@@ -183,4 +195,3 @@ describe('Hot Update', () => {
     expect(spyBar).toHaveBeenCalledWith(3)
   })
 })
-
