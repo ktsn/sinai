@@ -1,4 +1,4 @@
-import { Getters, Mutations, Actions, module } from '../../'
+import { Getters, Mutations, Actions, module } from '../../src'
 
 class CounterState {
   count = 0

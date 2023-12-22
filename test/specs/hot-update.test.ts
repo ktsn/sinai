@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { nextTick } from 'vue'
 import { module, store, Getters, Mutations, Actions } from '../../src'
 import { assert, describe, expect, it, vitest } from 'vitest'
 
@@ -189,7 +189,7 @@ describe('Hot Update', () => {
 
     s.hotUpdate(m(2))
 
-    await Vue.nextTick()
+    await nextTick()
 
     expect(spyFoo).toHaveBeenCalledWith(3)
     expect(spyBar).toHaveBeenCalledWith(3)

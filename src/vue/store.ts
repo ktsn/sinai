@@ -1,10 +1,17 @@
-import Vue, { WatchOptions, ComponentOptions as _ComponentOptions } from 'vue'
+import {
+  App,
+  ComputedRef,
+  Ref,
+  WatchOptions,
+  ComponentOptions as _ComponentOptions,
+  computed,
+  ref,
+  watch,
+} from 'vue'
 import { BG0, BM0, BA0 } from '../core/base'
 import { Module, ModuleImpl } from '../core/module'
 import { Store, StoreImpl, Subscriber } from '../core/store'
 import { assert } from '../utils'
-
-let _Vue: typeof Vue
 
 export type Plugin<S, G extends BG0, M extends BM0, A extends BA0> = (
   store: VueStore<S, G, M, A>,
@@ -24,26 +31,22 @@ export interface VueStore<S, G extends BG0, M extends BM0, A extends BA0>
   extends Store<S, G, M, A> {
   watch<R>(
     getter: (state: S, getters: G) => R,
-    cb: (newState: R, oldState: R) => void,
+    cb: (newState: R, oldState: R | undefined) => void,
     options?: WatchOptions,
   ): () => void
+  install(app: App): void
 }
 
 export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
   private innerStore: StoreImpl
-  private vm!: Vue & { $data: { state: {} } }
-  private watcher: Vue
-  private gettersForComputed: Record<string, () => any> = {}
+  private _state!: Ref<unknown>
+  private _getters: Record<string, ComputedRef<unknown>> = {}
   private strict: boolean
 
   constructor(
     module: ModuleImpl,
     options: VueStoreOptions<unknown, BG0, BM0, BA0>,
   ) {
-    if (process.env.NODE_ENV !== 'production') {
-      assert(_Vue, 'Must install Sinai by Vue.use before instantiate a store')
-    }
-
     this.strict = Boolean(options.strict)
 
     this.innerStore = new StoreImpl(module, {
@@ -52,14 +55,13 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
     })
 
     this.setupStoreVM()
-    this.watcher = new _Vue()
 
     // Override the innerStore's state to point to VueStore's state
     // The state can do not be reactive sometimes if not do this
     Object.defineProperty(this.innerStore, 'state', {
-      get: () => this.state,
+      get: () => this._state.value,
       set: (value: {}) => {
-        this.vm.$data.state = value
+        this._state.value = value
       },
     })
 
@@ -72,7 +74,7 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
             'Must not update state out of mutations when strict mode is enabled.',
           )
         },
-        { deep: true, sync: true } as WatchOptions,
+        { deep: true, flush: 'sync' },
       )
     }
 
@@ -81,7 +83,7 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
   }
 
   get state() {
-    return this.vm.$data.state
+    return this._state.value
   }
 
   get getters() {
@@ -98,7 +100,7 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
 
   replaceState(state: {}): void {
     this.commit(() => {
-      this.vm.$data.state = state
+      this._state.value = state
     })
   }
 
@@ -107,21 +109,31 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
   }
 
   watch<R>(
-    getter: (state: {}, getters: BG0) => R,
-    cb: (newState: R, oldState: R) => void,
+    getter: (state: unknown, getters: BG0) => R,
+    cb: (newState: R, oldState: R | undefined) => void,
     options?: WatchOptions,
   ): () => void {
-    return this.watcher.$watch(
+    return watch(
       () => getter(this.state, this.getters),
-      cb,
+      (newState, oldState) => cb(newState, oldState),
       options,
     )
   }
 
   hotUpdate(module: ModuleImpl): void {
-    this.gettersForComputed = {}
+    this._getters = {}
     this.innerStore.hotUpdate(module)
     this.setupStoreVM()
+  }
+
+  install(app: App): void {
+    const store = this
+
+    app.mixin({
+      beforeCreate() {
+        this.$store = store
+      },
+    })
   }
 
   private transformGetter(
@@ -131,9 +143,9 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
     if (typeof desc.get !== 'function') return desc
 
     const name = path.join('.')
-    this.gettersForComputed[name] = desc.get
+    this._getters[name] = computed(desc.get)
 
-    desc.get = () => (this.vm as any)[name]
+    desc.get = () => this._getters[name].value
 
     return desc
   }
@@ -149,23 +161,14 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
   }
 
   private setupStoreVM(): void {
-    const oldVM = this.vm
+    const oldState = this._state
 
-    this.vm = new _Vue({
-      data: {
-        state: this.innerStore.state,
-      },
-      computed: this.gettersForComputed,
-    }) as Vue & { $data: { state: {} } }
+    this._state = ref(this.innerStore.state)
 
     // Ensure to re-evaluate getters for hot update
-    if (oldVM != null) {
+    if (oldState != null) {
       this.commit(() => {
-        oldVM.$data.state = null as any
-      })
-
-      _Vue.nextTick(() => {
-        oldVM.$destroy()
+        oldState.value = null as any
       })
     }
   }
@@ -186,42 +189,4 @@ export function store<S, G extends BG0, M extends BM0, A extends BA0>(
     module as ModuleImpl,
     options as VueStoreOptions<unknown, BG0, BM0, BA0>,
   ) as VueStore<any, any, any, any>
-}
-
-export function install(InjectedVue: typeof Vue): void {
-  if (process.env.NODE_ENV !== 'production') {
-    assert(!_Vue, 'Sinai is already installed')
-  }
-  _Vue = InjectedVue
-  _Vue.mixin({
-    beforeCreate: sinaiInit,
-  })
-}
-
-function sinaiInit(this: Vue): void {
-  type Component = Vue & {
-    $store: VueStore<{}, BG0, BM0, BA0>
-    $parent: Component
-  }
-  type ComponentOptions = _ComponentOptions<Vue> & {
-    store?: VueStore<{}, BG0, BM0, BA0>
-  }
-
-  const vm = this as Component
-  const { store } = vm.$options as ComponentOptions
-
-  if (store) {
-    vm.$store = store
-    return
-  }
-
-  if (vm.$parent && vm.$parent.$store) {
-    vm.$store = vm.$parent.$store
-  }
-}
-
-declare module 'vue' {
-  interface ComponentOptions<V extends Vue> {
-    store?: VueStore<any, any, any, any>
-  }
 }
