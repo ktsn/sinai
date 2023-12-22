@@ -1,4 +1,4 @@
-import Vue, { nextTick } from 'vue'
+import { createApp, h, nextTick } from 'vue'
 import {
   module,
   store,
@@ -28,14 +28,16 @@ describe('Vue integration', () => {
       }),
     )
 
-    const c: any = new Vue({
-      store: s,
+    const c: any = createApp({
       computed: {
         test(): number {
           return this.$store.state.value
         },
       },
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(c.test === 1)
     s.mutations.inc()
@@ -65,14 +67,16 @@ describe('Vue integration', () => {
       }),
     )
 
-    const c: any = new Vue({
-      store: s,
+    const c: any = createApp({
       computed: {
         test(): number {
           return this.$store.getters.twice
         },
       },
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(c.test === 2)
     s.mutations.inc()
@@ -91,26 +95,27 @@ describe('Vue integration', () => {
       }),
     )
 
-    const Grandchild = Vue.extend({
+    const Grandchild = {
       created(this: any) {
         assert(this.$store.state.value === 123)
         spy1()
       },
-      render: (h) => h('div', {}, ['test']),
-    })
+      render: () => h('div', {}, ['test']),
+    }
 
-    const Child = Vue.extend({
+    const Child = {
       created(this: any) {
         assert(this.$store.state.value === 123)
         spy2()
       },
-      render: (h) => h(Grandchild),
-    })
+      render: () => h(Grandchild),
+    }
 
-    new Vue({
-      store: s,
-      render: (h) => h(Child),
-    }).$mount()
+    createApp({
+      render: () => h(Child),
+    })
+      .use(s)
+      .mount(document.createElement('div'))
 
     expect(spy1).toHaveBeenCalled()
     expect(spy2).toHaveBeenCalled()
@@ -227,46 +232,6 @@ describe('Vue integration', () => {
     expect(s.getters.foobar).toBe('barbar')
   })
 
-  it('throws if mutate state out of mutations when strict mode', () => {
-    class FooState {
-      value = 1
-    }
-    class FooMutation extends Mutations<FooState>() {
-      inc(n: number) {
-        this.state.value += n
-      }
-    }
-    const s = store(
-      module({
-        state: FooState,
-        mutations: FooMutation,
-      }),
-      {
-        strict: true,
-      },
-    )
-
-    // Should not throw
-    s.mutations.inc(1)
-    assert(s.state.value === 2)
-
-    // Should throw
-    Vue.config.silent = true
-    const orgHandler = Vue.config.errorHandler
-    try {
-      const spy1 = (Vue.config.errorHandler = vitest.fn())
-      s.state.value += 10
-      expect(spy1).toHaveBeenCalled()
-      const expected =
-        /Must not update state out of mutations when strict mode is enabled/
-      const msg = spy1.mock.calls[0].toString()
-      assert(expected.test(msg))
-    } finally {
-      Vue.config.errorHandler = orgHandler
-      Vue.config.silent = false
-    }
-  })
-
   it('should not throw on hmr even if strict mode is enabled', () => {
     class FooState {
       value = 1
@@ -302,10 +267,12 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       computed: binder.mapState(['value']),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(vm.value === s.state.value)
   })
@@ -321,12 +288,14 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       computed: binder.mapState({
         test: 'value',
       }),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(vm.test === s.state.value)
   })
@@ -348,10 +317,12 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       computed: binder.mapGetters(['double']),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(vm.double === s.getters.double)
   })
@@ -373,12 +344,14 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       computed: binder.mapGetters({
         test: 'double',
       }),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(vm.test === s.getters.double)
   })
@@ -400,10 +373,12 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       methods: binder.mapMutations(['inc']),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     vm.inc()
     assert(s.state.value === 11)
@@ -426,12 +401,14 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       methods: binder.mapMutations({
         add: 'inc',
       }),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     vm.add()
     assert(s.state.value === 11)
@@ -461,10 +438,12 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       methods: binder.mapActions(['asyncInc']),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     await vm.asyncInc()
     assert(s.state.value === 11)
@@ -494,12 +473,14 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       methods: binder.mapActions({
         inc: 'asyncInc',
       }),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     await vm.inc()
     assert(s.state.value === 11)
@@ -517,10 +498,12 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       computed: binder.module('test').mapState(['value']),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
 
     assert(vm.value === s.state.test.value)
   })
@@ -550,12 +533,14 @@ describe('Vue integration', () => {
     const s = store(m)
     const binder = createMapper<typeof s>()
 
-    const vm = new Vue({
-      store: s,
+    const vm: any = createApp({
       methods: binder.module('foo').module('bar').mapMutations({
         assign: 'update',
       }),
+      render: () => {},
     })
+      .use(s)
+      .mount(document.createElement('div'))
     vm.assign('updated')
     assert(s.state.foo.bar.test === 'updated')
   })

@@ -2,13 +2,10 @@
   "name": "sinai",
   "version": "0.3.0",
   "author": "katashin",
-  "description": "Type safe state management inspired by Vuex",
+  "description": "Class based state management for Vue",
   "keywords": [
-    "typescript",
-    "type safe",
     "state management",
-    "vue",
-    "vuex"
+    "vue"
   ],
   "license": "MIT",
   "main": "./dist/sinai.umd.cjs",
@@ -41,13 +38,12 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
-    "@vitejs/plugin-vue2": "^2.3.1",
+    "@vitejs/plugin-vue": "^4.5.2",
     "jsdom": "^23.0.1",
     "prettier": "^3.1.1",
     "typescript": "~5.3.3",
     "vite": "^5.0.8",
     "vitest": "^1.0.4",
-    "vue": "^2.7.15",
-    "vue-template-compiler": "^2.7.15"
+    "vue": "^3.3.13"
   }
 }
