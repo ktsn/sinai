@@ -11,13 +11,19 @@
     "vuex"
   ],
   "license": "MIT",
-  "main": "dist/sinai.cjs.js",
-  "module": "dist/sinai.esm.js",
-  "unpkg": "dist/sinai.js",
-  "types": "lib/index.d.ts",
+  "main": "./dist/sinai.umd.cjs",
+  "module": "./dist/sinai.js",
+  "exports": {
+    ".": {
+      "import": "./dist/sinai.js",
+      "require": "./dist/sinai.umd.cjs"
+    }
+  },
+  "types": "types/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
-    "lib"
+    "types"
   ],
   "homepage": "https://github.com/ktsn/sinai",
   "bugs": "https://github.com/ktsn/sinai/issues",
@@ -26,46 +32,22 @@
     "url": "https://github.com/ktsn/sinai.git"
   },
   "scripts": {
-    "clean": "rm -rf lib dist .tmp",
-    "dev": "node scripts/test-dev.js",
-    "build": "npm run build:ts && npm run build:bundle",
-    "build:ts": "tsc -p src",
-    "build:bundle": "node scripts/build.js",
-    "example": "webpack-dev-server --hot --config example/webpack.config.js",
-    "watch:test": "NODE_OPTIONS=--openssl-legacy-provider webpack --watch --config scripts/webpack.config.test.js",
-    "lint": "tslint \"src/**/*.ts\" && tslint \"test/**/*.ts\"",
-    "test": "npm run lint && NODE_OPTIONS=--openssl-legacy-provider webpack --config scripts/webpack.config.test.js && testem ci",
+    "example": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "release": "./scripts/release.sh"
   },
   "devDependencies": {
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^13.1.0",
-    "@types/power-assert": "1.5.3",
-    "@types/sinon": "^7.0.5",
-    "css-loader": "^3.2.0",
-    "es6-promise": "^4.2.5",
-    "glob": "^7.1.3",
-    "power-assert": "^1.6.1",
-    "rollup": "^1.1.2",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-replace": "^2.1.0",
-    "rollup-plugin-uglify": "^6.0.2",
-    "sinon": "^9.0.0",
-    "testem": "^3.0.0",
-    "ts-loader": "^7.0.0",
-    "tslint": "^5.12.1",
-    "tslint-config-ktsn": "^2.1.0",
+    "@types/node": "^20.10.4",
+    "@vitejs/plugin-vue2": "^2.3.1",
+    "jsdom": "^23.0.1",
+    "prettier": "^3.1.1",
     "typescript": "~5.3.3",
+    "vite": "^5.0.8",
+    "vitest": "^1.0.4",
     "vue": "^2.7.15",
-    "vue-loader": "^15.6.2",
-    "vue-template-compiler": "^2.7.15",
-    "webpack": "^4.29.3",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.1.14",
-    "webpack-espower-loader": "^2.0.0"
-  },
-  "dependencies": {
-    "tslib": "^2.6.2"
+    "vue-template-compiler": "^2.7.15"
   }
 }

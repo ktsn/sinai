@@ -10,7 +10,10 @@ interface ModuleMap {
   }
 }
 
-export type Transformer = (desc: PropertyDescriptor, path: string[]) => PropertyDescriptor
+export type Transformer = (
+  desc: PropertyDescriptor,
+  path: string[],
+) => PropertyDescriptor
 
 export interface StoreOptions {
   transformGetter?: Transformer
@@ -18,7 +21,11 @@ export interface StoreOptions {
   transformAction?: Transformer
 }
 
-export type Subscriber<S> = (mutationPath: string[], payload: any[], state: S) => void
+export type Subscriber<S> = (
+  mutationPath: string[],
+  payload: any[],
+  state: S,
+) => void
 
 export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly state: S
@@ -26,9 +33,9 @@ export interface Store<S, G extends BG0, M extends BM0, A extends BA0> {
   readonly mutations: M
   readonly actions: A
 
-  replaceState (state: S): void
-  subscribe (fn: Subscriber<S>): () => void
-  hotUpdate (module: Module<S, G, M, A>): void
+  replaceState(state: S): void
+  subscribe(fn: Subscriber<S>): () => void
+  hotUpdate(module: Module<S, G, M, A>): void
 }
 
 export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
@@ -43,7 +50,7 @@ export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
   mutations!: BM0
   actions!: BA0
 
-  constructor (module: ModuleImpl, options: StoreOptions = {}) {
+  constructor(module: ModuleImpl, options: StoreOptions = {}) {
     this.transformGetter = options.transformGetter || identity
     this.transformMutation = options.transformMutation || identity
     this.transformAction = options.transformAction || identity
@@ -51,18 +58,18 @@ export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
     this.registerModule(module, false)
   }
 
-  replaceState (state: {}): void {
+  replaceState(state: {}): void {
     this.state = state
   }
 
-  subscribe (fn: Subscriber<unknown>): () => void {
+  subscribe(fn: Subscriber<unknown>): () => void {
     this.subscribers.push(fn)
     return () => {
       this.subscribers.splice(this.subscribers.indexOf(fn), 1)
     }
   }
 
-  registerModule (module: ModuleImpl, isHot: boolean): void {
+  registerModule(module: ModuleImpl, isHot: boolean): void {
     this.registerModuleLoop([], module)
 
     const assets = this.initModuleAssets([], module)
@@ -74,62 +81,59 @@ export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
     this.actions = assets.actions
   }
 
-  getProxy (module: ModuleImpl): ModuleProxy | null {
+  getProxy(module: ModuleImpl): ModuleProxy | null {
     const map = this.moduleMap[module.uid]
     if (map == null) return null
     return map.proxy
   }
 
-  hotUpdate (module: ModuleImpl): void {
+  hotUpdate(module: ModuleImpl): void {
     this.moduleMap = {}
     this.registerModule(module, true)
   }
 
-  private registerModuleLoop (path: string[], module: ModuleImpl): void {
+  private registerModuleLoop(path: string[], module: ModuleImpl): void {
     if (process.env.NODE_ENV !== 'production') {
       assert(
         !(module.uid in this.moduleMap),
-        'The module is already registered. The module object must not be re-used in twice or more'
+        'The module is already registered. The module object must not be re-used in twice or more',
       )
     }
 
     this.moduleMap[module.uid] = {
       path,
       module,
-      proxy: new ModuleProxy(path, this)
+      proxy: new ModuleProxy(path, this),
     }
 
-    Object.keys(module.children).forEach(name => {
-      this.registerModuleLoop(
-        path.concat(name),
-        module.children[name]
-      )
+    Object.keys(module.children).forEach((name) => {
+      this.registerModuleLoop(path.concat(name), module.children[name])
     })
   }
 
-  private initModuleAssets (
+  private initModuleAssets(
     path: string[],
-    module: ModuleImpl
+    module: ModuleImpl,
   ): {
-    state: unknown,
-    getters: BG0,
-    mutations: BM0,
+    state: unknown
+    getters: BG0
+    mutations: BM0
     actions: BA0
   } {
     const assets = {
       state: module.initState(),
       getters: module.initGetters(
         this,
-        chainTransformer(path, this.transformGetter)
+        chainTransformer(path, this.transformGetter),
       ),
       mutations: module.initMutations(
         this,
-        chainTransformer(path, this.hookMutation.bind(this))
+        chainTransformer(path, this.hookMutation.bind(this)),
       ),
       actions: module.initActions(
         this,
-        chainTransformer(path, this.transformAction)
-      )
+        chainTransformer(path, this.transformAction),
+      ),
     }
 
     forEachValues(module.children, (childModule, key) => {
@@ -143,23 +147,26 @@ export class StoreImpl implements Store<unknown, BG0, BM0, BA0> {
     return assets
   }
 
-  private hookMutation (desc: PropertyDescriptor, path: string[]): PropertyDescriptor {
+  private hookMutation(
+    desc: PropertyDescriptor,
+    path: string[],
+  ): PropertyDescriptor {
     // desc.value must be a Function since
     // it should be already checked in each module
     const original = desc.value as Function
     desc.value = (...args: any[]) => {
       original(...args)
-      this.subscribers.forEach(fn => fn(path, args, this.state))
+      this.subscribers.forEach((fn) => fn(path, args, this.state))
     }
     return this.transformMutation(desc, path)
   }
 }
 
-function chainTransformer (
+function chainTransformer(
   path: string[],
-  transform: Transformer
+  transform: Transformer,
 ): (desc: PropertyDescriptor, name: string) => PropertyDescriptor {
-  return function chainedTransformer (desc, name) {
+  return function chainedTransformer(desc, name) {
     return transform(desc, path.concat(name))
   }
 }

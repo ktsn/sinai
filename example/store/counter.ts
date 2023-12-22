@@ -5,26 +5,31 @@ class CounterState {
 }
 
 class CounterGetters extends Getters<CounterState>() {
-  get double () {
+  get double() {
     return this.state.count * 2
   }
 
-  times (n: number) {
+  times(n: number) {
     return this.state.count * n
   }
 }
 
 class CounterMutations extends Mutations<CounterState>() {
-  increment () {
+  increment() {
     this.state.count += 1
   }
 }
 
-class CounterActions extends Actions<CounterState, CounterGetters, CounterMutations>() {
-  asyncIncrement (delay: number) {
-    return new Promise(resolve => {
+class CounterActions extends Actions<
+  CounterState,
+  CounterGetters,
+  CounterMutations
+>() {
+  asyncIncrement(delay: number) {
+    return new Promise<void>((resolve) => {
       setTimeout(() => {
         this.mutations.increment()
+        resolve()
       }, delay)
     })
   }
@@ -34,5 +39,5 @@ export default module({
   state: CounterState,
   getters: CounterGetters,
   mutations: CounterMutations,
-  actions: CounterActions
+  actions: CounterActions,
 })

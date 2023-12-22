@@ -1,7 +1,14 @@
-import assert = require('power-assert')
-import sinon = require('sinon')
-import Vue, { ComponentOptions, VNode } from 'vue'
-import { module, store, Getters, Mutations, createMapper, Actions } from '../../src'
+import Vue, { nextTick } from 'vue'
+import {
+  module,
+  store,
+  Getters,
+  Mutations,
+  createMapper,
+  Actions,
+} from '../../src'
+import { describe, expect, it, vitest } from 'vitest'
+import assert from 'assert'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -9,23 +16,25 @@ describe('Vue integration', () => {
       value = 1
     }
     class FooMutations extends Mutations<FooState>() {
-      inc () {
+      inc() {
         this.state.value += 1
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutations,
+      }),
+    )
 
     const c: any = new Vue({
       store: s,
       computed: {
-        test (): number {
+        test(): number {
           return this.$store.state.value
-        }
-      }
+        },
+      },
     })
 
     assert(c.test === 1)
@@ -38,29 +47,31 @@ describe('Vue integration', () => {
       value = 1
     }
     class FooGetters extends Getters<FooState>() {
-      get twice () {
+      get twice() {
         return this.state.value * 2
       }
     }
     class FooMutations extends Mutations<FooState>() {
-      inc () {
+      inc() {
         this.state.value += 1
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters,
-      mutations: FooMutations
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+        mutations: FooMutations,
+      }),
+    )
 
     const c: any = new Vue({
       store: s,
       computed: {
-        test (): number {
+        test(): number {
           return this.$store.getters.twice
-        }
-      }
+        },
+      },
     })
 
     assert(c.test === 2)
@@ -68,44 +79,46 @@ describe('Vue integration', () => {
     assert(c.test === 4)
   })
 
-  it('propagetes store object to all descendants', () => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
+  it('propagates store object to all descendants', () => {
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
 
-    const s = store(module({
-      state: class {
-        value = 123
-      }
-    }))
+    const s = store(
+      module({
+        state: class {
+          value = 123
+        },
+      }),
+    )
 
     const Grandchild = Vue.extend({
-      created (this: Vue) {
+      created(this: any) {
         assert(this.$store.state.value === 123)
         spy1()
       },
-      render: h => h('div', 'test')
+      render: (h) => h('div', {}, ['test']),
     })
 
     const Child = Vue.extend({
-      created (this: Vue) {
+      created(this: any) {
         assert(this.$store.state.value === 123)
         spy2()
       },
-      render: h => h(Grandchild)
+      render: (h) => h(Grandchild),
     })
 
     new Vue({
       store: s,
-      render: h => h(Child)
+      render: (h) => h(Child),
     }).$mount()
 
-    assert(spy1.called)
-    assert(spy2.called)
+    expect(spy1).toHaveBeenCalled()
+    expect(spy2).toHaveBeenCalled()
   })
 
-  it('watches state change', done => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
+  it('watches state change', async () => {
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
 
     class FooState {
       value = 123
@@ -114,74 +127,82 @@ describe('Vue integration', () => {
     const foo = module({
       state: FooState,
       getters: class extends Getters<FooState>() {
-        get ten () { return 10 }
-      }
+        get ten() {
+          return 10
+        }
+      },
     })
 
     const bar = module({
       state: class {
         value = 567
-      }
+      },
     }).child('foo', foo)
 
     const s = store(bar)
 
-    s.watch((state, getters) => {
-      assert(getters.foo.ten === 10)
-      return state.foo.value
-    }, (newState, oldState) => {
-      assert(oldState === 123)
-      assert(newState === 124)
-      spy1()
-    })
+    s.watch(
+      (state, getters) => {
+        assert(getters.foo.ten === 10)
+        return state.foo.value
+      },
+      (newState, oldState) => {
+        assert(oldState === 123)
+        assert(newState === 124)
+        spy1()
+      },
+    )
 
-    s.watch(state => {
-      return state.value
-    }, (newValue, oldValue) => {
-      assert(oldValue === 567)
-      assert(newValue === 568)
-      spy2()
-    })
+    s.watch(
+      (state) => {
+        return state.value
+      },
+      (newValue, oldValue) => {
+        assert(oldValue === 567)
+        assert(newValue === 568)
+        spy2()
+      },
+    )
 
     s.state.foo.value += 1
     s.state.value += 1
-    Vue.nextTick(() => {
-      assert(spy1.called)
-      assert(spy2.called)
-      done()
-    })
+    await nextTick()
+
+    expect(spy1).toHaveBeenCalled()
+    expect(spy2).toHaveBeenCalled()
   })
 
   it('caches getters of property getter with Vue', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 'foo'
     }
     class FooGetters extends Getters<FooState>() {
-      get test () {
+      get test() {
         spy()
         return this.state.value + 'bar'
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+      }),
+    )
 
-    assert(!spy.called)
+    expect(spy).not.toHaveBeenCalled()
     assert(s.getters.test === 'foobar')
     assert(s.getters.test === 'foobar')
     assert(s.getters.test === 'foobar')
-    assert(spy.callCount === 1)
+    expect(spy).toHaveBeenCalledTimes(1)
     s.state.value = 'bar'
-    assert(s.getters.test === 'barbar')
-    assert(s.getters.test === 'barbar')
-    assert(s.getters.test === 'barbar')
-    assert(spy.callCount === 2)
+    expect(s.getters.test).toBe('barbar')
+    expect(s.getters.test).toBe('barbar')
+    expect(s.getters.test).toBe('barbar')
+    expect(spy).toHaveBeenCalledTimes(2)
   })
-
 
   it('track getters dependencies after replacing state', () => {
     class FooState {
@@ -189,19 +210,21 @@ describe('Vue integration', () => {
     }
 
     class FooGetters extends Getters<FooState>() {
-      get foobar () {
+      get foobar() {
         return this.state.foo + 'bar'
       }
     }
 
-    const s = store(module({
-      state: FooState,
-      getters: FooGetters
-    }))
+    const s = store(
+      module({
+        state: FooState,
+        getters: FooGetters,
+      }),
+    )
 
     assert(s.getters.foobar === 'foobar')
     s.replaceState({ foo: 'bar' })
-    assert(s.getters.foobar === 'barbar')
+    expect(s.getters.foobar).toBe('barbar')
   })
 
   it('throws if mutate state out of mutations when strict mode', () => {
@@ -209,16 +232,19 @@ describe('Vue integration', () => {
       value = 1
     }
     class FooMutation extends Mutations<FooState>() {
-      inc (n: number) {
+      inc(n: number) {
         this.state.value += n
       }
     }
-    const s = store(module({
-      state: FooState,
-      mutations: FooMutation
-    }), {
-      strict: true
-    })
+    const s = store(
+      module({
+        state: FooState,
+        mutations: FooMutation,
+      }),
+      {
+        strict: true,
+      },
+    )
 
     // Should not throw
     s.mutations.inc(1)
@@ -228,14 +254,14 @@ describe('Vue integration', () => {
     Vue.config.silent = true
     const orgHandler = Vue.config.errorHandler
     try {
-      const spy1 = Vue.config.errorHandler = sinon.spy()
+      const spy1 = (Vue.config.errorHandler = vitest.fn())
       s.state.value += 10
-      assert(spy1.called)
-      const expected = /Must not update state out of mutations when strict mode is enabled/
-      const msg = spy1.firstCall.args[0].toString()
+      expect(spy1).toHaveBeenCalled()
+      const expected =
+        /Must not update state out of mutations when strict mode is enabled/
+      const msg = spy1.mock.calls[0].toString()
       assert(expected.test(msg))
-    }
-    finally {
+    } finally {
       Vue.config.errorHandler = orgHandler
       Vue.config.silent = false
     }
@@ -246,15 +272,17 @@ describe('Vue integration', () => {
       value = 1
     }
     class FooGetters extends Getters<FooState>() {
-      test () { return this.state.value + 1 }
+      test() {
+        return this.state.value + 1
+      }
     }
 
     const m = module({
       state: FooState,
-      getters: FooGetters
+      getters: FooGetters,
     })
     const s = store(m, {
-      strict: true
+      strict: true,
     })
 
     assert.doesNotThrow(() => {
@@ -268,7 +296,7 @@ describe('Vue integration', () => {
     }
 
     const m = module({
-      state: FooState
+      state: FooState,
     })
 
     const s = store(m)
@@ -276,7 +304,7 @@ describe('Vue integration', () => {
 
     const vm = new Vue({
       store: s,
-      computed: binder.mapState(['value'])
+      computed: binder.mapState(['value']),
     })
 
     assert(vm.value === s.state.value)
@@ -287,7 +315,7 @@ describe('Vue integration', () => {
       value = 123
     }
     const m = module({
-      state: FooState
+      state: FooState,
     })
 
     const s = store(m)
@@ -296,8 +324,8 @@ describe('Vue integration', () => {
     const vm = new Vue({
       store: s,
       computed: binder.mapState({
-        test: 'value'
-      })
+        test: 'value',
+      }),
     })
 
     assert(vm.test === s.state.value)
@@ -315,14 +343,14 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      getters: FooGetters
+      getters: FooGetters,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
-      computed: binder.mapGetters(['double'])
+      computed: binder.mapGetters(['double']),
     })
 
     assert(vm.double === s.getters.double)
@@ -340,7 +368,7 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      getters: FooGetters
+      getters: FooGetters,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
@@ -348,8 +376,8 @@ describe('Vue integration', () => {
     const vm = new Vue({
       store: s,
       computed: binder.mapGetters({
-        test: 'double'
-      })
+        test: 'double',
+      }),
     })
 
     assert(vm.test === s.getters.double)
@@ -367,14 +395,14 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      mutations: FooMutations
+      mutations: FooMutations,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
-      methods: binder.mapMutations(['inc'])
+      methods: binder.mapMutations(['inc']),
     })
 
     vm.inc()
@@ -393,7 +421,7 @@ describe('Vue integration', () => {
 
     const m = module({
       state: FooState,
-      mutations: FooMutations
+      mutations: FooMutations,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
@@ -401,8 +429,8 @@ describe('Vue integration', () => {
     const vm = new Vue({
       store: s,
       methods: binder.mapMutations({
-        add: 'inc'
-      })
+        add: 'inc',
+      }),
     })
 
     vm.add()
@@ -428,14 +456,14 @@ describe('Vue integration', () => {
     const m = module({
       state: FooState,
       mutations: FooMutations,
-      actions: FooActions
+      actions: FooActions,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
-      methods: binder.mapActions(['asyncInc'])
+      methods: binder.mapActions(['asyncInc']),
     })
 
     await vm.asyncInc()
@@ -461,7 +489,7 @@ describe('Vue integration', () => {
     const m = module({
       state: FooState,
       mutations: FooMutations,
-      actions: FooActions
+      actions: FooActions,
     })
     const s = store(m)
     const binder = createMapper<typeof s>()
@@ -469,8 +497,8 @@ describe('Vue integration', () => {
     const vm = new Vue({
       store: s,
       methods: binder.mapActions({
-        inc: 'asyncInc'
-      })
+        inc: 'asyncInc',
+      }),
     })
 
     await vm.inc()
@@ -483,7 +511,7 @@ describe('Vue integration', () => {
     }
 
     const foo = module({
-      state: FooState
+      state: FooState,
     })
     const m = module().child('test', foo)
     const s = store(m)
@@ -491,7 +519,7 @@ describe('Vue integration', () => {
 
     const vm = new Vue({
       store: s,
-      computed: binder.module('test').mapState(['value'])
+      computed: binder.module('test').mapState(['value']),
     })
 
     assert(vm.value === s.state.test.value)
@@ -502,7 +530,7 @@ describe('Vue integration', () => {
       value = 123
     }
     const foo = module({
-      state: FooState
+      state: FooState,
     })
 
     class BarState {
@@ -515,24 +543,18 @@ describe('Vue integration', () => {
     }
     const bar = module({
       state: BarState,
-      mutations: BarMutations
+      mutations: BarMutations,
     })
 
-    const m = module().child(
-      'foo',
-      foo.child(
-        'bar',
-        bar
-      )
-    )
+    const m = module().child('foo', foo.child('bar', bar))
     const s = store(m)
     const binder = createMapper<typeof s>()
 
     const vm = new Vue({
       store: s,
       methods: binder.module('foo').module('bar').mapMutations({
-        assign: 'update'
-      })
+        assign: 'update',
+      }),
     })
     vm.assign('updated')
     assert(s.state.foo.bar.test === 'updated')
@@ -540,7 +562,7 @@ describe('Vue integration', () => {
 })
 
 function wait(ms: number): Promise<void> {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     setTimeout(resolve, ms)
   })
 }

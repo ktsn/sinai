@@ -1,18 +1,13 @@
-import {
-  BaseClass,
-  BG, BM, BA,
-  BG0, BM0, BA0,
-  BG1, BA1
-} from './base'
+import { BaseClass, BG, BM, BA, BG0, BM0, BA0, BG1, BA1 } from './base'
 
 import { StoreImpl } from './store'
 
-import {
-  Class,
-  assert, identity, getByPath, isPromise
-} from '../utils'
+import { Class, assert, identity, getByPath, isPromise } from '../utils'
 
-export type Transformer = (desc: PropertyDescriptor, key: string) => PropertyDescriptor
+export type Transformer = (
+  desc: PropertyDescriptor,
+  key: string,
+) => PropertyDescriptor
 
 export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
   state?: Class<S>
@@ -22,10 +17,15 @@ export interface ModuleOptions<S, G extends BG0, M extends BM0, A extends BA0> {
 }
 
 export interface Module<S, G extends BG0, M extends BM0, A extends BA0> {
-  child<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0> (
+  child<K extends string, S1, G1 extends BG0, M1 extends BM0, A1 extends BA0>(
     key: K,
-    module: Module<S1, G1, M1, A1>
-  ): Module<S & Record<K, S1>, G & Record<K, G1>, M & Record<K, M1>, A & Record<K, A1>>
+    module: Module<S1, G1, M1, A1>,
+  ): Module<
+    S & Record<K, S1>,
+    G & Record<K, G1>,
+    M & Record<K, M1>,
+    A & Record<K, A1>
+  >
 }
 
 export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
@@ -35,9 +35,14 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
   Mutations: BaseClass<BM0> | undefined
   Actions: BaseClass<BA0> | undefined
 
-  constructor (
+  constructor(
     public uid: number,
-    { state, getters, mutations, actions }: ModuleOptions<unknown, BG0, BM0, BA0>
+    {
+      state,
+      getters,
+      mutations,
+      actions,
+    }: ModuleOptions<unknown, BG0, BM0, BA0>,
   ) {
     this.State = state
     this.Getters = getters
@@ -45,11 +50,11 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
     this.Actions = actions
   }
 
-  initState (): unknown {
+  initState(): unknown {
     return this.State ? new this.State() : {}
   }
 
-  initGetters (store: StoreImpl, transformer: Transformer = identity): BG0 {
+  initGetters(store: StoreImpl, transformer: Transformer = identity): BG0 {
     if (!this.Getters) return {} as BG0
 
     const getters = new this.Getters(this, store)
@@ -61,16 +66,19 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
 
       if (typeof desc.get === 'function') {
         const original = desc.get
-        desc.get = function boundGetterFn () {
+        desc.get = function boundGetterFn() {
           return original.call(getters)
         }
       } else if (typeof desc.value === 'function') {
         const original = desc.value
-        desc.value = function boundGetterFn () {
+        desc.value = function boundGetterFn() {
           return original.apply(getters, arguments)
         }
       } else if (process.env.NODE_ENV !== 'production') {
-        assert(false, 'Getters should not have other than getter properties or methods')
+        assert(
+          false,
+          'Getters should not have other than getter properties or methods',
+        )
       }
 
       Object.defineProperty(getters, key, transformer(desc, key))
@@ -79,18 +87,21 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
     return getters
   }
 
-  initMutations (store: StoreImpl, transformer: Transformer = identity): BM0 {
+  initMutations(store: StoreImpl, transformer: Transformer = identity): BM0 {
     if (!this.Mutations) return {} as BM0
 
     const mutations = new this.Mutations(this, store)
 
     traverseDescriptors(this.Mutations.prototype, BM, (desc, key) => {
       if (process.env.NODE_ENV !== 'production') {
-        assert(typeof desc.value === 'function', 'Mutations should only have functions')
+        assert(
+          typeof desc.value === 'function',
+          'Mutations should only have functions',
+        )
       }
 
       const original = desc.value
-      desc.value = function boundMutationFn () {
+      desc.value = function boundMutationFn() {
         const r = original.apply(mutations, arguments)
         if (process.env.NODE_ENV !== 'production') {
           assert(r === undefined, 'Mutations should not return anything')
@@ -103,23 +114,26 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
     return mutations
   }
 
-  initActions (store: StoreImpl, transformer: Transformer = identity): BA0 {
+  initActions(store: StoreImpl, transformer: Transformer = identity): BA0 {
     if (!this.Actions) return {} as BA0
 
     const actions = new this.Actions(this, store)
 
     traverseDescriptors(this.Actions.prototype, BA, (desc, key) => {
       if (process.env.NODE_ENV !== 'production') {
-        assert(typeof desc.value === 'function', 'Actions should only have functions')
+        assert(
+          typeof desc.value === 'function',
+          'Actions should only have functions',
+        )
       }
 
       const original = desc.value
-      desc.value = function boundMutationFn () {
+      desc.value = function boundMutationFn() {
         const r = original.apply(actions, arguments)
         if (process.env.NODE_ENV !== 'production') {
           assert(
             r === undefined || isPromise(r),
-            'Actions should not return other than Promise'
+            'Actions should not return other than Promise',
           )
         }
         return r
@@ -131,7 +145,7 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
     return actions
   }
 
-  child (key: string, module: ModuleImpl): this {
+  child(key: string, module: ModuleImpl): this {
     if (process.env.NODE_ENV !== 'production') {
       assert(!(key in this.children), `${key} is already used in the module`)
     }
@@ -141,47 +155,50 @@ export class ModuleImpl implements Module<unknown, BG0, BM0, BA0> {
 }
 
 export class ModuleProxy {
-  constructor (
+  constructor(
     private path: string[],
-    private store: StoreImpl
+    private store: StoreImpl,
   ) {}
 
-  get state () {
+  get state() {
     return getByPath<{}>(this.path, this.store.state)
   }
 
-  get getters () {
+  get getters() {
     return getByPath<BG0>(this.path, this.store.getters)
   }
 
-  get mutations () {
+  get mutations() {
     return getByPath<BM0>(this.path, this.store.mutations)
   }
 
-  get actions () {
+  get actions() {
     return getByPath<BA0>(this.path, this.store.actions)
   }
 }
 
 let uid = 0
 
-export function module<S, G extends BG1<S>, M extends BM<S>, A extends BA1<S, G, M>> (
-  options: ModuleOptions<S, G, M, A> = {}
-): Module<S, G, M, A> {
+export function module<
+  S,
+  G extends BG1<S>,
+  M extends BM<S>,
+  A extends BA1<S, G, M>,
+>(options: ModuleOptions<S, G, M, A> = {}): Module<S, G, M, A> {
   return new ModuleImpl(++uid, options)
 }
 
-function traverseDescriptors (
+function traverseDescriptors(
   proto: Object,
   Base: Function,
   fn: (desc: PropertyDescriptor, key: string) => void,
-  exclude: Record<string, boolean> = { constructor: true }
+  exclude: Record<string, boolean> = { constructor: true },
 ): void {
   if (proto.constructor === Base) {
     return
   }
 
-  Object.getOwnPropertyNames(proto).forEach(key => {
+  Object.getOwnPropertyNames(proto).forEach((key) => {
     // Ensure to only choose most extended properties
     if (exclude[key]) return
     exclude[key] = true

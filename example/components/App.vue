@@ -15,30 +15,29 @@ import { mapper } from '../store'
 export default Vue.extend({
   computed: {
     ...mapper.mapState({
-      value: 'count'
+      value: 'count',
     }),
 
     ...mapper.mapGetters({
       doubleValue: 'double',
-      times: 'times'
+      times: 'times',
     }),
 
-    tripleValue (): number {
+    tripleValue(): number {
       return this.times(3)
-    }
+    },
   },
 
   methods: {
     ...mapper.mapMutations(['increment']),
 
     ...mapper.mapActions({
-      _asyncIncrement: 'asyncIncrement'
+      _asyncIncrement: 'asyncIncrement',
     }),
 
-    asyncIncrement (): void {
+    asyncIncrement(): void {
       this._asyncIncrement(1000)
-    }
-  }
+    },
+  },
 })
 </script>
-

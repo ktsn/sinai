@@ -1,7 +1,4 @@
 # Sinai
-[![npm version](https://badge.fury.io/js/sinai.svg)](https://badge.fury.io/js/sinai)
-[![Build Status](https://travis-ci.org/ktsn/sinai.svg?branch=master)](https://travis-ci.org/ktsn/sinai)
-[![sinai Dev Token](https://badge.devtoken.rocks/sinai)](https://devtoken.rocks/package/sinai)
 
 Type safe state management inspired by Vuex.
 
@@ -11,13 +8,19 @@ Type safe state management inspired by Vuex.
 
 ## Requirements
 
-* Vue >= 2.5
-* TypeScript >= 2.8
+- Vue >= 2.5
+- TypeScript >= 2.8
 
 ## Examples
 
 ```ts
-import { store as createStore, module, Getters, Mutations, Actions } from 'sinai'
+import {
+  store as createStore,
+  module,
+  Getters,
+  Mutations,
+  Actions,
+} from 'sinai'
 
 // Declare the module state and its initial value
 class CounterState {
@@ -26,29 +29,33 @@ class CounterState {
 
 // Declare getters
 class CounterGetters extends Getters<CounterState>() {
-  get half () {
+  get half() {
     return this.state.count / 2
   }
 }
 
 // Declare mutations
 class CounterMutations extends Mutations<CounterState>() {
-  inc () {
+  inc() {
     this.state.count += 1
   }
 
-  dec () {
+  dec() {
     this.state.count -= 1
   }
 }
 
 // Declare actions
-class CounterActions extends Actions<CounterState, CounterGetters, CounterMutations>() {
-  asyncInc (ms: number) {
+class CounterActions extends Actions<
+  CounterState,
+  CounterGetters,
+  CounterMutations
+>() {
+  asyncInc(ms: number) {
     console.log('count: ' + this.state.count)
     console.log('half: ' + this.getters.half)
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         this.mutations.inc()
         resolve()
@@ -62,7 +69,7 @@ const counter = module({
   state: CounterState,
   getters: CounterGetters,
   mutations: CounterMutations,
-  actions: CounterActions
+  actions: CounterActions,
 })
 
 // Create root module
@@ -70,7 +77,7 @@ const root = module().child('counter', counter)
 
 // Create store
 const store = createStore(root, {
-  strict: process.env.NODE_ENV !== 'production'
+  strict: process.env.NODE_ENV !== 'production',
 })
 
 // These will be all type checked
