@@ -2,7 +2,6 @@ import Vue, { WatchOptions, ComponentOptions as _ComponentOptions } from 'vue'
 import { BG0, BM0, BA0 } from '../core/base'
 import { Module, ModuleImpl } from '../core/module'
 import { Store, StoreImpl, Subscriber } from '../core/store'
-import { devtoolPlugin } from '../adapters/devtool-plugin'
 import { assert } from '../utils'
 
 let _Vue: typeof Vue
@@ -78,9 +77,6 @@ export class VueStoreImpl implements VueStore<unknown, BG0, BM0, BA0> {
     }
 
     const plugins = options.plugins || []
-    if (process.env.NODE_ENV !== 'production' && _Vue.config.devtools) {
-      plugins.push(devtoolPlugin)
-    }
     plugins.forEach((plugin) => plugin(this))
   }
 
