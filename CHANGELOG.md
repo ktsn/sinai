@@ -1,3 +1,7 @@
+# [0.4.0](https://github.com/ktsn/sinai/compare/v0.3.0...v0.4.0) (2023-12-22)
+
+
+
 # [0.3.0](https://github.com/ktsn/sinai/compare/v0.2.6...v0.3.0) (2023-12-13)
 
 
