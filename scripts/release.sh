@@ -10,4 +10,4 @@ npm run build -s
 
 npm version $type
 npm publish
-git push origin master --tags
+git push origin main --tags
