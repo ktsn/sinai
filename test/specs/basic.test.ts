@@ -1,5 +1,4 @@
-import assert = require('power-assert')
-import sinon = require('sinon')
+import { assert, describe, expect, it, vitest } from 'vitest'
 import { module, store, Getters, Mutations, Actions } from '../../src'
 
 describe('Basic', () => {
@@ -74,10 +73,10 @@ describe('Basic', () => {
     s.state.a += 10
     s.state.bar.b += 20
     s.state.bar.baz.c += 30
-    assert(s.getters.a === 12)
-    assert(s.getters.bar.b === 24)
-    assert(s.getters.bar.c(3) === 25)
-    assert(s.getters.bar.baz.c === 36)
+    expect(s.getters.a ).toBe(12)
+    expect(s.getters.bar.b ).toBe(24)
+    expect(s.getters.bar.c(3) ).toBe(25)
+    expect(s.getters.bar.baz.c ).toBe(36)
   })
 
   it('refers other getters in each getter', () => {
@@ -118,9 +117,9 @@ describe('Basic', () => {
   })
 
   it('provides mutations', () => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
-    const spy3 = sinon.spy()
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
+    const spy3 = vitest.fn()
 
     class FooMutations extends Mutations() {
       test: (n: number) => void = spy1
@@ -146,9 +145,9 @@ describe('Basic', () => {
     s.mutations.test(5)
     s.mutations.bar.test(10)
     s.mutations.bar.baz.test(15)
-    assert(spy1.calledWith(5))
-    assert(spy2.calledWith(10))
-    assert(spy3.calledWith(15))
+    expect(spy1).toHaveBeenCalledWith(5)
+    expect(spy2).toHaveBeenCalledWith(10)
+    expect(spy3).toHaveBeenCalledWith(15)
   })
 
   it('should bind this object for mutations', () => {
@@ -173,7 +172,7 @@ describe('Basic', () => {
 
     assert(s.state.value === 1)
     s.mutations.plus2()
-    assert(s.state.value === 3)
+    expect(s.state.value).toBe(3)
   })
 
   it('update state in each mutation', () => {
@@ -193,13 +192,13 @@ describe('Basic', () => {
 
     assert(s.state.value === 1)
     s.mutations.inc()
-    assert(s.state.value === 2)
+    expect(s.state.value).toBe(2)
   })
 
   it('provides actions', () => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
-    const spy3 = sinon.spy()
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
+    const spy3 = vitest.fn()
 
     class FooActions extends Actions() {
       test: (n: number) => void = spy1
@@ -226,13 +225,13 @@ describe('Basic', () => {
     s.actions.test(10)
     s.actions.bar.test(11)
     s.actions.bar.baz.test(12)
-    assert(spy1.calledWith(10))
-    assert(spy2.calledWith(11))
-    assert(spy3.calledWith(12))
+    expect(spy1).toHaveBeenCalledWith(10)
+    expect(spy2).toHaveBeenCalledWith(11)
+    expect(spy3).toHaveBeenCalledWith(12)
   })
 
   it('should bind this object for actions', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 1
@@ -250,7 +249,7 @@ describe('Basic', () => {
         const { inc } = this
         assert(this.state.value === 1)
         inc()
-        assert(this.state.value === 2)
+        expect(this.state.value).toBe(2)
         spy()
       }
     }
@@ -262,12 +261,12 @@ describe('Basic', () => {
     }))
 
     s.actions.test()
-    assert(spy.called)
+    expect(spy).toHaveBeenCalled()
   })
 
   it('refers state/getters/actions in each action', () => {
-    const aSpy = sinon.spy()
-    const mSpy = sinon.spy()
+    const aSpy = vitest.fn()
+    const mSpy = vitest.fn()
 
     class FooState {
       value = 1
@@ -283,7 +282,7 @@ describe('Basic', () => {
         assert(this.state.value === 1)
         assert(this.getters.plus1 === 2)
         this.mutations.inc(1)
-        assert(mSpy.calledWith(1))
+        expect(mSpy).toHaveBeenCalledWith(1)
         aSpy(true)
       }
     }
@@ -295,12 +294,12 @@ describe('Basic', () => {
       actions: FooActions
     }))
     s.actions.test()
-    assert(aSpy.calledWith(true))
+    expect(aSpy).toHaveBeenCalledWith(true)
   })
 
   it('refers other actions in each action', () => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
 
     class FooActions extends Actions() {
       caller () {
@@ -314,18 +313,18 @@ describe('Basic', () => {
       actions: FooActions
     }))
     s.actions.caller()
-    assert(spy1.called)
-    assert(spy2.called)
+    expect(spy1).toHaveBeenCalled()
+    expect(spy2).toHaveBeenCalled()
   })
 
   it('subscribes mutations', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 'foo'
     }
     class FooMutations extends Mutations<FooState>() {
-      test (value: string, ...args: any[]) {
+      test (value: string, ..._args: any[]) {
         this.state.value = value
       }
     }
@@ -340,22 +339,22 @@ describe('Basic', () => {
     const unsubscribe = s.subscribe(spy)
     s.mutations.foo.test('bar')
 
-    const first = spy.lastCall
-    assert.deepEqual(first.args, [['foo', 'test'], ['bar'], { foo: { value: 'bar' }}])
+    const first = spy.mock.lastCall
+    assert.deepEqual(first, [['foo', 'test'], ['bar'], { foo: { value: 'bar' }}])
     s.mutations.foo.test('baz', 1, true, null)
 
-    const second = spy.lastCall
-    assert.deepEqual(second.args, [['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}])
+    const second = spy.mock.lastCall
+    assert.deepEqual(second, [['foo', 'test'], ['baz', 1, true, null], { foo: { value: 'baz' }}])
 
-    assert(spy.callCount === 2)
+    assert(spy.mock.calls.length === 2)
     unsubscribe()
     s.mutations.foo.test('qux')
-    assert(spy.callCount === 2)
+    assert(spy.mock.calls.length === 2)
   })
 
   // #15
   it('subscribes inherited mutations', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 'foo'
@@ -376,14 +375,14 @@ describe('Basic', () => {
     const unsubscribe = s.subscribe(spy)
     s.mutations.update('updated')
 
-    const first = spy.lastCall
-    assert.deepEqual(first.args, [['update'], ['updated'], { value: 'updated' }])
+    const first = spy.mock.lastCall
+    assert.deepEqual(first, [['update'], ['updated'], { value: 'updated' }])
     unsubscribe()
   })
 
   it('properly choose inherited methods', () => {
-    const spyParent = sinon.spy()
-    const spyChild = sinon.spy()
+    const spyParent = vitest.fn()
+    const spyChild = vitest.fn()
 
     class ParentMutations extends Mutations() {
       foo(): void {
@@ -402,18 +401,18 @@ describe('Basic', () => {
       mutations: ChildMutations
     }))
     s.mutations.foo()
-    assert(spyParent.called)
-    assert(spyChild.called)
+    expect(spyParent).toHaveBeenCalled()
+    expect(spyChild).toHaveBeenCalled()
   })
 
   it('receives plugins', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     const s = store(module(), {
       plugins: [spy]
     })
 
-    assert(spy.calledWith(s))
+    expect(spy).toHaveBeenCalledWith(s)
   })
 
   it('replaces entire state', () => {
@@ -427,12 +426,11 @@ describe('Basic', () => {
 
     assert(s.state.foo === 'bar')
     s.replaceState({ foo: 'baz' })
-    assert(s.state.foo === 'baz')
+    expect(s.state.foo).toBe('baz')
   })
 
   it('throws if trying to register a module that the name is already exists', () => {
     const foo = module()
-    const bar = module()
 
     assert.throws(() => {
       module().child('foo', foo).child('foo', foo)
@@ -454,7 +452,7 @@ describe('Basic', () => {
 
   it('throws if there is setter in getters', () => {
     class FooGetters extends Getters() {
-      set foo (value: number) { /* nothing */ }
+      set foo (_value: number) { /* nothing */ }
     }
     const foo = module({
       getters: FooGetters

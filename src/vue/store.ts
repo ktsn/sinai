@@ -205,7 +205,7 @@ function sinaiInit (this: Vue): void {
   }
 }
 
-declare module 'vue/types/options' {
+declare module 'vue' {
   interface ComponentOptions<V extends Vue> {
     store?: VueStore<any, any, any, any>
   }

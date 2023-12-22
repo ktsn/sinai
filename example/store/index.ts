@@ -18,10 +18,4 @@ if (module.hot) {
   })
 }
 
-declare module 'vue/types/vue' {
-  interface Vue {
-    $store: typeof s
-  }
-}
-
 export default s

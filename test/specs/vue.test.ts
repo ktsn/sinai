@@ -1,7 +1,7 @@
-import assert = require('power-assert')
-import sinon = require('sinon')
-import Vue, { ComponentOptions, VNode } from 'vue'
+import Vue, { nextTick } from 'vue'
 import { module, store, Getters, Mutations, createMapper, Actions } from '../../src'
+import { describe, expect, it, vitest } from 'vitest'
+import assert from 'assert'
 
 describe('Vue integration', () => {
   it('has reactive state', () => {
@@ -68,9 +68,9 @@ describe('Vue integration', () => {
     assert(c.test === 4)
   })
 
-  it('propagetes store object to all descendants', () => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
+  it('propagates store object to all descendants', () => {
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
 
     const s = store(module({
       state: class {
@@ -79,15 +79,15 @@ describe('Vue integration', () => {
     }))
 
     const Grandchild = Vue.extend({
-      created (this: Vue) {
+      created (this: any) {
         assert(this.$store.state.value === 123)
         spy1()
       },
-      render: h => h('div', 'test')
+      render: h => h('div', {}, ['test'])
     })
 
     const Child = Vue.extend({
-      created (this: Vue) {
+      created (this: any) {
         assert(this.$store.state.value === 123)
         spy2()
       },
@@ -99,13 +99,14 @@ describe('Vue integration', () => {
       render: h => h(Child)
     }).$mount()
 
-    assert(spy1.called)
-    assert(spy2.called)
+
+    expect(spy1).toHaveBeenCalled()
+    expect(spy2).toHaveBeenCalled()
   })
 
-  it('watches state change', done => {
-    const spy1 = sinon.spy()
-    const spy2 = sinon.spy()
+  it('watches state change', async () => {
+    const spy1 = vitest.fn()
+    const spy2 = vitest.fn()
 
     class FooState {
       value = 123
@@ -145,15 +146,14 @@ describe('Vue integration', () => {
 
     s.state.foo.value += 1
     s.state.value += 1
-    Vue.nextTick(() => {
-      assert(spy1.called)
-      assert(spy2.called)
-      done()
-    })
+    await nextTick()
+
+      expect(spy1).toHaveBeenCalled()
+      expect(spy2).toHaveBeenCalled()
   })
 
   it('caches getters of property getter with Vue', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 'foo'
@@ -170,16 +170,16 @@ describe('Vue integration', () => {
       getters: FooGetters
     }))
 
-    assert(!spy.called)
+    expect(spy).not.toHaveBeenCalled()
     assert(s.getters.test === 'foobar')
     assert(s.getters.test === 'foobar')
     assert(s.getters.test === 'foobar')
-    assert(spy.callCount === 1)
+    expect(spy).toHaveBeenCalledTimes(1)
     s.state.value = 'bar'
-    assert(s.getters.test === 'barbar')
-    assert(s.getters.test === 'barbar')
-    assert(s.getters.test === 'barbar')
-    assert(spy.callCount === 2)
+    expect(s.getters.test).toBe('barbar')
+    expect(s.getters.test).toBe('barbar')
+    expect(s.getters.test).toBe('barbar')
+    expect(spy).toHaveBeenCalledTimes(2)
   })
 
 
@@ -201,7 +201,7 @@ describe('Vue integration', () => {
 
     assert(s.getters.foobar === 'foobar')
     s.replaceState({ foo: 'bar' })
-    assert(s.getters.foobar === 'barbar')
+    expect(s.getters.foobar).toBe('barbar')
   })
 
   it('throws if mutate state out of mutations when strict mode', () => {
@@ -228,11 +228,11 @@ describe('Vue integration', () => {
     Vue.config.silent = true
     const orgHandler = Vue.config.errorHandler
     try {
-      const spy1 = Vue.config.errorHandler = sinon.spy()
+      const spy1 = Vue.config.errorHandler = vitest.fn()
       s.state.value += 10
-      assert(spy1.called)
+      expect(spy1).toHaveBeenCalled()
       const expected = /Must not update state out of mutations when strict mode is enabled/
-      const msg = spy1.firstCall.args[0].toString()
+      const msg = spy1.mock.calls[0].toString()
       assert(expected.test(msg))
     }
     finally {

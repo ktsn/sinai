@@ -1,5 +1,4 @@
-import assert = require('power-assert')
-import sinon = require('sinon')
+import { assert, describe, expect, it, vitest } from 'vitest'
 import { module, inject, Getters, Mutations, Actions } from '../../src'
 import { stub } from '../../src/test'
 
@@ -102,7 +101,7 @@ describe('Testing utility', () => {
   })
 
   it('tests actions with injecting state/getters/mutations', () => {
-    const spy = sinon.spy()
+    const spy = vitest.fn()
 
     class FooState {
       value = 1
@@ -138,7 +137,7 @@ describe('Testing utility', () => {
       }
     })
     actions.test()
-    assert(spy.calledWith(110))
+    expect(spy).toHaveBeenCalledWith(110)
   })
 
   it('tests actions with injecting depending modules', () => {
@@ -152,7 +151,7 @@ describe('Testing utility', () => {
       }
     }
     class FooMutations extends Mutations<FooState>() {
-      test (n: number) {
+      test (_n: number) {
         this.state.value += 1
       }
     }
@@ -178,8 +177,8 @@ describe('Testing utility', () => {
       }
     }
 
-    const mutationSpy = sinon.spy()
-    const actionSpy = sinon.spy()
+    const mutationSpy = vitest.fn()
+    const actionSpy = vitest.fn()
     const actions = stub(BarActions, {
       modules: {
         foo: {
@@ -191,7 +190,7 @@ describe('Testing utility', () => {
       }
     })
     actions.test()
-    assert(mutationSpy.calledWith(100))
-    assert(actionSpy.calledWith(200))
+    expect(mutationSpy).toHaveBeenCalledWith(100)
+    expect(actionSpy).toHaveBeenCalledWith(200)
   })
 })

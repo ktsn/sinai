@@ -22,9 +22,10 @@ class CounterMutations extends Mutations<CounterState>() {
 
 class CounterActions extends Actions<CounterState, CounterGetters, CounterMutations>() {
   asyncIncrement (delay: number) {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       setTimeout(() => {
         this.mutations.increment()
+        resolve()
       }, delay)
     })
   }

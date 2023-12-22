@@ -1,7 +1,6 @@
-import assert = require('power-assert')
-import sinon = require('sinon')
 import Vue from 'vue'
 import { module, store, Getters, Mutations, Actions } from '../../src'
+import { assert, describe, expect, it, vitest } from 'vitest'
 
 describe('Hot Update', () => {
   it('supports hot module replacement for getters', () => {
@@ -30,10 +29,10 @@ describe('Hot Update', () => {
         .child('b', m(30)))
       .child('c', m(40)))
 
-    assert(s.getters.test === 10)
-    assert(s.getters.a.test === 20)
-    assert(s.getters.a.b.test === 30)
-    assert(s.getters.c.test === 40)
+    expect(s.getters.test).toBe(10)
+    expect(s.getters.a.test).toBe(20)
+    expect(s.getters.a.b.test).toBe(30)
+    expect(s.getters.c.test).toBe(40)
   })
 
   it('supports hot module replacement for mutations', () => {
@@ -71,10 +70,10 @@ describe('Hot Update', () => {
 
     emit(s)
 
-    assert(s.state.value === 2)
-    assert(s.state.a.value === 3)
-    assert(s.state.a.b.value === 4)
-    assert(s.state.c.value === 5)
+    expect(s.state.value).toBe(2)
+    expect(s.state.a.value).toBe(3)
+    expect(s.state.a.b.value).toBe(4)
+    expect(s.state.c.value).toBe(5)
 
     s.hotUpdate(m(10)
       .child('a', m(20)
@@ -83,10 +82,10 @@ describe('Hot Update', () => {
 
     emit(s)
 
-    assert(s.state.value === 12)
-    assert(s.state.a.value === 23)
-    assert(s.state.a.b.value === 34)
-    assert(s.state.c.value === 45)
+    expect(s.state.value).toBe(12)
+    expect(s.state.a.value).toBe(23)
+    expect(s.state.a.b.value).toBe(34)
+    expect(s.state.c.value).toBe(45)
   })
 
   it('supports hot module replacement for actions', () => {
@@ -130,10 +129,10 @@ describe('Hot Update', () => {
 
     emit(s)
 
-    assert(s.state.value === 2)
-    assert(s.state.a.value === 3)
-    assert(s.state.a.b.value === 4)
-    assert(s.state.c.value === 5)
+    expect(s.state.value).toBe(2)
+    expect(s.state.a.value).toBe(3)
+    expect(s.state.a.b.value).toBe(4)
+    expect(s.state.c.value).toBe(5)
 
     s.hotUpdate(m(10)
       .child('a', m(20)
@@ -142,15 +141,15 @@ describe('Hot Update', () => {
 
     emit(s)
 
-    assert(s.state.value === 12)
-    assert(s.state.a.value === 23)
-    assert(s.state.a.b.value === 34)
-    assert(s.state.c.value === 45)
+    expect(s.state.value).toBe(12)
+    expect(s.state.a.value).toBe(23)
+    expect(s.state.a.b.value).toBe(34)
+    expect(s.state.c.value).toBe(45)
   })
 
-  it('re-evaluate getters when getters are updated', done => {
-    const spyFoo = sinon.spy()
-    const spyBar = sinon.spy()
+  it('re-evaluate getters when getters are updated', async () => {
+    const spyFoo = vitest.fn()
+    const spyBar = vitest.fn()
 
     const m = (num: number) => {
       class FooState {
@@ -168,21 +167,20 @@ describe('Hot Update', () => {
 
     const s = store(m(1))
     s.watch(
-      (state, getters) => getters.foo(),
+      (_state, getters) => getters.foo(),
       value => spyFoo(value)
     )
     s.watch(
-      (state, getters) => getters.bar,
+      (_state, getters) => getters.bar,
       value => spyBar(value)
     )
 
     s.hotUpdate(m(2))
 
-    Vue.nextTick(() => {
-      assert(spyFoo.calledWith(3))
-      assert(spyBar.calledWith(3))
-      done()
-    })
+    await Vue.nextTick()
+
+    expect(spyFoo).toHaveBeenCalledWith(3)
+    expect(spyBar).toHaveBeenCalledWith(3)
   })
 })
 
