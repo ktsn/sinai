@@ -1,3 +1,19 @@
+# [0.5.0](https://github.com/ktsn/sinai/compare/v0.4.0...v0.5.0) (2023-12-25)
+
+
+### Features
+
+* define store with one class definition  ([#394](https://github.com/ktsn/sinai/issues/394)) ([798fd4b](https://github.com/ktsn/sinai/commit/798fd4b4753c5e353232b3afd144c09e196a8263))
+
+
+### BREAKING CHANGES
+
+* entire api is rewritten
+
+* docs: update readme for new api interface
+
+
+
 # [0.4.0](https://github.com/ktsn/sinai/compare/v0.3.0...v0.4.0) (2023-12-22)
 
 
