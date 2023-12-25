@@ -1,43 +1,34 @@
 <template>
   <div>
-    <p>count: {{ value }}</p>
-    <p>double: {{ doubleValue }}</p>
+    <p>count: {{ counter.count }}</p>
+    <p>double: {{ counter.double }}</p>
     <p>triple: {{ tripleValue }}</p>
-    <button type="button" @click="increment">increment</button>
+    <button type="button" @click="counter.increment">increment</button>
     <button type="button" @click="asyncIncrement">increment with delay</button>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { mapper } from '../store'
+import { computed, defineComponent } from 'vue'
+import { useCounterStore } from '../store/counter'
 
 export default defineComponent({
-  computed: {
-    ...mapper.mapState({
-      value: 'count',
-    }),
+  setup() {
+    const counter = useCounterStore()
 
-    ...mapper.mapGetters({
-      doubleValue: 'double',
-      times: 'times',
-    }),
+    const tripleValue = computed((): number => {
+      return counter.times(3)
+    })
 
-    tripleValue(): number {
-      return this.times(3)
-    },
-  },
+    function asyncIncrement(): void {
+      counter.asyncIncrement(1000)
+    }
 
-  methods: {
-    ...mapper.mapMutations(['increment']),
-
-    ...mapper.mapActions({
-      _asyncIncrement: 'asyncIncrement',
-    }),
-
-    asyncIncrement(): void {
-      this._asyncIncrement(1000)
-    },
+    return {
+      counter,
+      tripleValue,
+      asyncIncrement,
+    }
   },
 })
 </script>

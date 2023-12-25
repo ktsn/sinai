@@ -1,43 +1,32 @@
-import { Getters, Mutations, Actions, module } from '../../src'
+import { acceptHMRUpdate, defineStore } from '../../src'
 
-class CounterState {
+class CounterStore {
   count = 0
-}
 
-class CounterGetters extends Getters<CounterState>() {
   get double() {
-    return this.state.count * 2
+    return this.count * 2
   }
 
-  times(n: number) {
-    return this.state.count * n
+  times(n: number): number {
+    return this.count * n
   }
-}
 
-class CounterMutations extends Mutations<CounterState>() {
-  increment() {
-    this.state.count += 1
+  increment(): void {
+    this.count += 1
   }
-}
 
-class CounterActions extends Actions<
-  CounterState,
-  CounterGetters,
-  CounterMutations
->() {
   asyncIncrement(delay: number) {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
-        this.mutations.increment()
+        this.increment()
         resolve()
       }, delay)
     })
   }
 }
 
-export default module({
-  state: CounterState,
-  getters: CounterGetters,
-  mutations: CounterMutations,
-  actions: CounterActions,
-})
+export const useCounterStore = defineStore(CounterStore)
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useCounterStore, import.meta.hot))
+}

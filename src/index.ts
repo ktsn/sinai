@@ -1,4 +1,4 @@
-export { module } from './core/module'
-export { inject, Getters, Mutations, Actions } from './core/base'
-export { store } from './vue/store'
-export { createMapper } from './vue/mapper'
+export { createSinai, setActiveSinai } from './sinai'
+export type { Sinai } from './sinai'
+export { defineStore } from './store'
+export { hotUpdateStore, acceptHMRUpdate } from './hmr'
