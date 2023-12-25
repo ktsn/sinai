@@ -1,193 +1,103 @@
-import { nextTick } from 'vue'
-import { module, store, Getters, Mutations, Actions } from '../../src'
-import { assert, describe, expect, it, vitest } from 'vitest'
+import { nextTick, watch } from 'vue'
+import { defineStore, hotUpdateStore } from '../../src'
+import { assert, beforeEach, describe, expect, it, vitest } from 'vitest'
+import { createSinai, setActiveSinai } from '../../src/sinai'
 
 describe('Hot Update', () => {
   it('supports hot module replacement for getters', () => {
-    const m = (num: number) => {
-      class FooGetters extends Getters() {
+    const create = (num: number) => {
+      class Foo {
         get test() {
           return num
         }
       }
 
-      return module({
-        getters: FooGetters,
-      })
+      return Foo
     }
 
-    const s = store(
-      m(1)
-        .child('a', m(2).child('b', m(3)))
-        .child('c', m(4)),
-    )
+    const sinai = createSinai()
+    setActiveSinai(sinai)
+    const initialDefinition = create(1)
+    const useFoo = defineStore(initialDefinition)
+    const foo = useFoo()
 
-    assert(s.getters.test === 1)
-    assert(s.getters.a.test === 2)
-    assert(s.getters.a.b.test === 3)
-    assert(s.getters.c.test === 4)
+    assert(foo.test === 1)
 
-    s.hotUpdate(
-      m(10)
-        .child('a', m(20).child('b', m(30)))
-        .child('c', m(40)),
-    )
+    const newUseFoo = defineStore(create(2))
+    hotUpdateStore(newUseFoo, initialDefinition, sinai)
 
-    expect(s.getters.test).toBe(10)
-    expect(s.getters.a.test).toBe(20)
-    expect(s.getters.a.b.test).toBe(30)
-    expect(s.getters.c.test).toBe(40)
-  })
-
-  it('supports hot module replacement for mutations', () => {
-    const m = (num: number) => {
-      class FooState {
-        value = 1
-      }
-      class FooMutations extends Mutations<FooState>() {
-        inc() {
-          this.state.value += num
-        }
-      }
-      return module({
-        state: FooState,
-        mutations: FooMutations,
-      })
-    }
-
-    const s = store(
-      m(1)
-        .child('a', m(2).child('b', m(3)))
-        .child('c', m(4)),
-    )
-
-    const emit = (store: typeof s) => {
-      store.mutations.inc()
-      store.mutations.a.inc()
-      store.mutations.a.b.inc()
-      store.mutations.c.inc()
-    }
-
-    assert(s.state.value === 1)
-    assert(s.state.a.value === 1)
-    assert(s.state.a.b.value === 1)
-    assert(s.state.c.value === 1)
-
-    emit(s)
-
-    expect(s.state.value).toBe(2)
-    expect(s.state.a.value).toBe(3)
-    expect(s.state.a.b.value).toBe(4)
-    expect(s.state.c.value).toBe(5)
-
-    s.hotUpdate(
-      m(10)
-        .child('a', m(20).child('b', m(30)))
-        .child('c', m(40)),
-    )
-
-    emit(s)
-
-    expect(s.state.value).toBe(12)
-    expect(s.state.a.value).toBe(23)
-    expect(s.state.a.b.value).toBe(34)
-    expect(s.state.c.value).toBe(45)
+    expect(foo.test).toBe(2)
   })
 
   it('supports hot module replacement for actions', () => {
-    const m = (num: number) => {
-      class FooState {
+    const create = (num: number) => {
+      class Foo {
         value = 1
-      }
-      class FooMutations extends Mutations<FooState>() {
-        inc(n: number) {
-          this.state.value += n
-        }
-      }
-      class FooActions extends Actions<FooState, FooMutations>() {
+
         inc() {
-          this.mutations.inc(num)
+          this.value += num
         }
       }
-      return module({
-        state: FooState,
-        mutations: FooMutations,
-        actions: FooActions,
-      })
+
+      return Foo
     }
 
-    const s = store(
-      m(1)
-        .child('a', m(2).child('b', m(3)))
-        .child('c', m(4)),
-    )
+    const sinai = createSinai()
+    setActiveSinai(sinai)
+    const initialDefinition = create(1)
+    const useFoo = defineStore(initialDefinition)
+    const foo = useFoo()
 
-    const emit = (store: typeof s) => {
-      store.actions.inc()
-      store.actions.a.inc()
-      store.actions.a.b.inc()
-      store.actions.c.inc()
-    }
+    expect(foo.value).toBe(1)
 
-    assert(s.state.value === 1)
-    assert(s.state.a.value === 1)
-    assert(s.state.a.b.value === 1)
-    assert(s.state.c.value === 1)
+    foo.inc()
 
-    emit(s)
+    expect(foo.value).toBe(2)
 
-    expect(s.state.value).toBe(2)
-    expect(s.state.a.value).toBe(3)
-    expect(s.state.a.b.value).toBe(4)
-    expect(s.state.c.value).toBe(5)
+    const newUseFoo = defineStore(create(2))
+    hotUpdateStore(newUseFoo, initialDefinition, sinai)
+    foo.inc()
 
-    s.hotUpdate(
-      m(10)
-        .child('a', m(20).child('b', m(30)))
-        .child('c', m(40)),
-    )
-
-    emit(s)
-
-    expect(s.state.value).toBe(12)
-    expect(s.state.a.value).toBe(23)
-    expect(s.state.a.b.value).toBe(34)
-    expect(s.state.c.value).toBe(45)
+    expect(foo.value).toBe(4)
   })
 
   it('re-evaluate getters when getters are updated', async () => {
     const spyFoo = vitest.fn()
     const spyBar = vitest.fn()
 
-    const m = (num: number) => {
-      class FooState {
+    const create = (num: number) => {
+      class Foo {
         value = 1
-      }
-      class FooGetters extends Getters<FooState>() {
+
         foo() {
-          return this.state.value + num
+          return this.value + num
         }
+
         get bar() {
-          return this.state.value + num
+          return this.value + num
         }
       }
-      return module({
-        state: FooState,
-        getters: FooGetters,
-      })
+
+      return Foo
     }
 
-    const s = store(m(1))
-    s.watch(
-      (_state, getters) => getters.foo(),
+    const sinai = createSinai()
+    setActiveSinai(sinai)
+    const initialDefinition = create(1)
+    const useFoo = defineStore(initialDefinition)
+    const foo = useFoo()
+
+    watch(
+      () => foo.foo(),
       (value) => spyFoo(value),
     )
-    s.watch(
-      (_state, getters) => getters.bar,
+    watch(
+      () => foo.bar,
       (value) => spyBar(value),
     )
 
-    s.hotUpdate(m(2))
+    const newUseFoo = defineStore(create(2))
+    hotUpdateStore(newUseFoo, initialDefinition, sinai)
 
     await nextTick()
 
