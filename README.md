@@ -5,77 +5,55 @@ Class based state management for Vue.
 ## Examples
 
 ```ts
-import {
-  store as createStore,
-  module,
-  Getters,
-  Mutations,
-  Actions,
-} from 'sinai'
+import { defineStore } from 'sinai'
 
-// Declare the module state and its initial value
+// Declare a store with class syntax
 class CounterState {
+  // Properties will be reactive value
   count = 0
-}
 
-// Declare getters
-class CounterGetters extends Getters<CounterState>() {
-  get half() {
-    return this.state.count / 2
+  // Getters will be computed property
+  get half(): number {
+    return this.count / 2
+  }
+
+  inc(): void {
+    this.count += 1
+  }
+
+  dec(): void {
+    this.count -= 1
   }
 }
 
-// Declare mutations
-class CounterMutations extends Mutations<CounterState>() {
-  inc() {
-    this.state.count += 1
-  }
+// Create composable with defineStore function
+export const useCounter = defineStore(CounterState)
+```
 
-  dec() {
-    this.state.count -= 1
-  }
-}
+```ts
+import { createApp } from 'vue'
+import { createSinai } from '../src'
+import App from './components/App.vue'
 
-// Declare actions
-class CounterActions extends Actions<
-  CounterState,
-  CounterGetters,
-  CounterMutations
->() {
-  asyncInc(ms: number) {
-    console.log('count: ' + this.state.count)
-    console.log('half: ' + this.getters.half)
+// Create Sinai instance
+const sinai = createSinai()
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.mutations.inc()
-        resolve()
-      }, ms)
-    })
-  }
-}
+// Install Sinai instance to Vue app
+createApp(App).use(sinai).mount('#app')
+```
 
-// Create module by composing state/getters/mutations/actions
-const counter = module({
-  state: CounterState,
-  getters: CounterGetters,
-  mutations: CounterMutations,
-  actions: CounterActions,
-})
+```vue
+<script setup lang="ts">
+import { useCounter } from '../store/counter'
 
-// Create root module
-const root = module().child('counter', counter)
+const counter = useCounter()
+</script>
 
-// Create store
-const store = createStore(root, {
-  strict: process.env.NODE_ENV !== 'production',
-})
-
-// These will be all type checked
-console.log(store.state.counter.count)
-console.log(store.getters.counter.half)
-store.actions.counter.asyncInc(1000)
-store.mutations.counter.inc()
+<template>
+  <button @click="counter.dec">-</button>
+  <span>{{ counter.count }}</span>
+  <button @click="counter.inc">+</button>
+</template>
 ```
 
 For other examples, see [tests](test/specs/).
