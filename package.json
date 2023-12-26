@@ -13,20 +13,23 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./types/index.d.ts",
+        "types": "./lib/index.d.ts",
         "default": "./dist/sinai.js"
       },
       "require": {
-        "types": "./types/index.d.ts",
+        "types": "./lib/index.d.ts",
         "default": "./dist/sinai.umd.cjs"
       }
+    },
+    "./lib/test": {
+      "import": "./lib/test/index.js"
     }
   },
-  "types": "./types/index.d.ts",
+  "types": "./lib/index.d.ts",
   "type": "module",
   "files": [
     "dist",
-    "types"
+    "lib"
   ],
   "homepage": "https://github.com/ktsn/sinai",
   "bugs": "https://github.com/ktsn/sinai/issues",
