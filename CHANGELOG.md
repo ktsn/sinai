@@ -1,3 +1,12 @@
+## [0.4.4](https://github.com/ktsn/sinai/compare/v0.4.3...v0.4.4) (2023-12-26)
+
+
+### Bug Fixes
+
+* fix lib/test import path ([0aa119f](https://github.com/ktsn/sinai/commit/0aa119fd44540a875cd2614db049ffdbea74e4ea))
+
+
+
 ## [0.4.3](https://github.com/ktsn/sinai/compare/v0.4.2...v0.4.3) (2023-12-26)
 
 
