@@ -12,11 +12,17 @@
   "module": "./dist/sinai.js",
   "exports": {
     ".": {
-      "import": "./dist/sinai.js",
-      "require": "./dist/sinai.umd.cjs"
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/sinai.js"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/sinai.umd.cjs"
+      }
     }
   },
-  "types": "types/index.d.ts",
+  "types": "./types/index.d.ts",
   "type": "module",
   "files": [
     "dist",
