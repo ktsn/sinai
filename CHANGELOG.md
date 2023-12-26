@@ -1,3 +1,12 @@
+## [0.4.2](https://github.com/ktsn/sinai/compare/v0.4.0...v0.4.2) (2023-12-26)
+
+
+### Bug Fixes
+
+* set correct type field on package.json ([#395](https://github.com/ktsn/sinai/issues/395)) ([91febdd](https://github.com/ktsn/sinai/commit/91febdd3988bdf9f168fe9ab0f983fdde63d8fb8))
+
+
+
 ## [0.4.1](https://github.com/ktsn/sinai/compare/v0.4.0...v0.4.1) (2023-12-26)
 
 
