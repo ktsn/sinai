@@ -1,3 +1,12 @@
+## [0.4.3](https://github.com/ktsn/sinai/compare/v0.4.2...v0.4.3) (2023-12-26)
+
+
+### Bug Fixes
+
+* enable to use sinai/lib/test ([61fe8d4](https://github.com/ktsn/sinai/commit/61fe8d43fb6ca5d0a8a60ce07965b172b8d5a16e))
+
+
+
 ## [0.4.2](https://github.com/ktsn/sinai/compare/v0.4.0...v0.4.2) (2023-12-26)
 
 
