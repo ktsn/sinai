@@ -22,7 +22,7 @@
       }
     },
     "./lib/test": {
-      "import": "./lib/test/index.js"
+      "import": "./lib/test.js"
     }
   },
   "types": "./lib/index.d.ts",
