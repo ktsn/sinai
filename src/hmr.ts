@@ -41,9 +41,9 @@ export function hotUpdateStore(
     }
   }
 
-  // Set initial definition to new useStore's _definition
-  // since it is used as a key to get a store instance from Sinai object.
-  newUseStore._definition = initialDefinition
+  // Update store registration key to new definition
+  sinai.stores.delete(initialDefinition)
+  sinai.stores.set(newUseStore._definition, store)
 
   // Trigger reactive property update
   store._state = { ...store._state }
